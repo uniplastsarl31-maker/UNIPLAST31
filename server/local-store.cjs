@@ -57,8 +57,11 @@ const cleanText = (v, max, min = 0) => {
 
 function createLocalStore({
   dataDir = path.join(__dirname, "..", ".uniplast-data"),
-  seedPath = path.join(__dirname, "generated/seed.json"),
+  seedPath,
+  seedData,
   allowSetup = true,
+  hosting = null,
+  readUpload = (id) => fs.readFileSync(path.join(dataDir, "uploads", id)),
 } = {}) {
   fs.mkdirSync(dataDir, { recursive: true });
   const db = new DatabaseSync(path.join(dataDir, "store.sqlite"));
@@ -108,7 +111,14 @@ function createLocalStore({
   };
   if (!meta("seeded"))
     transaction(() => {
-      const seed = JSON.parse(fs.readFileSync(seedPath, "utf8"));
+      const seed =
+        seedData ||
+        JSON.parse(
+          fs.readFileSync(
+            seedPath || path.join(__dirname, "generated/seed.json"),
+            "utf8",
+          ),
+        );
       seed.products.forEach((p) => put("product", p));
       seed.families.forEach((f) => put("family", f));
       put("settings", defaultSettings);
@@ -116,10 +126,18 @@ function createLocalStore({
     });
   const settings = () => ({ ...defaultSettings, ...get("settings", "true") });
   const setupToken = crypto.randomBytes(32).toString("hex");
+  const cookieName = hosting ? "__Host-uniplast_session" : "uniplast_session";
+  const cookieFlags = `HttpOnly; SameSite=Strict; Path=/${hosting ? "; Secure" : ""}`;
+  const setupAvailable =
+    allowSetup &&
+    (!hosting ||
+      (typeof hosting.setupKey === "string" &&
+        hosting.setupKey.length >= 24 &&
+        hosting.setupKey.length <= 256));
   const role = (req) => {
-    const cookie = /(?:^|;\s*)uniplast_session=([a-f0-9]{64})(?:;|$)/.exec(
-      req.headers.cookie || "",
-    )?.[1];
+    const cookie = new RegExp(
+      `(?:^|;\\s*)${cookieName}=([a-f0-9]{64})(?:;|$)`,
+    ).exec(req.headers.cookie || "")?.[1];
     if (!cookie) return null;
     const s = db
       .prepare("SELECT * FROM sessions WHERE token=? AND expires>?")
@@ -147,7 +165,7 @@ function createLocalStore({
     );
     res.setHeader(
       "Set-Cookie",
-      `uniplast_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${age}`,
+      `${cookieName}=${token}; ${cookieFlags}; Max-Age=${age}`,
     );
   }
   function limit(keys, max = 5, window = 900000) {
@@ -227,13 +245,21 @@ function createLocalStore({
     if (!address.pathname.startsWith("/api/local/")) return false;
     try {
       assert(
-        /^127\.0\.0\.1:\d+$/.test(req.headers.host || ""),
+        hosting
+          ? hosting.origins.some((o) => new URL(o).host === req.headers.host)
+          : /^127\.0\.0\.1:\d+$/.test(req.headers.host || ""),
         "Hôte refusé.",
         403,
       );
       const origin = "http://" + req.headers.host;
       if (req.headers.origin)
-        assert(req.headers.origin === origin, "Origine refusée.", 403);
+        assert(
+          hosting
+            ? hosting.origins.includes(req.headers.origin)
+            : req.headers.origin === origin,
+          "Origine refusée.",
+          403,
+        );
       assert(
         !req.headers["sec-fetch-site"] ||
           ["same-origin", "none"].includes(req.headers["sec-fetch-site"]),
@@ -242,14 +268,16 @@ function createLocalStore({
       );
       const name = address.pathname.slice(11),
         s = role(req),
-        ip = req.socket.remoteAddress || "local";
+        ip = hosting?.clientIp || req.socket.remoteAddress || "local";
       if (req.method === "GET" && name === "status") {
         if (!s) session(res, "guest", uid());
         return (
           reply(res, {
             admin: s?.role === "admin",
             setup_required: !meta("admin"),
-            setup_token: !meta("admin") ? setupToken : undefined,
+            setup_token: !hosting && !meta("admin") ? setupToken : undefined,
+            setup_key_required: !!hosting && !meta("admin"),
+            setup_available: setupAvailable,
             session: {
               email: "",
               personal: s?.role === "client",
@@ -300,7 +328,8 @@ function createLocalStore({
           "Fichier inaccessible.",
           404,
         );
-        const content = fs.readFileSync(path.join(dataDir, "uploads", file.id));
+        const content = await readUpload(file.id);
+        assert(content, "Fichier inaccessible.", 404);
         res.writeHead(200, {
           "Content-Type": file.mime,
           "Content-Length": content.length,
@@ -324,9 +353,11 @@ function createLocalStore({
         else assert(s, "Connectez-vous avant de joindre un fichier.", 403);
         const bytes = await body(
           req,
-          isPublic && type === "application/pdf"
-            ? 15 * 1024 * 1024
-            : 5 * 1024 * 1024,
+          hosting
+            ? 4 * 1024 * 1024
+            : isPublic && type === "application/pdf"
+              ? 15 * 1024 * 1024
+              : 5 * 1024 * 1024,
         );
         const valid =
           (type === "application/pdf" &&
@@ -377,10 +408,26 @@ function createLocalStore({
       switch (name) {
         case "setup": {
           assert(
-            allowSetup && !meta("admin") && p.token === setupToken,
+            setupAvailable && !meta("admin"),
             "Initialisation indisponible.",
             403,
           );
+          if (hosting) {
+            const l = limit(["setup:" + ip]);
+            l.fail();
+            assert(
+              typeof p.setup_key === "string" &&
+                p.setup_key.length <= 256 &&
+                crypto.timingSafeEqual(
+                  Buffer.from(fingerprint(p.setup_key), "hex"),
+                  Buffer.from(fingerprint(hosting.setupKey), "hex"),
+                ),
+              "Clé d’installation incorrecte.",
+              403,
+            );
+            l.clear();
+          } else
+            assert(p.token === setupToken, "Initialisation indisponible.", 403);
           assert(
             typeof p.password === "string" &&
               p.password.length >= 12 &&
@@ -460,7 +507,7 @@ function createLocalStore({
           db.prepare("DELETE FROM sessions WHERE token=?").run(s?.token || "");
           res.setHeader(
             "Set-Cookie",
-            "uniplast_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0",
+            `${cookieName}=; ${cookieFlags}; Max-Age=0`,
           );
           break;
         case "codes-list":
@@ -895,7 +942,9 @@ function createLocalStore({
         {
           error:
             e.status === 500
-              ? "Erreur du stockage local."
+              ? hosting
+                ? "Erreur du stockage en ligne."
+                : "Erreur du stockage local."
               : e.message || "Opération impossible.",
         },
         e.status || 400,
@@ -903,7 +952,15 @@ function createLocalStore({
       return true;
     }
   }
-  return { handle, close: () => db.close(), dataDir };
+  return {
+    handle,
+    hasChanges: () => db.prepare("SELECT total_changes() AS n").get().n > 0,
+    close: () => {
+      db.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+      db.close();
+    },
+    dataDir,
+  };
 }
 function safeUrl(value) {
   if (/^\/api\/local\/file\?id=[a-f0-9-]{36}$/.test(value)) return true;

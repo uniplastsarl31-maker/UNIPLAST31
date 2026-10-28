@@ -13,9 +13,12 @@
     "check": "tsc -b",
     "format": "prettier --write src tests supabase/tests vite.config.mjs",
     "build:web": "node scripts/prepare-server.cjs && tsc -b && vite build --configLoader native --mode web --outDir out",
-    "test:local": "node --test server/tests/*.test.cjs"
+    "test:local": "node scripts/prepare-server.cjs && node --test server/tests/*.test.cjs",
+    "build:netlify": "node scripts/prepare-server.cjs && tsc -b && vite build --configLoader native --mode netlify --outDir dist-netlify",
+    "test:netlify": "node scripts/prepare-server.cjs && node --test server/tests/netlify.test.mjs"
   },
   "dependencies": {
+    "@netlify/blobs": "11.1.7",
     "@supabase/supabase-js": "^2.57.0",
     "@zxing/browser": "^0.1.5",
     "html2canvas": "^1.4.1",

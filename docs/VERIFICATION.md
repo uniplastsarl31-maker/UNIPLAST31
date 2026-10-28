@@ -1,3 +1,24 @@
+# Vérification Netlify — 28 octobre 2026
+
+- `pnpm test` : 10 tests réussis ; `pnpm test:local` : 11 ; `pnpm test:netlify` : 12.
+- TypeScript et builds `dist`, `out`, `dist-netlify` réussis sur Node.js 24.19.0.
+- Fonction shop préparée par @netlify/zip-it-and-ship-it 16.6.0 : runtime nodejs24.x, API v2, route /api/local/*.
+- Chargement de la fonction empaquetée avec @netlify/blobs 11.1.7 réel, réseau Blobs simulé : catalogue 350 références, écritures If-Match / If-None-Match, conservation des réglages et isolation production / Deploy Preview vérifiées. Les options expérimentales de détection et require-module ont été désactivées comme dans Lambda.
+- Tests de stockage isolé : six commandes concurrentes pour trois cartons produisent trois commandes, sans dépassement ; même clé rejouée sans double réservation ; fichiers durables et privés ; conflit d’upload nettoyé puis réessayé ; erreurs et limites de connexion sauvegardées même après HTTP 401.
+- Installation non revendicable sans clé privée du propriétaire ; clé jamais renvoyée par status. Cookies Secure, HttpOnly et SameSite=Strict. Révocation, rotation et déconnexion vérifiées.
+- Contrôle navigateur de la version Netlify dans une simulation locale : accueil chargé, accès du responsable à la gestion et formulaire téléphone / six chiffres sans inscription, aucun débordement horizontal à 390 × 844.
+- Les tests utilisent uniquement une base jetable hors des archives. Aucun test n’est exécuté sur les données du propriétaire.
+
+Le compilateur natif Windows refusait la lecture d’un répertoire parent ; le contrôle d’empaquetage a utilisé la variante WASM officielle de la même version d’esbuild dans les outils de vérification uniquement. Le projet livré n’est pas modifié par ce contournement de compilation local.
+
+Le déploiement réel sur le compte Netlify du propriétaire reste à effectuer et à contrôler. Les validations ci-dessus ne constituent pas une confirmation de mise en ligne.
+
+---
+
+## Historique de la version locale — 27 octobre 2026
+
+Les sections suivantes décrivent les vérifications antérieures de RUN.BAT et de l’adaptateur Supabase optionnel. Le chemin Netlify ci-dessus remplace la nécessité de configurer Supabase pour le déploiement actuel.
+
 # Vérification — 27 octobre 2026
 
 ## Version actuelle

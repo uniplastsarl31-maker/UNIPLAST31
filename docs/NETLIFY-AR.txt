@@ -1,0 +1,44 @@
+UNIPLAST — تشغيل الموقع على Netlify
+28 أكتوبر 2026
+
+الإصلاح جاهز في الملفات. الموقع المنشور لا يتغير قبل رفعها وإعادة النشر.
+
+1) حدّث GitHub
+افتح مستودعك UNIPLAST31.
+فك ضغط UNIPLAST-Netlify-Mise-a-jour.zip.
+اختر Add file ثم Upload files، وارفع محتويات الأرشيف مع مجلداتها كما هي.
+يجب أن يظهر netlify.toml بجانب package.json مباشرة، دون مجلد إضافي حولهما.
+اضغط Commit changes. لا ترفع ملف ZIP مغلقًا.
+
+2) اضبط Netlify
+داخل مشروع uniplast-dz:
+Build command: pnpm run build:netlify
+Publish directory: dist-netlify
+Functions directory: netlify/functions
+Base directory: اتركه فارغًا إذا كانت الملفات في جذر المستودع.
+Node.js: 24
+
+في Project configuration ثم Environment variables أضف:
+AWS_LAMBDA_JS_RUNTIME = nodejs24.x
+UNIPLAST_SETUP_KEY = مفتاح خاص تختاره أنت من 24 إلى 256 حرفًا.
+اسمح باستخدام المتغيرين في Functions، أو جميع النطاقات إن لم يوجد اختيار منفصل.
+احفظ المفتاح في مكان خاص. لا ترسله في الدردشة ولا تكتبه داخل ملفات GitHub.
+
+من Deploys أعد نشر آخر نسخة من GitHub، وانتظر نجاح البناء وظهور وظيفة shop.
+لا تحتاج Render أو Supabase، ولا يلزم دفع اشتراك الآن لتجربة الخطة المجانية ضمن حدودها.
+
+3) ادخل إلى الإدارة
+افتح موقعك ثم Espace de gestion ثم Se connecter.
+في أول مرة أدخل مفتاح التثبيت الذي اخترته في Netlify، واختر كلمة مرور المسؤول وأكدها.
+بعد ذلك تدخل بكلمة مرور المسؤول فقط.
+أضف الزبائن في Clients agréés بالهاتف ورمز من 6 أرقام؛ لا يوجد إنشاء حساب للزبون.
+
+للتأكد من الربط افتح:
+https://uniplast-dz.netlify.app/api/local/health
+يجب أن تظهر ok: true وnetlify-blobs.
+
+جرب تعديل منتج وصورة، ثم فتح الموقع من هاتف آخر، ثم أعد النشر وتأكد من بقاء التعديل.
+الصور وPDF في هذه النسخة: 4 ميغابايت لكل ملف.
+الكتالوج يبدأ بالمنتجات الأصلية، ولا ينقل زبائن الكمبيوتر أو طلباته تلقائيًا.
+
+شرح مفصل بالفرنسية داخل المشروع: docs/NETLIFY-FR.md.

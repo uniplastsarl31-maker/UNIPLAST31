@@ -5,6 +5,7 @@ import {
   familySlides,
 } from "./Experience";
 import { AdminPasswordSettings } from "./ClientAccess";
+import { imageLimitMo } from "./localApi";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   ArrowDown,
@@ -997,8 +998,8 @@ function ProductEditor({
               />
             </label>
             <small className="muted-copy">
-              JPG, PNG, WebP · 5 Mo / fichier. L’original est conservé
-              séparément, sans déformation.
+              JPG, PNG, WebP · {imageLimitMo} Mo / fichier. L’original est
+              conservé séparément, sans déformation.
             </small>
             {p.images.length > 0 && (
               <>

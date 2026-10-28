@@ -11,3 +11,5 @@ dist-web/
 out/
 .uniplast-data/
 server/generated/
+dist-netlify/
+.netlify/

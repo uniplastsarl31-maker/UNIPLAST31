@@ -437,9 +437,12 @@ export function LocalAdminLogin({ onDone }: { onDone: () => void }) {
   const [status, setStatus] = useState<{
       setup_required: boolean;
       setup_token?: string;
+      setup_key_required?: boolean;
+      setup_available?: boolean;
     } | null>(null),
     [password, setPassword] = useState(""),
     [confirm, setConfirm] = useState(""),
+    [setupKey, setSetupKey] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   useEffect(() => {
@@ -456,9 +459,15 @@ export function LocalAdminLogin({ onDone }: { onDone: () => void }) {
       if (status?.setup_required) {
         if (password !== confirm)
           throw new Error("Les mots de passe ne correspondent pas.");
-        await api.localCall("setup", { token: status.setup_token, password });
+        await api.localCall("setup", {
+          token: status.setup_token,
+          setup_key: setupKey,
+          password,
+        });
       } else await api.login("", password);
       setPassword("");
+      setConfirm("");
+      setSetupKey("");
       onDone();
     } catch (e) {
       setError((e as Error).message);
@@ -482,6 +491,29 @@ export function LocalAdminLogin({ onDone }: { onDone: () => void }) {
         <p className="error-message" role="alert">
           {error}
         </p>
+      )}
+      {status?.setup_required && status.setup_available === false && (
+        <p className="notice">
+          Le propriétaire doit autoriser l’installation dans les réglages de
+          l’hébergement avant de créer son accès.
+        </p>
+      )}
+      {status?.setup_key_required && (
+        <Field label="Clé d’installation du propriétaire">
+          <input
+            required
+            type="password"
+            autoComplete="off"
+            minLength={24}
+            maxLength={256}
+            value={setupKey}
+            onChange={(e) => setSetupKey(e.target.value)}
+          />
+          <small>
+            Utilisez la clé privée définie lors de la mise en ligne. Elle sert
+            uniquement à la première installation.
+          </small>
+        </Field>
       )}
       <Field
         label={
@@ -513,7 +545,14 @@ export function LocalAdminLogin({ onDone }: { onDone: () => void }) {
           />
         </Field>
       )}
-      <button className="btn btn-primary full-width" disabled={busy || !status}>
+      <button
+        className="btn btn-primary full-width"
+        disabled={
+          busy ||
+          !status ||
+          (status.setup_required && status.setup_available === false)
+        }
+      >
         {busy ? <Spinner /> : <ShieldCheck size={18} />}{" "}
         {status?.setup_required ? "Créer et ouvrir la gestion" : "Se connecter"}
       </button>

@@ -1,5 +1,7 @@
 # UNIPLAST — Guide de la nouvelle version
 
+Pour le site en ligne, suivez [l’installation Netlify](NETLIFY-FR.md). Le catalogue, les accès et les commandes sont conservés sur le même projet Netlify. Les instructions RUN.BAT ci-dessous concernent le PC. Images et PDF : 4 Mo maximum sur Netlify ; les limites locales restent 5 Mo pour les images et 15 Mo pour le catalogue PDF.
+
 ## Démarrer
 
 Extrayez toute l’archive. Gardez ensemble **RUN.BAT**, **server** et **dist** (ou index.html + assets dans l’archive prête à utiliser). Node.js **22.18 ou plus récent** est nécessaire ; le lanceur utilise aussi Node fourni avec Codex s’il est présent. Double-cliquez sur RUN.BAT et choisissez **1**.
@@ -55,6 +57,8 @@ Les choix 2 et 3 nécessitent le projet complet avec ses sources. DEMARRER-UNIPL
 
 ## Téléphones et Internet
 
-Le lanceur écoute uniquement sur l’ordinateur. **127.0.0.1 n’est pas une adresse à envoyer à un client.** La base locale n’est pas synchronisée avec le site publié. Pour partager le magasin sur Internet, déployez la version web avec votre service Supabase configuré, migrations **001, 002, 003** et import initial du catalogue. Le projet complet contient l’adaptateur nécessaire. Les codes et fichiers locaux ne sont pas transférés automatiquement.
+Le lanceur écoute uniquement sur l’ordinateur. **127.0.0.1 n’est pas une adresse à envoyer à un client.** Pour les téléphones, utilisez le projet Netlify avec la configuration [NETLIFY-FR.md](NETLIFY-FR.md). Les données y sont partagées et conservées sur ce même site ; elles sont indépendantes de la base RUN.BAT du PC.
 
-Sans service hébergé configuré, le lien web permet seulement d’examiner le design : il ne reçoit pas de vraies commandes et n’enregistre pas les codes clients. Aucun paiement en ligne ni envoi Viber/WhatsApp automatique.
+Le déploiement Netlify inclut le serveur et le stockage. Le simple dossier dist ne suffit pas. L’ancien build:web sans Supabase reste une prévisualisation annoncée ; il n’est pas utilisé par build:netlify.
+
+Aucun paiement en ligne ni envoi Viber/WhatsApp automatique n’est activé.

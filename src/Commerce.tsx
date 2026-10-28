@@ -25,6 +25,7 @@ import { navigate, useStore } from "./store";
 import { Empty, Field, ProductPhoto, Quantity, Spinner } from "./ui";
 import * as api from "./api";
 import { createOrderPdf } from "./pdf";
+import { imageLimitMo } from "./localApi";
 
 const blankCustomer: Customer = {
   name: "",
@@ -938,7 +939,8 @@ export function RequestForm({ product }: { product?: Product }) {
                 <Paperclip size={24} />
                 <b>Ajouter des références</b>
                 <span>
-                  JPG, PNG, WebP, PDF · 5 Mo maximum par fichier · 4 fichiers
+                  JPG, PNG, WebP, PDF · {imageLimitMo} Mo maximum par fichier ·
+                  4 fichiers
                 </span>
                 <input
                   type="file"
@@ -948,9 +950,12 @@ export function RequestForm({ product }: { product?: Product }) {
                     const fs = Array.from(e.target.files || []);
                     if (
                       fs.length > 4 ||
-                      fs.some((f) => f.size > 5 * 1024 * 1024)
+                      fs.some((f) => f.size > imageLimitMo * 1024 * 1024)
                     ) {
-                      notify("4 fichiers maximum, 5 Mo par fichier.", true);
+                      notify(
+                        `4 fichiers maximum, ${imageLimitMo} Mo par fichier.`,
+                        true,
+                      );
                       e.target.value = "";
                       return;
                     }

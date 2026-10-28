@@ -13,7 +13,7 @@ import type {
   CustomerAccess,
 } from "./types";
 import { defaultSettings } from "./catalog";
-import { localMode, localCall, localUpload } from "./localApi";
+import { localMode, localCall, localUpload, imageLimitMo } from "./localApi";
 export { localMode, localCall } from "./localApi";
 import { canBuy, cartTotals, validateProduct, safeWebUrl } from "./domain";
 
@@ -708,8 +708,10 @@ export async function changeRequestStatus(
 }
 const allowedImages = ["image/jpeg", "image/png", "image/webp"];
 function checkFile(file: File, reference = false) {
-  if (file.size > 5 * 1024 * 1024)
-    throw new Error("La taille du fichier ne doit pas dépasser 5 Mo.");
+  if (file.size > imageLimitMo * 1024 * 1024)
+    throw new Error(
+      `La taille du fichier ne doit pas dépasser ${imageLimitMo} Mo.`,
+    );
   if (
     !(
       reference ? [...allowedImages, "application/pdf"] : allowedImages

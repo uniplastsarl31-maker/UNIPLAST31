@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
   return {
     define: {
       __LOCAL_BUILD__: JSON.stringify(mode !== "web"),
+      __NETLIFY_BUILD__: JSON.stringify(mode === "netlify"),
       __PREVIEW_BUILD__: JSON.stringify(
         mode === "web" &&
           (!env.VITE_SUPABASE_URL?.trim() ||

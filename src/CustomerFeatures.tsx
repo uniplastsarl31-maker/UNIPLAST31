@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { CustomerAccess, Settings, Season } from "./types";
 import * as api from "./api";
+import { pdfLimitMo } from "./localApi";
 import { useStore } from "./store";
 import { Field, Spinner } from "./ui";
 import { normalizeSearch, safeWebUrl } from "./domain";
@@ -165,7 +166,9 @@ export function AdvancedSettings({
               onChange={(e) => set("catalog_pdf_title", e.target.value)}
             />
           </Field>
-          <Field label="Importer le catalogue public (PDF, 15 Mo maximum)">
+          <Field
+            label={`Importer le catalogue public (PDF, ${pdfLimitMo} Mo maximum)`}
+          >
             <input
               type="file"
               accept="application/pdf"

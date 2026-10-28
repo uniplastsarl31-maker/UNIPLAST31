@@ -1,3 +1,5 @@
 allowBuilds:
   esbuild: true
   core-js: false
+minimumReleaseAgeExclude:
+  - '@netlify/blobs@11.1.7'
