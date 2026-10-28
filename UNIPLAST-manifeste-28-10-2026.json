@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-28",
+  "baseline": {
+    "sha": "ad199fb22764fb4bfd3a8b580a7b8c1e75f1a442",
+    "date": "2026-10-28T09:14:12Z",
+    "message": "1"
+  },
+  "deployed": false,
+  "matched_products": 305,
+  "renamed_products": 179,
+  "review_rows": 38,
+  "products": 350,
+  "families": 17,
+  "source_sha256": "d08921183cf2ca7412788d0c67b27d085f3a90d23c9ccb009141afd6f4f4ca75",
+  "archives": {
+    "UNIPLAST-Mise-a-jour-28-10-2026.zip": {
+      "files": 36,
+      "bytes": 168331,
+      "sha256": "e11c29070744252be74b36e6741c3c32d94952e77ed16d424fadfd9768678ef6"
+    },
+    "UNIPLAST-Projet-28-10-2026.zip": {
+      "files": 126,
+      "bytes": 2284329,
+      "sha256": "3f06f291e9aa580f2fbcf492471381cd8c5cc745af1b4326c6c160bcbf19a270"
+    }
+  },
+  "changed_files": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "README.md",
+    "data/correspondances-prix-2026-10-28.csv",
+    "data/prix-a-verifier-2026-10-28.csv",
+    "data/prix-source-2026-10-28.csv",
+    "data/societe-sources-2026-10-28.json",
+    "docs/DEPLOYMENT-STATUS.md",
+    "docs/MISE-A-JOUR-28-10-2026-AR.txt",
+    "docs/MISE-A-JOUR-28-10-2026-FR.md",
+    "scripts/prepare-server.cjs",
+    "server/catalog-update.cjs",
+    "server/catalog-update.json",
+    "server/local-store.cjs",
+    "server/tests/catalog-update.test.cjs",
+    "server/tests/local.test.cjs",
+    "server/tests/netlify.test.mjs",
+    "src/Admin.tsx",
+    "src/api.ts",
+    "src/App.tsx",
+    "src/barcode.ts",
+    "src/catalog.ts",
+    "src/catalogue-update.css",
+    "src/CustomerFeatures.tsx",
+    "src/Dialogs.tsx",
+    "src/domain.ts",
+    "src/fileFormats.ts",
+    "src/main.tsx",
+    "src/store.tsx",
+    "src/Storefront.tsx",
+    "src/types.ts",
+    "src/ui.tsx",
+    "src/data/catalog.preview.json",
+    "supabase/migrations/004_product_weight.sql",
+    "supabase/tests/pin.test.ts",
+    "tests/catalogue.test.ts"
+  ],
+  "verification": {
+    "domain_and_files": 15,
+    "local_and_migration": 12,
+    "netlify": 13,
+    "sql": 23,
+    "builds": [
+      "local",
+      "web-preview",
+      "netlify"
+    ],
+    "packaged_function_real_blobs_sdk": true,
+    "no_prices_in_netlify_browser_bundle": true,
+    "camera_hardware_on_owner_phone": false
+  }
+}

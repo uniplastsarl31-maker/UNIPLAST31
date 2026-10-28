@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-28",
+  "target": "Netlify Functions + Blobs",
+  "deployed": false,
+  "products": 350,
+  "families": 17,
+  "csv_sha256": "917bbcdc4a37c5a66a401d7b139c5d33845e010d7431856bc1665e746d7cb65c",
+  "archives": {
+    "UNIPLAST-Netlify-Mise-a-jour.zip": {
+      "bytes": 97708,
+      "files": 26,
+      "sha256": "4f74bd0b7822b070f5d4db26004da8de007cac492cb491e5a502c92aff79f77a"
+    },
+    "UNIPLAST-Netlify-Projet-Complet.zip": {
+      "bytes": 2234506,
+      "files": 112,
+      "sha256": "2962502d2039f4b702faec3d8ec23db5e7ea47851030abde9093c88de333bed8"
+    }
+  },
+  "changed_files": [
+    ".env.example",
+    ".gitignore",
+    ".nvmrc",
+    "netlify.toml",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "README.md",
+    "vite.config.mjs",
+    "docs/DEPLOYMENT-STATUS.md",
+    "docs/NETLIFY-AR.txt",
+    "docs/NETLIFY-FR.md",
+    "docs/UTILISATION-FR.md",
+    "docs/VERIFICATION.md",
+    "server/local-store.cjs",
+    "server/netlify-store.mjs",
+    "src/Admin.tsx",
+    "src/api.ts",
+    "src/build.d.ts",
+    "src/ClientAccess.tsx",
+    "src/Commerce.tsx",
+    "src/CustomerFeatures.tsx",
+    "src/localApi.ts",
+    "netlify/functions/shop.mjs",
+    "server/tests/blob-fixture.mjs",
+    "server/tests/netlify.test.mjs"
+  ],
+  "verification": {
+    "domain": 10,
+    "local": 11,
+    "netlify": 12,
+    "builds": [
+      "dist",
+      "out",
+      "dist-netlify"
+    ],
+    "private_prices_absent_from_browser_bundle": true,
+    "packaged_function_sdk_fixture": true
+  }
+}
