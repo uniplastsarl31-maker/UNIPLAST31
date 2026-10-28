@@ -24,7 +24,12 @@ fs.copyFileSync(
 const seed = JSON.parse(
   fs.readFileSync(path.join(root, "src/data/catalog.json"), "utf8"),
 );
+const update = require("../server/catalog-update.json");
 seed.products = seed.products.map((p) => {
+  const change = update.products.find(x => x.id === p.id && x.code === p.code);
+  if (change) Object.assign(p, { name: change.name, name_fr: change.name });
+  if (!p.availability_confirmed && !p.upcoming) Object.assign(p, { available: p.stock_cartons !== 0, availability_confirmed: true });
+  p.weight_grams = null;
   const { source_metadata, ...safe } = p;
   return {
     ...safe,

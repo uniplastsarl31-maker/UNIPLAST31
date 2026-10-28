@@ -1,0 +1,41 @@
+{
+  "verified_on": "2026-10-28",
+  "company": "UNIPLAST SARL, Oran, Algérie",
+  "sources": [
+    {
+      "url": "https://www.facebook.com/uniplast.algeria/",
+      "supports": [
+        "page officielle de la société à Oran",
+        "année de création 1998"
+      ],
+      "access": "résultats de recherche publics ; lecture directe bloquée par la plateforme"
+    },
+    {
+      "url": "https://www.facebook.com/uniplast.algeria/posts/1529200112332701/",
+      "supports": [
+        "numéro professionnel publié 0770078802"
+      ],
+      "access": "extrait public du moteur de recherche"
+    },
+    {
+      "url": "https://elmouchir.caci.dz/entreprise/9664/uniplast",
+      "supports": [
+        "adresse à Nedjma Sidi Chami",
+        "activité depuis 1998",
+        "Viber 0770260404"
+      ]
+    },
+    {
+      "url": "https://www.pagesmaghreb.com/entreprise/uniplast-sarl-63323/oran-33/algerie",
+      "supports": [
+        "adresse lot34 Nedjma Oran",
+        "transformation et fabrication de produits en plastique"
+      ]
+    }
+  ],
+  "not_used": [
+    "Ancien site business.site : erreur 404",
+    "Aucun email commercial vérifié",
+    "Aucune disponibilité WhatsApp déduite des numéros de téléphone"
+  ]
+}

@@ -1,3 +1,4 @@
+import { validatedFile } from "./fileFormats";
 import { createClient } from "@supabase/supabase-js";
 import type {
   Catalog,
@@ -706,32 +707,33 @@ export async function changeRequestStatus(
     .eq("id", id);
   if (error) fail(error);
 }
-const allowedImages = ["image/jpeg", "image/png", "image/webp"];
-function checkFile(file: File, reference = false) {
-  if (file.size > imageLimitMo * 1024 * 1024)
-    throw new Error(
-      `La taille du fichier ne doit pas dépasser ${imageLimitMo} Mo.`,
-    );
-  if (
-    !(
-      reference ? [...allowedImages, "application/pdf"] : allowedImages
-    ).includes(file.type)
-  )
-    throw new Error(
-      reference
-        ? "Formats autorisés : JPG, PNG, WebP ou PDF."
-        : "Formats autorisés : JPG, PNG ou WebP.",
-    );
-}
 export async function uploadProductImage(file: File): Promise<ProductImage> {
-  checkFile(file);
-  const bitmap = await createImageBitmap(file),
-    canvas = document.createElement("canvas"),
+  file = await validatedFile(file, imageLimitMo);
+  let bitmap: ImageBitmap | HTMLImageElement;
+  try {
+    if (typeof createImageBitmap !== "function") throw new Error("fallback");
+    bitmap = await createImageBitmap(file);
+  } catch {
+    const source = URL.createObjectURL(file);
+    try {
+      const image = new Image();
+      image.src = source;
+      await image.decode();
+      bitmap = image;
+    } catch {
+      throw new Error(
+        "Impossible de lire cette image. Vérifiez qu’elle s’ouvre dans votre téléphone.",
+      );
+    } finally {
+      URL.revokeObjectURL(source);
+    }
+  }
+  const canvas = document.createElement("canvas"),
     ratio = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
   canvas.width = Math.round(bitmap.width * ratio);
   canvas.height = Math.round(bitmap.height * ratio);
   canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
+  if ("close" in bitmap) bitmap.close();
   const optimized = await new Promise<Blob>((resolve, reject) =>
     canvas.toBlob(
       (b) =>
@@ -765,7 +767,7 @@ export async function uploadProductImage(file: File): Promise<ProductImage> {
           ? "png"
           : "webp";
   const originalPath = `${id}/original.${ext}`,
-    displayPath = `${id}/display.webp`;
+    displayPath = `${id}/display.${optimized.type === "image/png" ? "png" : "webp"}`;
   const original = await supabase!.storage
     .from("product-images")
     .upload(originalPath, file, { upsert: false, contentType: file.type });
@@ -774,7 +776,7 @@ export async function uploadProductImage(file: File): Promise<ProductImage> {
     .from("product-images")
     .upload(displayPath, optimized, {
       upsert: false,
-      contentType: "image/webp",
+      contentType: optimized.type,
     });
   if (display.error) {
     await supabase!.storage.from("product-images").remove([originalPath]);
@@ -792,8 +794,8 @@ export async function uploadProductImage(file: File): Promise<ProductImage> {
   };
 }
 export async function uploadReference(file: File): Promise<string> {
+  file = await validatedFile(file, imageLimitMo, true);
   if (localMode) return localUpload(file, false);
-  checkFile(file, true);
   if (previewMode) return URL.createObjectURL(file);
   const uid = await ensureCustomer();
   const ext =

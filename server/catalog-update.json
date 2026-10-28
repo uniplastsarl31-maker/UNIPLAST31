@@ -1,0 +1,2777 @@
+{
+  "version": "catalogue-2026-10-28-v1",
+  "source_sha256": "d08921183cf2ca7412788d0c67b27d085f3a90d23c9ccb009141afd6f4f4ca75",
+  "source_rows": 343,
+  "review_count": 38,
+  "products": [
+    {
+      "id": "f5e1b238-6337-50fb-9f59-16609022a13d",
+      "code": "BER300ML",
+      "name": "BOITE EMBALLAGE RONDE REF 1",
+      "unit_price_cents": 1500,
+      "price_on_request": false,
+      "source_row": 2,
+      "previous_name": "BOITE EMBALLAGE RONDE 300ML REF 01"
+    },
+    {
+      "id": "b2e4eb38-d167-5db4-b75e-be5dfd6ff8e3",
+      "code": "BER400ML",
+      "name": "BOITE EMBALLAGE RONDE REF 2",
+      "unit_price_cents": 1600,
+      "price_on_request": false,
+      "source_row": 3,
+      "previous_name": "BOITE EMBALLAGE RONDE 400ML REF 02"
+    },
+    {
+      "id": "861ffa73-1320-58f4-8e83-9ace90ca1246",
+      "code": "BER500ML",
+      "name": "BOITE EMBALLAGE RONDE REF 3",
+      "unit_price_cents": 1785,
+      "price_on_request": false,
+      "source_row": 4,
+      "previous_name": "BOITE EMBALLAGE RONDE 500ML REF 03"
+    },
+    {
+      "id": "6ac35b1d-b1ec-53f1-becf-3527fc0182b0",
+      "code": "BER750ML",
+      "name": "BOITE EMBALLAGE RONDE REF 4",
+      "unit_price_cents": 1904,
+      "price_on_request": false,
+      "source_row": 5,
+      "previous_name": "BOITE EMBALLAGE RONDE 750ML REF 04"
+    },
+    {
+      "id": "cb79a138-bb24-526b-84a9-15b4057c45c5",
+      "code": "BERMI300ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI REF 1",
+      "unit_price_cents": 1500,
+      "price_on_request": false,
+      "source_row": 6,
+      "previous_name": "BOITE EMBALLAGE RECTANGLE MINI 300ML REF 01"
+    },
+    {
+      "id": "ae4d5de9-a3c1-5079-aa3d-dbac5a259219",
+      "code": "BERMI480ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI REF 2",
+      "unit_price_cents": 1616,
+      "price_on_request": false,
+      "source_row": 7,
+      "previous_name": "BOITE EMBALLAGE RECTANGLE MINI 480ML REF 02"
+    },
+    {
+      "id": "ef3c83aa-9e5b-5eef-988a-1fa410aa1753",
+      "code": "BERMI730ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI REF 3",
+      "unit_price_cents": 0,
+      "price_on_request": true,
+      "source_row": 8,
+      "previous_name": "BOITE EMBALLAGE RECTANGLE MINI 730ML REF 03"
+    },
+    {
+      "id": "2bc62ff8-cce3-59a1-b403-efea6153eea2",
+      "code": "BERMA400ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI REF 1",
+      "unit_price_cents": 1666,
+      "price_on_request": false,
+      "source_row": 9,
+      "previous_name": "BOITE EMBALLAGE RECTANGLE MAXI 400ML REF 01"
+    },
+    {
+      "id": "aeffe2c4-e385-573a-b957-d20acc4bdd3d",
+      "code": "BERMA650ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI REF 2",
+      "unit_price_cents": 1785,
+      "price_on_request": false,
+      "source_row": 10,
+      "previous_name": "BOITE EMBALLAGE RECTANGLE MAXI 650ML REF 02"
+    },
+    {
+      "id": "3e4a1d00-1cfe-5fe3-bc4b-35ad35ce84b9",
+      "code": "BERMA1000ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI REF 3",
+      "unit_price_cents": 0,
+      "price_on_request": true,
+      "source_row": 11,
+      "previous_name": "BOITE EMBALLAGE RECTANGLE MAXI 1000ML REF 03"
+    },
+    {
+      "id": "cdb0b33c-1eb3-56c0-9d1c-d1adf55c0476",
+      "code": "BCR01",
+      "name": "BOITE CRYSTAL RC01 MINI",
+      "unit_price_cents": 2023,
+      "price_on_request": false,
+      "source_row": 12,
+      "previous_name": "BOITE CRYSTAL RC01 (300ml) MINI"
+    },
+    {
+      "id": "3c5c162f-d378-5b0a-9723-f47824953c01",
+      "code": "BCR02",
+      "name": "BOITE CRYSTAL RC02 MAXI",
+      "unit_price_cents": 2856,
+      "price_on_request": false,
+      "source_row": 13,
+      "previous_name": "BOITE CRYSTAL RC02 (600ml) MAXI"
+    },
+    {
+      "id": "2ae1c833-144b-5306-8488-522f69c18aa6",
+      "code": "BCR03",
+      "name": "BOITE CRYSTAL RC03 250MLx2",
+      "unit_price_cents": 2499,
+      "price_on_request": false,
+      "source_row": 14,
+      "previous_name": "BOITE CRYSTAL RC03 (250mlx2)"
+    },
+    {
+      "id": "6d65caf1-2d58-57df-ab9e-3941f0b59f15",
+      "code": "BCR04",
+      "name": "BOITE CRYSTAL RC04 500 ML MINI",
+      "unit_price_cents": 2380,
+      "price_on_request": false,
+      "source_row": 15,
+      "previous_name": "BOITE CRYSTAL RC04 (500ml) MINI"
+    },
+    {
+      "id": "13701fd8-44ee-54ed-b992-c4c68615bf39",
+      "code": "BCR05",
+      "name": "BOITE CRYSTAL RC05 MAXI",
+      "unit_price_cents": 2737,
+      "price_on_request": false,
+      "source_row": 16,
+      "previous_name": "BOITE CRYSTAL RC05 (1.1l) MAXI"
+    },
+    {
+      "id": "390a8d67-56bf-5581-be83-12e0e3b5c06c",
+      "code": "BCR06",
+      "name": "BOITE CRYSTAL RC06 MINI 01",
+      "unit_price_cents": 4165,
+      "price_on_request": false,
+      "source_row": 17,
+      "previous_name": "BOITE CRYSTAL RC06 MINI REF 01"
+    },
+    {
+      "id": "213a2e38-82f3-55eb-a4c8-5aee98d0ddef",
+      "code": "BCR07",
+      "name": "BOITE CRYSTAL RC07 540 MLx X2",
+      "unit_price_cents": 4522,
+      "price_on_request": false,
+      "source_row": 18,
+      "previous_name": "BOITE CRYSTAL RC07 (540mlx2)"
+    },
+    {
+      "id": "6164dac7-68e2-544d-9e6c-ad3fab2389f1",
+      "code": "BCR08",
+      "name": "BOITE CRYSTAL RC08 REF 01 MAXI",
+      "unit_price_cents": 4879,
+      "price_on_request": false,
+      "source_row": 19,
+      "previous_name": "BOITE CRYSTAL RC08 MAXI REF 01"
+    },
+    {
+      "id": "e0dbbc8c-866f-59d2-af29-ef0a67dc5231",
+      "code": "BCR09",
+      "name": "BOITE CRYSTAL RC09 REF 02 MINI",
+      "unit_price_cents": 5712,
+      "price_on_request": false,
+      "source_row": 20,
+      "previous_name": "BOITE CRYSTAL RC09 MINI REF 02"
+    },
+    {
+      "id": "0754cd8d-2c96-51f1-ab1b-ddda070874bb",
+      "code": "BCR10",
+      "name": "BOITE CRYSTAL RC10 REF 02 MAXI",
+      "unit_price_cents": 6783,
+      "price_on_request": false,
+      "source_row": 21,
+      "previous_name": "BOITE CRYSTAL RC10 MAXI REF 02"
+    },
+    {
+      "id": "da820a58-3e3b-5b42-9d5d-873eceb4ad02",
+      "code": "BCR11",
+      "name": "BOITE CRYSTAL RC11 REF 03 MINI",
+      "unit_price_cents": 9401,
+      "price_on_request": false,
+      "source_row": 22,
+      "previous_name": "BOITE CRYSTAL RC11 MINI REF 03"
+    },
+    {
+      "id": "33d01403-cbdf-5314-9bea-3d4e066576a5",
+      "code": "BCR12",
+      "name": "BOITE CRYSTAL RC12 REF 03 MAXI",
+      "unit_price_cents": 11662,
+      "price_on_request": false,
+      "source_row": 23,
+      "previous_name": "BOITE CRYSTAL RC12 MAXI REF 03"
+    },
+    {
+      "id": "f7d081e3-1e35-522d-bf80-838c61939cc1",
+      "code": "BCR13",
+      "name": "BOITE CRYSTAL RC13 REF 04 MINI",
+      "unit_price_cents": 15470,
+      "price_on_request": false,
+      "source_row": 24,
+      "previous_name": "BOITE CRYSTAL RC13 MINI REF 04"
+    },
+    {
+      "id": "0cd79453-ecab-5b94-9c30-42c3120f2f13",
+      "code": "BCR14",
+      "name": "BOITE CRYSTAL RC14 REF 04 MAXI",
+      "unit_price_cents": 18326,
+      "price_on_request": false,
+      "source_row": 25,
+      "previous_name": "BOITE CRYSTAL RC14 MAXI REF 04"
+    },
+    {
+      "id": "a6293dab-5635-58f1-b611-5ce0d69265c0",
+      "code": "BCR15",
+      "name": "BOITE CRYSTAL RC15 REF 05 MINI",
+      "unit_price_cents": 22610,
+      "price_on_request": false,
+      "source_row": 26,
+      "previous_name": "BOITE CRYSTAL RC15 MINI REF 05"
+    },
+    {
+      "id": "0e91a6d0-6a9b-56c3-a295-eb9bec1b7b52",
+      "code": "BCR16",
+      "name": "BOITE CRYSTAL RC16 REF 05 MAXI",
+      "unit_price_cents": 26418,
+      "price_on_request": false,
+      "source_row": 27,
+      "previous_name": "BOITE CRYSTAL RC16 MAXI REF 05"
+    },
+    {
+      "id": "73fa5252-46d3-570a-b035-1f855c4d2c6a",
+      "code": "BCR17",
+      "name": "BOITE CRYSTAL RC17 REF 06 MINI",
+      "unit_price_cents": 31654,
+      "price_on_request": false,
+      "source_row": 28,
+      "previous_name": "BOITE CRYSTAL RC17 MINI REF 06"
+    },
+    {
+      "id": "044492c1-a929-5458-a221-bd54598e84d2",
+      "code": "BCR18",
+      "name": "BOITE CRYSTAL RC18 REF 06 MAXI",
+      "unit_price_cents": 32368,
+      "price_on_request": false,
+      "source_row": 29,
+      "previous_name": "BOITE CRYSTAL RC18 MAXI REF 06"
+    },
+    {
+      "id": "a6fa1250-922a-528d-b803-673222b00385",
+      "code": "BCR19",
+      "name": "BOITE CRYSTAL RC19 REF 07",
+      "unit_price_cents": 40698,
+      "price_on_request": false,
+      "source_row": 30,
+      "previous_name": "BOITE CRYSTAL RC19 (27.7l)"
+    },
+    {
+      "id": "6abeca18-675c-5394-a129-3dac1ae55cb2",
+      "code": "BCR14D",
+      "name": "BOITE CRYSTAL RC14 MAXI REF 04 DECOREE",
+      "unit_price_cents": 19754,
+      "price_on_request": false,
+      "source_row": 31,
+      "previous_name": "BOITE CRYSTAL RC14 MAXI REF 04 DECORÉE"
+    },
+    {
+      "id": "cddfcb13-8c8c-57bf-a2c0-7b794b5c31f0",
+      "code": "BCR10D",
+      "name": "BOITE CRYSTAL RC 10 MAXI REF 02 DECOREE",
+      "unit_price_cents": 7616,
+      "price_on_request": false,
+      "source_row": 32,
+      "previous_name": "BOITE CRYSTAL RC10 MAXI REF 02 DECORÉE"
+    },
+    {
+      "id": "8d94f665-e4b6-535d-8b5a-e5974862ff65",
+      "code": "BCR20",
+      "name": "BOITE CRYSTAL RC20 MINI",
+      "unit_price_cents": 59381,
+      "price_on_request": false,
+      "source_row": 33,
+      "previous_name": "BOITE CRYSTAL RC20 (30l mini)"
+    },
+    {
+      "id": "bf41b984-3b8b-5377-92e2-208a4363dc0f",
+      "code": "BCR21TR",
+      "name": "BOITE CRYSTAL RC21 TRANSPARENT MAXI REF 08",
+      "unit_price_cents": 71400,
+      "price_on_request": false,
+      "source_row": 34,
+      "previous_name": "BOITE CRYSTAL RC21 MAXI REF 08 TRANSPARENT"
+    },
+    {
+      "id": "0f056fc9-02ca-5f11-b30b-af8f87700cb3",
+      "code": "BCR22",
+      "name": "BOITE CRYSTAL RC22 TRANSPARENT 80 L MAXI REF 09",
+      "unit_price_cents": 109956,
+      "price_on_request": false,
+      "source_row": 35,
+      "previous_name": "BOITE CRYSTAL RC22 (80L MAXI) TRANSPARENT"
+    },
+    {
+      "id": "b3df0557-1e5c-5594-a090-9be9e0b53d0b",
+      "code": "BCRMS3",
+      "name": "BOITE CRYSTAL SERIE 3 MAXI",
+      "unit_price_cents": 15000,
+      "price_on_request": false,
+      "source_row": 36,
+      "previous_name": "BOITE CRYSTAL SERIE 03 MAXI REF RC 2+8+10"
+    },
+    {
+      "id": "afafa45b-2a22-5de3-8661-d74dafd535ee",
+      "code": "BCRX3M",
+      "name": "BOITE CRYSTAL SERIE 3 MINI",
+      "unit_price_cents": 13000,
+      "price_on_request": false,
+      "source_row": 37,
+      "previous_name": "BOITE CRYSTAL SERIE 03 MINI REF RC 4+6+9"
+    },
+    {
+      "id": "3f663937-6d19-5e30-b9b4-96ccb00e8c9d",
+      "code": "BCR21CL",
+      "name": "BOITE CRYSTAL RC21 MAXI COULEUR REF 08",
+      "unit_price_cents": 71400,
+      "price_on_request": false,
+      "source_row": 38,
+      "previous_name": "BOITE CRYSTAL RC21 MAXI REF 08 COULEUR"
+    },
+    {
+      "id": "f1b0382b-c2e9-5354-97cf-92f62e755dcd",
+      "code": "BCR22CL",
+      "name": "BOITE CRYSTAL RC22 COULEUR REF 09",
+      "unit_price_cents": 119000,
+      "price_on_request": false,
+      "source_row": 39,
+      "previous_name": "BOITE CRYSTAL RC22 (80L MAXI) COULEUR"
+    },
+    {
+      "id": "d39c74a7-edb6-5986-99df-9d51f507a0a2",
+      "code": "BSR1",
+      "name": "BOITE STAR R01",
+      "unit_price_cents": 1500,
+      "price_on_request": false,
+      "source_row": 40,
+      "previous_name": "BOITE STAR R01 (300ml)"
+    },
+    {
+      "id": "b5920491-37a2-5c5c-a7ac-60bed8a5d258",
+      "code": "BSR2",
+      "name": "BOITE STAR R02",
+      "unit_price_cents": 2023,
+      "price_on_request": false,
+      "source_row": 41,
+      "previous_name": "BOITE STAR R02 (600ml)"
+    },
+    {
+      "id": "7d378db5-bb8a-5e7d-8093-87d9a991b361",
+      "code": "BSR3M",
+      "name": "BOITE STAR R03 MAXI",
+      "unit_price_cents": 2500,
+      "price_on_request": false,
+      "source_row": 42,
+      "previous_name": "BOITE STAR R03 (1.2l) MAXI"
+    },
+    {
+      "id": "08352dab-e2e2-5182-a6e3-1492fde8e3ea",
+      "code": "BSR4",
+      "name": "BOITE STAR R04 MINI",
+      "unit_price_cents": 3451,
+      "price_on_request": false,
+      "source_row": 43,
+      "previous_name": "BOITE STAR R04 (1.2L) MINI"
+    },
+    {
+      "id": "e8330c7d-72da-5a6a-bf59-5c72d2056420",
+      "code": "BSR4M",
+      "name": "BOITE STAR R04 MAX",
+      "unit_price_cents": 3900,
+      "price_on_request": false,
+      "source_row": 44,
+      "previous_name": "BOITE STAR R04 (2.6l) MAXI"
+    },
+    {
+      "id": "5ce5662e-b690-53fe-927c-5355c29df92a",
+      "code": "BSR5",
+      "name": "BOITE STAR R05",
+      "unit_price_cents": 5593,
+      "price_on_request": false,
+      "source_row": 45,
+      "previous_name": "BOITE STAR R05 (2.2l)"
+    },
+    {
+      "id": "2eb346e1-ce63-577b-b45f-74de9233809b",
+      "code": "BSR6",
+      "name": "BOITE STAR R06",
+      "unit_price_cents": 8092,
+      "price_on_request": false,
+      "source_row": 46,
+      "previous_name": "BOITE STAR R06 (3.4l)"
+    },
+    {
+      "id": "08a281c5-b0a3-5983-83f5-00ade3eb50d8",
+      "code": "BSR7",
+      "name": "BOITE STAR R07",
+      "unit_price_cents": 12257,
+      "price_on_request": false,
+      "source_row": 47,
+      "previous_name": "BOITE STAR R07 (06l)"
+    },
+    {
+      "id": "6b228a55-1a00-52a8-8d9d-7bc7b0eebea8",
+      "code": "BSR8",
+      "name": "BOITE STAR R08",
+      "unit_price_cents": 17612,
+      "price_on_request": false,
+      "source_row": 48,
+      "previous_name": "BOITE STAR R08 (10l)"
+    },
+    {
+      "id": "433cf763-85f1-506a-bb6c-bd5f33d42e09",
+      "code": "BSR9",
+      "name": "BOITE STAR R09 MAXI",
+      "unit_price_cents": 7735,
+      "price_on_request": false,
+      "source_row": 49,
+      "previous_name": "BOITE STAR R09 (4.4l) MAXI"
+    },
+    {
+      "id": "fa43469d-d1eb-5e5c-a1b4-76c45a643175",
+      "code": "BSR10",
+      "name": "BOITE STAR MAXI R10",
+      "unit_price_cents": 8211,
+      "price_on_request": false,
+      "source_row": 50,
+      "previous_name": "BOITE STAR R10 (6.3l) MAXI"
+    },
+    {
+      "id": "7c984808-3226-5a65-99e5-4ce1f8f23a75",
+      "code": "BSS4T",
+      "name": "BOITE STAR S/4 TRANSPARENT",
+      "unit_price_cents": 11000,
+      "price_on_request": false,
+      "source_row": 52,
+      "previous_name": "BOITE STAR S/04 TRANSPARENT"
+    },
+    {
+      "id": "61b1b1e2-d8d2-5d12-801a-de2ede1fc5f4",
+      "code": "TC1.85TR",
+      "name": "TOP CHEF 1.85L TRANSPARENT",
+      "unit_price_cents": 5474,
+      "price_on_request": false,
+      "source_row": 53,
+      "previous_name": "BOITE TOP CHEF 01.85L TRANSPARENTE"
+    },
+    {
+      "id": "9af71694-dd90-5a6b-a742-f9440055c597",
+      "code": "TC05TR",
+      "name": "TOP CHEF 5L TRANSPARENT",
+      "unit_price_cents": 9877,
+      "price_on_request": false,
+      "source_row": 54,
+      "previous_name": "BOITE TOP CHEF 05L TRANSPARENTE"
+    },
+    {
+      "id": "9b635bd6-59d3-52c7-8c9a-45b77a27484c",
+      "code": "TC07TR",
+      "name": "TOP CHEF 7L TRANSPARENT",
+      "unit_price_cents": 12614,
+      "price_on_request": false,
+      "source_row": 55,
+      "previous_name": "BOITE TOP CHEF 07L TRANSPARENTE"
+    },
+    {
+      "id": "3440084f-70d6-57fa-8d07-6c641a365141",
+      "code": "TC10TR",
+      "name": "TOP CHEF 10L TRANSPARENT",
+      "unit_price_cents": 17612,
+      "price_on_request": false,
+      "source_row": 56,
+      "previous_name": "BOITE TOP CHEF 10L TRANSPARENTE"
+    },
+    {
+      "id": "850f454a-2ee9-5b61-aca8-196d0029e533",
+      "code": "TC16TR",
+      "name": "TOP CHEF 16L TRANSPARENT",
+      "unit_price_cents": 24157,
+      "price_on_request": false,
+      "source_row": 57,
+      "previous_name": "BOITE TOP CHEF 16L TRANSPARENTE"
+    },
+    {
+      "id": "8cf2a3c9-8e1e-5179-831d-1fc51e5f1d1e",
+      "code": "TC21TR",
+      "name": "TOP CHEF 21L TRANSPARENT",
+      "unit_price_cents": 35343,
+      "price_on_request": false,
+      "source_row": 58,
+      "previous_name": "BOITE TOP CHEF 21L TRANSPARENTE"
+    },
+    {
+      "id": "67f1be75-316f-5b4a-93af-ac1c89770d48",
+      "code": "TC32TR",
+      "name": "TOP CHEF 32L TRANSPARENT",
+      "unit_price_cents": 41650,
+      "price_on_request": false,
+      "source_row": 59,
+      "previous_name": "BOITE TOP CHEF 32L TRANSPARENTE"
+    },
+    {
+      "id": "bd77de8b-4796-5b16-ba59-ee23188ba000",
+      "code": "TC1.85CL",
+      "name": "TOP CHEF 1.85L COULEUR",
+      "unit_price_cents": 5593,
+      "price_on_request": false,
+      "source_row": 61,
+      "previous_name": "BOITE TOP CHEF 01.85L COULEUR"
+    },
+    {
+      "id": "c3949f7d-138a-59f0-ab6e-e2ec13d79d37",
+      "code": "TC32CL",
+      "name": "TOP CHEF 32L COULEUR",
+      "unit_price_cents": 46410,
+      "price_on_request": false,
+      "source_row": 67,
+      "previous_name": "BOITE TOP CHEF 32L COULEUR"
+    },
+    {
+      "id": "21e26f0e-9240-5dd2-8ac5-0c25f190da8e",
+      "code": "C05T",
+      "name": "CLIPSO 05L TRANSPARENT",
+      "unit_price_cents": 11543,
+      "price_on_request": false,
+      "source_row": 68,
+      "previous_name": "CONTENEUR CLIPSO 05L TRANSPARENT"
+    },
+    {
+      "id": "4bf10163-eba5-51e1-9249-91b93fab29eb",
+      "code": "C10T",
+      "name": "CLIPSO 10L TRANSPARENT",
+      "unit_price_cents": 17612,
+      "price_on_request": false,
+      "source_row": 69,
+      "previous_name": "CONTENEUR CLIPSO 10L TRANSPARENT"
+    },
+    {
+      "id": "5769bac4-0bcc-5892-8dd4-c211247b0286",
+      "code": "C15T",
+      "name": "CLIPSO 15L TRANSPARENT",
+      "unit_price_cents": 22729,
+      "price_on_request": false,
+      "source_row": 70,
+      "previous_name": "CONTENEUR CLIPSO 15L TRANSPARENT"
+    },
+    {
+      "id": "12f6bac9-88b2-5b95-a0cc-cb39dc2d4bd8",
+      "code": "C20T",
+      "name": "CLIPSO 20L TRANSPARENT",
+      "unit_price_cents": 35700,
+      "price_on_request": false,
+      "source_row": 71,
+      "previous_name": "CONTENEUR CLIPSO 20L TRANSPARENT"
+    },
+    {
+      "id": "0cf757e5-4137-5507-80dc-cc03c0055556",
+      "code": "C05C",
+      "name": "CLIPSO 05L COULEUR",
+      "unit_price_cents": 11067,
+      "price_on_request": false,
+      "source_row": 73,
+      "previous_name": "CONTENEUR CLIPSO 05L COULEUR"
+    },
+    {
+      "id": "8a9a9cff-5356-5ed3-93e8-b3c1fa1b5a30",
+      "code": "C10C",
+      "name": "CLIPSO 10L COULEUR",
+      "unit_price_cents": 17017,
+      "price_on_request": false,
+      "source_row": 74,
+      "previous_name": "CONTENEUR CLIPSO 10L COULEUR"
+    },
+    {
+      "id": "df821183-bba7-551a-b377-da5b4f2b99f7",
+      "code": "C15C",
+      "name": "CLIPSO 15L COULEUR",
+      "unit_price_cents": 22253,
+      "price_on_request": false,
+      "source_row": 75,
+      "previous_name": "CONTENEUR CLIPSO 15L COULEUR"
+    },
+    {
+      "id": "cb9e5ec1-00f0-552c-9311-c907a541722d",
+      "code": "C20C",
+      "name": "CLIPSO 20L COULEUR",
+      "unit_price_cents": 30940,
+      "price_on_request": false,
+      "source_row": 76,
+      "previous_name": "CONTENEUR CLIPSO 20L COULEUR"
+    },
+    {
+      "id": "2b415ac4-f468-5fe9-baab-923f206f7891",
+      "code": "FO1.6L",
+      "name": "BOITE FORMULE REF 01 MAXI",
+      "unit_price_cents": 7000,
+      "price_on_request": false,
+      "source_row": 77,
+      "previous_name": "BOITE FORMULE MAXI 1.65L REF 01"
+    },
+    {
+      "id": "afb1e931-2067-580a-89e7-a0788ce5c1a1",
+      "code": "FO2L",
+      "name": "BOITE FORMULE REF 02 MAXI",
+      "unit_price_cents": 7500,
+      "price_on_request": false,
+      "source_row": 78,
+      "previous_name": "BOITE FORMULE MAXI 2L REF 02"
+    },
+    {
+      "id": "97f5a0ad-fd0f-529f-b2f0-6c14b687fda3",
+      "code": "FO3L",
+      "name": "BOITE FORMULE REF 03 MAXI",
+      "unit_price_cents": 8900,
+      "price_on_request": false,
+      "source_row": 79,
+      "previous_name": "BOITE FORMULE MAXI 3L REF 03"
+    },
+    {
+      "id": "d5463cfb-50bc-570c-b258-9fe5e540bb04",
+      "code": "FO5L",
+      "name": "BOITE FORMULE REF 04 MAXI",
+      "unit_price_cents": 10900,
+      "price_on_request": false,
+      "source_row": 80,
+      "previous_name": "BOITE FORMULE MAXI 5L REF 04"
+    },
+    {
+      "id": "53131373-7b47-57fe-8fde-a39d43fcc52a",
+      "code": "FO1.5L",
+      "name": "BOITE FORMULE 1.5L",
+      "unit_price_cents": 8400,
+      "price_on_request": false,
+      "source_row": 81,
+      "previous_name": "BOITE FORMULE 1.5L"
+    },
+    {
+      "id": "34ef52af-7cab-51b9-a6e9-85d02e22670f",
+      "code": "FO2.5L",
+      "name": "BOITE FORMULE 2.5L",
+      "unit_price_cents": 10000,
+      "price_on_request": false,
+      "source_row": 82,
+      "previous_name": "BOITE FORMULE 2.5L"
+    },
+    {
+      "id": "7c7d7ec8-4c66-57f9-a974-4af581ca2bb2",
+      "code": "FO4L",
+      "name": "BOITE FORMULE 04L",
+      "unit_price_cents": 12600,
+      "price_on_request": false,
+      "source_row": 83,
+      "previous_name": "BOITE FORMULE 04L"
+    },
+    {
+      "id": "6ab3c23b-506f-5382-87aa-40b28df189e5",
+      "code": "BMP0.6L",
+      "name": "BOITE MIAMI PMV REF 01",
+      "unit_price_cents": 4264,
+      "price_on_request": false,
+      "source_row": 84,
+      "previous_name": "BOITE MIAMI 0.6L PM REF 01"
+    },
+    {
+      "id": "b56c1a0f-68ab-5327-81f4-ec7721688995",
+      "code": "BMM1L",
+      "name": "BOITE MIAMI MM REF 02",
+      "unit_price_cents": 5148,
+      "price_on_request": false,
+      "source_row": 85,
+      "previous_name": "BOITE MIAMI 1L MM REF 02"
+    },
+    {
+      "id": "0a1f6c78-1015-5060-877f-8b737f929c5d",
+      "code": "BMG1.6L",
+      "name": "BOITE MIAMI GM REF 03",
+      "unit_price_cents": 6032,
+      "price_on_request": false,
+      "source_row": 86,
+      "previous_name": "BOITE MIAMI 1.6L GM REF 03"
+    },
+    {
+      "id": "37ad6f58-08cc-5d6c-9df2-59dd4dbdac39",
+      "code": "PFM5L",
+      "name": "BOITE FORMULE MAXI 5L REF 04 AVEC PASSOIRE",
+      "unit_price_cents": 15500,
+      "price_on_request": false,
+      "source_row": 87,
+      "previous_name": "BOITE FORMULE MAXI 5L REF 04 AVEC PASSOIR"
+    },
+    {
+      "id": "8af9a5df-15d1-5eb2-9020-cd7a36285a6d",
+      "code": "PFM3L",
+      "name": "BOITE FORMULE MAXI 3L REF 03 AVEC PASSOIRE",
+      "unit_price_cents": 12300,
+      "price_on_request": false,
+      "source_row": 88,
+      "previous_name": "BOITE FORMULE MAXI 3L REF 03 AVEC PASSOIR"
+    },
+    {
+      "id": "2e15e92a-96d6-5c36-8a18-727aa820e267",
+      "code": "BM1.6P",
+      "name": "BOITE MIAMI GM REF 03 AVEC PASSOIRE",
+      "unit_price_cents": 7000,
+      "price_on_request": false,
+      "source_row": 89,
+      "previous_name": "BOITE MIAMI 1.6L GM REF 03 AVEC PASSOIR"
+    },
+    {
+      "id": "c62734a7-99d7-583d-a912-48103f71813d",
+      "code": "BRFTC",
+      "name": "BOITE RANGEMENT FRIGO TASSILI COMPARTIMENT",
+      "unit_price_cents": 15470,
+      "price_on_request": false,
+      "source_row": 92,
+      "previous_name": "BOITE RANGEMENT FRIGO TASSILI COMPARTIMENT 206,0000 ht"
+    },
+    {
+      "id": "0cd71f91-fb24-5329-b24a-d63248ea968a",
+      "code": "BSMMS2",
+      "name": "SAHLA SERIE 02 750+ 1200",
+      "unit_price_cents": 7500,
+      "price_on_request": false,
+      "source_row": 93,
+      "previous_name": "BOITE SAHLA SERIE 02 (750 + 1200 ML)"
+    },
+    {
+      "id": "8113613e-e731-5871-ab06-da21f4a6b0ba",
+      "code": "BRFT",
+      "name": "BOITE RANGEMENT FRIGO TASSILI",
+      "unit_price_cents": 15100,
+      "price_on_request": false,
+      "source_row": 94,
+      "previous_name": "BOITE RANGEMENT FRIGO TASSILI"
+    },
+    {
+      "id": "fd0c7e54-fb93-5e9f-99ee-6c86f55bcd82",
+      "code": "BSMM750",
+      "name": "SAHLA 750 ML REF 01",
+      "unit_price_cents": 3500,
+      "price_on_request": false,
+      "source_row": 95,
+      "previous_name": "BOITE SAHLA 750ML REF 01"
+    },
+    {
+      "id": "d0247da0-766c-5a4f-8828-d81a61f8e1dd",
+      "code": "BSMM1200",
+      "name": "SAHLA 1200 ML REF 02",
+      "unit_price_cents": 4500,
+      "price_on_request": false,
+      "source_row": 96,
+      "previous_name": "BOITE SAHLA 1200ML REF 02"
+    },
+    {
+      "id": "3ce5c498-2781-5097-9675-34365c7d7ca2",
+      "code": "BSMM1900",
+      "name": "SAHLA 1900 ML REF 03",
+      "unit_price_cents": 6200,
+      "price_on_request": false,
+      "source_row": 97,
+      "previous_name": "BOITE SAHLA 1900ML REF 03"
+    },
+    {
+      "id": "a1d32bf5-16cc-5b58-8785-a91b1e8d4470",
+      "code": "BS350",
+      "name": "SWING 350 ML PM",
+      "unit_price_cents": 1428,
+      "price_on_request": false,
+      "source_row": 98,
+      "previous_name": "BOITE SWING 350 ML PM"
+    },
+    {
+      "id": "0f4d9a5a-ae4d-5093-8f76-d8a51345369a",
+      "code": "BS600",
+      "name": "SWING 600 ML MM",
+      "unit_price_cents": 2700,
+      "price_on_request": false,
+      "source_row": 99,
+      "previous_name": "BOITE SWING 600 ML MM"
+    },
+    {
+      "id": "8754a221-37af-5cc7-a3a2-649ce1cb00df",
+      "code": "BS980",
+      "name": "SWING 980 ML GM",
+      "unit_price_cents": 3800,
+      "price_on_request": false,
+      "source_row": 100,
+      "previous_name": "BOITE SWING 980 ML GM"
+    },
+    {
+      "id": "90631d7e-c88a-5f64-b8ad-85d7c0c1bf19",
+      "code": "BSS/3",
+      "name": "SWING S 03",
+      "unit_price_cents": 1428,
+      "price_on_request": false,
+      "source_row": 101,
+      "previous_name": "BOITE SWING SERIE 03 (350+600+980 ML)"
+    },
+    {
+      "id": "31afbceb-2682-5d8a-ba2d-5e377fe5e605",
+      "code": "BC1.2L",
+      "name": "BOITE CEREALES 1.2L",
+      "unit_price_cents": 5474,
+      "price_on_request": false,
+      "source_row": 102,
+      "previous_name": "BOITE CEREALES 1.2L"
+    },
+    {
+      "id": "e016668a-4eb5-5dfe-8a9e-c30564d9df8f",
+      "code": "BC1.8L",
+      "name": "BOITE CEREALES 1.8L",
+      "unit_price_cents": 7616,
+      "price_on_request": false,
+      "source_row": 103,
+      "previous_name": "BOITE CEREALES 1.8L"
+    },
+    {
+      "id": "8bcc3e74-183f-5eb7-aa0e-5b6ee13b66ca",
+      "code": "BC2.5L",
+      "name": "BOITE CEREALES 2.5L",
+      "unit_price_cents": 8687,
+      "price_on_request": false,
+      "source_row": 104,
+      "previous_name": "BOITE CEREALES 2.5L"
+    },
+    {
+      "id": "064a02b2-b0a0-50f1-aecb-d2d81a055eec",
+      "code": "BC4L",
+      "name": "BOITE CEREALES 4L",
+      "unit_price_cents": 12138,
+      "price_on_request": false,
+      "source_row": 105,
+      "previous_name": "BOITE CEREALES 04L"
+    },
+    {
+      "id": "80dfe16b-58a9-537a-9768-db0b2f9066bd",
+      "code": "BSR580ML",
+      "name": "SPINNER RONDE 580 ML",
+      "unit_price_cents": 7500,
+      "price_on_request": false,
+      "source_row": 107,
+      "previous_name": "BOITE SPINNER RONDE 580 ML"
+    },
+    {
+      "id": "43ac2bbe-31da-53f9-94b3-10b37816f0ca",
+      "code": "BSR1250ML",
+      "name": "SPINNER RONDE 1250 ML",
+      "unit_price_cents": 11000,
+      "price_on_request": false,
+      "source_row": 108,
+      "previous_name": "BOITE SPINNER RONDE 1250 ML"
+    },
+    {
+      "id": "3ba29951-141c-5c16-a83a-051bbc55243a",
+      "code": "BSR2030ML",
+      "name": "SPINNER RONDE 2030 ML",
+      "unit_price_cents": 16500,
+      "price_on_request": false,
+      "source_row": 109,
+      "previous_name": "BOITE SPINNER RONDE 2030 ML"
+    },
+    {
+      "id": "9e8643aa-7e9e-5790-9b01-5c8e40d1d3d1",
+      "code": "BSC580ML",
+      "name": "SPINNER CARREE 580 ML",
+      "unit_price_cents": 8400,
+      "price_on_request": false,
+      "source_row": 110,
+      "previous_name": "BOITE SPINNER CARRE 580 ML"
+    },
+    {
+      "id": "4f6de43f-65c7-5432-82d5-5c878e0da414",
+      "code": "BSC1480ML",
+      "name": "SPINNER CARREE 1480 ML",
+      "unit_price_cents": 12600,
+      "price_on_request": false,
+      "source_row": 111,
+      "previous_name": "BOITE SPINNER CARRE 1480 ML"
+    },
+    {
+      "id": "ff4846fe-98a5-5dbc-a8ea-916b37a0a7ee",
+      "code": "BSC 2500ML",
+      "name": "SPINNER CARREE 2500 ML",
+      "unit_price_cents": 17900,
+      "price_on_request": false,
+      "source_row": 112,
+      "previous_name": "BOITE SPINNER CARRE 2500 ML"
+    },
+    {
+      "id": "380634a1-8860-5a2b-8178-c3dd5803bc04",
+      "code": "BS0.3",
+      "name": "BOITE SHEMS 0,3 LX2",
+      "unit_price_cents": 1400,
+      "price_on_request": false,
+      "source_row": 113,
+      "previous_name": "BOITE SHEMS 0.3LX02"
+    },
+    {
+      "id": "e8bf2ddc-1969-53db-9b72-3ff66bbb112e",
+      "code": "BS0.5",
+      "name": "BOITE SHEMS 0,5 LX2",
+      "unit_price_cents": 4000,
+      "price_on_request": false,
+      "source_row": 114,
+      "previous_name": "BOITE SHEMS 0.5LX02"
+    },
+    {
+      "id": "9b83e358-758c-5aab-b16a-c56e02f05429",
+      "code": "BS1L",
+      "name": "BOITE SHEMS 1 L X 2",
+      "unit_price_cents": 5474,
+      "price_on_request": false,
+      "source_row": 115,
+      "previous_name": "BOITE SHEMS 1LX02"
+    },
+    {
+      "id": "90fe0edc-abed-5e49-a437-ac0e5496e992",
+      "code": "BSD0.3",
+      "name": "BOITE SHEMS 0.3L X 2 DECOREE",
+      "unit_price_cents": 1904,
+      "price_on_request": false,
+      "source_row": 116,
+      "previous_name": "BOITE SHEMS 0.3LX02 DECORÉE"
+    },
+    {
+      "id": "ae33cf2e-a7d8-52c0-9895-a34d0c22ceae",
+      "code": "BSD0.5",
+      "name": "BOITE SHEMS 0.5L X 2 DECOREE",
+      "unit_price_cents": 2380,
+      "price_on_request": false,
+      "source_row": 117,
+      "previous_name": "BOITE SHEMS 0.5LX02 DECORÉE"
+    },
+    {
+      "id": "aee919af-17cc-548f-a61a-7f948704ab09",
+      "code": "BSD1L",
+      "name": "BOITE SHEMS 1L X 2 DECOREE",
+      "unit_price_cents": 4522,
+      "price_on_request": false,
+      "source_row": 118,
+      "previous_name": "BOITE SHEMS 1LX02 DECORÉE"
+    },
+    {
+      "id": "9ae4262b-debb-5781-aa56-734435cacd34",
+      "code": "BSD0.5S3",
+      "name": "BOITE SHEMS 0.5L DECORÉE SERIE 03",
+      "unit_price_cents": 2380,
+      "price_on_request": false,
+      "source_row": 119,
+      "previous_name": "BOITE SHEMS 0.5L DECORÉE SERIE 03"
+    },
+    {
+      "id": "67f81fbf-5667-541f-8618-c5fc0ea8cb3c",
+      "code": "BS0.5S4",
+      "name": "BOITE SHEMS 0.5L SERIE 04",
+      "unit_price_cents": 7000,
+      "price_on_request": false,
+      "source_row": 120,
+      "previous_name": "BOITE SHEMS 0.5L SERIE 04"
+    },
+    {
+      "id": "eac779e4-bf53-5992-8675-19c868360e50",
+      "code": "BS0.3S5",
+      "name": "BOITE SHEMS 0.3L SERIE 05",
+      "unit_price_cents": 1400,
+      "price_on_request": false,
+      "source_row": 121,
+      "previous_name": "BOITE SHEMS 0.3L SERIE 05"
+    },
+    {
+      "id": "5dfb3751-097f-50d5-87db-c95788df979a",
+      "code": "BN0.3",
+      "name": "BOITE NEDJMA 0.3 LX2",
+      "unit_price_cents": 1428,
+      "price_on_request": false,
+      "source_row": 122,
+      "previous_name": "BOITE NEDJMA 0.3 LX2"
+    },
+    {
+      "id": "1c7bbcf9-b4ca-5a89-a01b-33cc9d1af386",
+      "code": "BNS4",
+      "name": "BOITES NEDJMA S4",
+      "unit_price_cents": 8330,
+      "price_on_request": false,
+      "source_row": 123,
+      "previous_name": "BOITE NEDJMA S/04"
+    },
+    {
+      "id": "74960965-c02e-5843-a621-b8a201611137",
+      "code": "EL",
+      "name": "EGOUTTOIR LEO",
+      "unit_price_cents": 6700,
+      "price_on_request": false,
+      "source_row": 124,
+      "previous_name": "EGOUTTOIR LEO"
+    },
+    {
+      "id": "fee78725-1c09-5039-87ce-b1cdd118c07f",
+      "code": "SAA",
+      "name": "SUPPORT ASSIETTE ASTER",
+      "unit_price_cents": 4284,
+      "price_on_request": false,
+      "source_row": 125,
+      "previous_name": "SUPPORT ASSIETTE ASTER"
+    },
+    {
+      "id": "b863d094-2b8c-59dd-ad44-9da64dcc222e",
+      "code": "SAR",
+      "name": "SUPPORT ASSIETTE RAYHANE",
+      "unit_price_cents": 5474,
+      "price_on_request": false,
+      "source_row": 126,
+      "previous_name": "SUPPORT ASSIETTE RAYHANE"
+    },
+    {
+      "id": "3531ef71-3fbe-513e-a060-c19a45781ffa",
+      "code": "SAG",
+      "name": "SUPPORT ASSIETTE GHIZLAINE",
+      "unit_price_cents": 4998,
+      "price_on_request": false,
+      "source_row": 127,
+      "previous_name": "SUPPORT ASSIETTE GHIZLAINE"
+    },
+    {
+      "id": "71afa687-23e8-5d0f-a321-314386dde4af",
+      "code": "POS",
+      "name": "PORTE OEUFS SILVER",
+      "unit_price_cents": 12600,
+      "price_on_request": false,
+      "source_row": 128,
+      "previous_name": "PORTE OEUFS SILVER"
+    },
+    {
+      "id": "b99bf0d8-243c-5f4a-ab50-8d36e7754742",
+      "code": "CD",
+      "name": "CUILLERE A DOSAGE",
+      "unit_price_cents": 3213,
+      "price_on_request": false,
+      "source_row": 129,
+      "previous_name": "CUILLERE A DOSAGE"
+    },
+    {
+      "id": "ed02c283-6a83-501d-a0fb-de20cfdfc370",
+      "code": "EC",
+      "name": "ESSOREUSE COULEUR",
+      "unit_price_cents": 14875,
+      "price_on_request": false,
+      "source_row": 130,
+      "previous_name": "ESSOREUSE COULEUR"
+    },
+    {
+      "id": "9c7606d7-f84d-5217-af64-eb16e8f0796d",
+      "code": "ET",
+      "name": "ESSOREUSE TRANSPARENT",
+      "unit_price_cents": 14875,
+      "price_on_request": false,
+      "source_row": 131,
+      "previous_name": "ESSOREUSE TRANSPARENTE"
+    },
+    {
+      "id": "b86b00e4-3bad-53e9-bbdf-abb55a61a614",
+      "code": "PD",
+      "name": "PASSOIRE DOUBLE",
+      "unit_price_cents": 7735,
+      "price_on_request": false,
+      "source_row": 132,
+      "previous_name": "PASSOIRE DOUBLE"
+    },
+    {
+      "id": "f40d2bc8-48b0-5c5d-9bd6-630313bdbc29",
+      "code": "RMFAI",
+      "name": "RANGEMENT MULTI FONCTION IRIS ASSIETTE",
+      "unit_price_cents": 7497,
+      "price_on_request": false,
+      "source_row": 133,
+      "previous_name": "RANGEMENT MULTI FONCTION IRIS ASSIETTE"
+    },
+    {
+      "id": "12439cb7-35b4-5d65-989c-4f95b5a4c356",
+      "code": "RMFSI",
+      "name": "RANGEMENT MULTI FONCTION IRIS SINGLE",
+      "unit_price_cents": 4998,
+      "price_on_request": false,
+      "source_row": 134,
+      "previous_name": "RANGEMENT MULTI FONCTION IRIS SINGLE"
+    },
+    {
+      "id": "89d2d881-6071-58d7-b3b5-8f4322bc67e5",
+      "code": "RMFDI",
+      "name": "RANGEMENT MULTI FONCTION IRIS DUO",
+      "unit_price_cents": 9520,
+      "price_on_request": false,
+      "source_row": 135,
+      "previous_name": "RANGEMENT MULTI FONCTION IRIS DUO"
+    },
+    {
+      "id": "e95263cb-f019-52e4-95e6-1be101753ac5",
+      "code": "PGT",
+      "name": "PORTE GOBLE TITANIC",
+      "unit_price_cents": 4522,
+      "price_on_request": false,
+      "source_row": 136,
+      "previous_name": "PORTE GOBLET TITANIC"
+    },
+    {
+      "id": "783a2f83-7741-5934-aa54-fdb715e316c4",
+      "code": "ETV",
+      "name": "ESSUIE TOUT VAIANA",
+      "unit_price_cents": 4522,
+      "price_on_request": false,
+      "source_row": 137,
+      "previous_name": "ESSUIE TOUT VAIANA"
+    },
+    {
+      "id": "569f917d-1556-5bba-afeb-f0c2a4da3e31",
+      "code": "PCO GM",
+      "name": "RANGEMENT MULTI FONCTION OCEAN GM",
+      "unit_price_cents": 5474,
+      "price_on_request": false,
+      "source_row": 138,
+      "previous_name": "RANGEMENT MULTI FONCTION OCEAN GM"
+    },
+    {
+      "id": "b7006387-d6a0-5275-ac35-e55b76ccefa4",
+      "code": "PCO PM",
+      "name": "RANGEMENT MULTI FONCTION OCEAN PM",
+      "unit_price_cents": 4284,
+      "price_on_request": false,
+      "source_row": 139,
+      "previous_name": "RANGEMENT MULTI FONCTION OCEAN PM"
+    },
+    {
+      "id": "299e122e-a0f4-5e21-ac1f-5b56eadd57f1",
+      "code": "RC",
+      "name": "RANGEMENT CUISINE",
+      "unit_price_cents": 16303,
+      "price_on_request": false,
+      "source_row": 140,
+      "previous_name": "RANGEMENT CUISINE"
+    },
+    {
+      "id": "c0fa51fa-736e-5ecc-ad36-3d7c80022114",
+      "code": "BTPM",
+      "name": "BOITE TAWABIL MAGHNIA PM",
+      "unit_price_cents": 14900,
+      "price_on_request": false,
+      "source_row": 141,
+      "previous_name": "BOITE TAWABIL MAGHNIA PM"
+    },
+    {
+      "id": "745c16be-7299-5b1e-ada3-2364f7ef7c90",
+      "code": "BTMM",
+      "name": "BOITE TAWABIL MAGHNIA MM",
+      "unit_price_cents": 22000,
+      "price_on_request": false,
+      "source_row": 142,
+      "previous_name": "BOITE TAWABIL MAGHNIA MM"
+    },
+    {
+      "id": "ace812fc-c24f-5fc7-9406-ff4d450488b5",
+      "code": "BEPMA/SC05",
+      "name": "BOITE EPICE PM A/S",
+      "unit_price_cents": 12138,
+      "price_on_request": false,
+      "source_row": 143,
+      "previous_name": "BOITE EPICE PM A/S"
+    },
+    {
+      "id": "9a3590cb-6626-5aef-8338-386930c1604a",
+      "code": "BEMMA/SC",
+      "name": "BOITE EPICE MM A/S",
+      "unit_price_cents": 22015,
+      "price_on_request": false,
+      "source_row": 144,
+      "previous_name": "BOITE EPICE MM A/S"
+    },
+    {
+      "id": "46a189e4-3b19-5a10-8c4b-cb88ac3415ed",
+      "code": "BEGM",
+      "name": "BOITE EPICE GM S/02",
+      "unit_price_cents": 8211,
+      "price_on_request": false,
+      "source_row": 145,
+      "previous_name": "BOITE EPICE GM S/02"
+    },
+    {
+      "id": "ff8dca8c-d66c-5ae2-b3f3-ee9b12284b2a",
+      "code": "PRPM",
+      "name": "PLATEAUX RESTO PM",
+      "unit_price_cents": 6700,
+      "price_on_request": false,
+      "source_row": 146,
+      "previous_name": "PLATEAUX RESTO PM"
+    },
+    {
+      "id": "f95f805a-a8eb-57f6-904d-5319eea4447e",
+      "code": "PRGM",
+      "name": "PLATEAUX RESTO GM",
+      "unit_price_cents": 12500,
+      "price_on_request": false,
+      "source_row": 147,
+      "previous_name": "PLATEAUX RESTO GM"
+    },
+    {
+      "id": "93be9ff0-547e-5b7c-8370-41a7e050707f",
+      "code": "SPC",
+      "name": "SUPPORT PORTE CUISINE",
+      "unit_price_cents": 3808,
+      "price_on_request": false,
+      "source_row": 148,
+      "previous_name": "SUPPORT PORTE CUISINE"
+    },
+    {
+      "id": "c33f454f-d4bd-5b0c-a9cc-cf17edbb159c",
+      "code": "LTD",
+      "name": "LOUCHE TETE D’OR",
+      "unit_price_cents": 2100,
+      "price_on_request": false,
+      "source_row": 149,
+      "previous_name": "LOUCHE TETE D'OR"
+    },
+    {
+      "id": "9405ca4f-8379-52fe-a3be-57cf36b61ce8",
+      "code": "CTD",
+      "name": "CUILLERE TETE D’OR",
+      "unit_price_cents": 2100,
+      "price_on_request": false,
+      "source_row": 150,
+      "previous_name": "CUILLÈRE TETE D'OR"
+    },
+    {
+      "id": "31902b07-fd4f-5fa3-989f-060cc2073516",
+      "code": "LCTD",
+      "name": "LOUCHE + CUILLERE TETE D’OR",
+      "unit_price_cents": 2100,
+      "price_on_request": false,
+      "source_row": 151,
+      "previous_name": "LOUCHE +CUILLERE TETE D'OR"
+    },
+    {
+      "id": "8a7cca21-8bd9-5267-b108-f31e56e3a3ba",
+      "code": "SPMT",
+      "name": "SALADIER PM TRANSPARANT",
+      "unit_price_cents": 9758,
+      "price_on_request": false,
+      "source_row": 152,
+      "previous_name": "SALADIER P/M TRANSPARANT"
+    },
+    {
+      "id": "07543dd2-1866-5159-bacf-22c749706544",
+      "code": "SPMC",
+      "name": "SALADIER PM COULEUR",
+      "unit_price_cents": 9758,
+      "price_on_request": false,
+      "source_row": 153,
+      "previous_name": "SALADIER P/M COULEUR"
+    },
+    {
+      "id": "2a2a4c38-fed5-5565-ad44-445a73d46737",
+      "code": "SCOL",
+      "name": "SALADIER COULEUR",
+      "unit_price_cents": 5831,
+      "price_on_request": false,
+      "source_row": 154,
+      "previous_name": "SALADIER COULEUR"
+    },
+    {
+      "id": "7097f841-cf34-5122-855e-47cb2ba6b354",
+      "code": "SF0.3L",
+      "name": "SALADIER FRESH 0,3 L",
+      "unit_price_cents": 714,
+      "price_on_request": false,
+      "source_row": 155,
+      "previous_name": "SALADIER FRESH 0.3L"
+    },
+    {
+      "id": "1f6e9124-027b-5758-a61b-806e64bbf460",
+      "code": "SF0.75L",
+      "name": "SALADIER FRESH 0,75 L",
+      "unit_price_cents": 1666,
+      "price_on_request": false,
+      "source_row": 156,
+      "previous_name": "SALADIER FRESH 0.75L"
+    },
+    {
+      "id": "681ccc12-3903-5689-9583-034bbda22b24",
+      "code": "SF1.4L",
+      "name": "SALADIER FRESH 1,4 L",
+      "unit_price_cents": 2618,
+      "price_on_request": false,
+      "source_row": 157,
+      "previous_name": "SALADIER FRESH 1.4L"
+    },
+    {
+      "id": "22e4286f-d06d-5bd5-ae43-e8299a1d7052",
+      "code": "SF2.4L",
+      "name": "SALADIER FRESH 2,4 L",
+      "unit_price_cents": 3927,
+      "price_on_request": false,
+      "source_row": 158,
+      "previous_name": "SALADIER FRESH 2.4L"
+    },
+    {
+      "id": "225a2e35-3cc1-53c9-b341-b65833cd9870",
+      "code": "SF4.5L",
+      "name": "SALADIER FRESH 4,5 L",
+      "unit_price_cents": 6545,
+      "price_on_request": false,
+      "source_row": 159,
+      "previous_name": "SALADIER FRESH 4.5L"
+    },
+    {
+      "id": "3f6f400a-e72c-5125-b5e1-fd20ae68a224",
+      "code": "BDC",
+      "name": "BOL DOUBL COULEUR 0.5",
+      "unit_price_cents": 3689,
+      "price_on_request": false,
+      "source_row": 160,
+      "previous_name": "BOL DOUBLE COULEUR 0.5 L"
+    },
+    {
+      "id": "fdab201f-5b0b-56ca-9a7c-3cdda90e8fdc",
+      "code": "PC",
+      "name": "PRESSE CITRON COULEUR",
+      "unit_price_cents": 4165,
+      "price_on_request": false,
+      "source_row": 161,
+      "previous_name": "PRESSE CITRON COULEUR"
+    },
+    {
+      "id": "66cb3408-a3f6-51f7-99d6-b66616a77c8f",
+      "code": "PCT",
+      "name": "PRESSE CITRON TRANSPARANT",
+      "unit_price_cents": 4165,
+      "price_on_request": false,
+      "source_row": 162,
+      "previous_name": "PRESSE CITRON TRANSPARANT"
+    },
+    {
+      "id": "331f3dae-d982-5c74-ae15-0969d722d076",
+      "code": "EF1.8L",
+      "name": "EGOUTTOIR FOURCHETTE PERFOREE 1.8L",
+      "unit_price_cents": 7497,
+      "price_on_request": false,
+      "source_row": 163,
+      "previous_name": "EGOUTTOIR FOURCHETTE PERFOREE 1.8L"
+    },
+    {
+      "id": "e8ddcc5c-b21d-5e5f-b888-8c31d193a2cb",
+      "code": "SCFC",
+      "name": "SERVICE COCTAIL FLORIA COULEUR",
+      "unit_price_cents": 9758,
+      "price_on_request": false,
+      "source_row": 164,
+      "previous_name": "SERVICE COCKTAIL FLORIA COULEUR"
+    },
+    {
+      "id": "b71bad16-9f56-5dd0-8d7e-1dea9b42c2f7",
+      "code": "VFC",
+      "name": "VERSEUR FLORIA COULEUR",
+      "unit_price_cents": 10000,
+      "price_on_request": false,
+      "source_row": 165,
+      "previous_name": "VERSEUR FLORIA COULEUR"
+    },
+    {
+      "id": "d32c3c18-f74a-5e02-be86-3d8be7f926ca",
+      "code": "SCFT",
+      "name": "SERVICE COCTAIL FLORIA TRANSPARENT",
+      "unit_price_cents": 11543,
+      "price_on_request": false,
+      "source_row": 166,
+      "previous_name": "SERVICE COCKTAIL FLORIA TRANSPARENT"
+    },
+    {
+      "id": "8fef6909-3294-55a9-8de7-e8507ee9e860",
+      "code": "VFT",
+      "name": "VERSEUR FLORIA TRANSPARENT",
+      "unit_price_cents": 12000,
+      "price_on_request": false,
+      "source_row": 167,
+      "previous_name": "VERSEUR FLORIA TRANSPARENT"
+    },
+    {
+      "id": "54e96204-c147-59a3-8f81-5c44c71526b9",
+      "code": "BM1250D",
+      "name": "BROC EL MORJENE DECORÉ 1250 ML",
+      "unit_price_cents": 7140,
+      "price_on_request": false,
+      "source_row": 168,
+      "previous_name": "BROC EL MORDJENE DECOREE 1250 ML"
+    },
+    {
+      "id": "35324ad1-0a17-5e38-8d34-a90cb910ae56",
+      "code": "BM1250C",
+      "name": "BROC EL MORJENE COLORÉ 1250 ML",
+      "unit_price_cents": 5300,
+      "price_on_request": false,
+      "source_row": 169,
+      "previous_name": "BROC EL MORDJENE COLOREE 1250 ML"
+    },
+    {
+      "id": "47397c8f-c6c4-5482-801d-6453d558bf39",
+      "code": "BM1250T",
+      "name": "BROC EL MORJENE TRANSPARENT 1250 ML",
+      "unit_price_cents": 5300,
+      "price_on_request": false,
+      "source_row": 170,
+      "previous_name": "BROC EL MORDJENE TRANSPARENT 1250 ML"
+    },
+    {
+      "id": "0ffc443a-a5c9-5cf1-8f1c-2e9d27dee785",
+      "code": "BM1500T",
+      "name": "BROC EL MORJENE TRANSPARENT 1500 ML",
+      "unit_price_cents": 4284,
+      "price_on_request": false,
+      "source_row": 171,
+      "previous_name": "BROC EL MORDJENE TRANSPARENT 1500 ML"
+    },
+    {
+      "id": "12e3f972-0e5e-5af1-b06c-aa0bbb650b17",
+      "code": "BM1500C",
+      "name": "BROC EL MORJENE COLORÉ 1500 ML",
+      "unit_price_cents": 3808,
+      "price_on_request": false,
+      "source_row": 172,
+      "previous_name": "BROC EL MORDJENE COLOREE 1500 ML"
+    },
+    {
+      "id": "19ed10cc-7d5d-50b5-ad3e-410ae4ecb92d",
+      "code": "VC",
+      "name": "VERRE CRYSTAL",
+      "unit_price_cents": 3000,
+      "price_on_request": false,
+      "source_row": 173,
+      "previous_name": "VERRE CRYSTAL"
+    },
+    {
+      "id": "b101437e-479d-51b7-beb2-cc7c5d492089",
+      "code": "BM1500SC",
+      "name": "SERVICE BROC EL MORJENE COLORÉ 1500 ML",
+      "unit_price_cents": 3808,
+      "price_on_request": false,
+      "source_row": 174,
+      "previous_name": "SERVICE BROC EL MORDJENE COLOREE 1500ML"
+    },
+    {
+      "id": "c557203d-02d0-5ed8-9a95-4c587b51f2ba",
+      "code": "BM1500ST",
+      "name": "SERVICE BROC EL MORJENE TRANSPARENT 1500 ML",
+      "unit_price_cents": 3808,
+      "price_on_request": false,
+      "source_row": 175,
+      "previous_name": "SERVICE BROC EL MORDJENE TRANSPARENT 1500ML"
+    },
+    {
+      "id": "8295aef5-7881-53ed-ae97-6c646a9757cb",
+      "code": "SHOPS5",
+      "name": "SHOP SERIE 05",
+      "unit_price_cents": 1309,
+      "price_on_request": false,
+      "source_row": 176,
+      "previous_name": "SHOP SERIE 05"
+    },
+    {
+      "id": "716fb32f-c866-59df-bda4-4be7d6f5eb47",
+      "code": "GS6",
+      "name": "GOBLET S6",
+      "unit_price_cents": 6545,
+      "price_on_request": false,
+      "source_row": 178,
+      "previous_name": "GOBLET SERIE 06"
+    },
+    {
+      "id": "736e9b23-ba68-5c14-a886-c6509e0369b7",
+      "code": "GO380",
+      "name": "GOURDE 380 ML",
+      "unit_price_cents": 6000,
+      "price_on_request": false,
+      "source_row": 179,
+      "previous_name": "GOURDE 380 ML"
+    },
+    {
+      "id": "e26daf61-21e4-5bad-a8c2-f8f2cc406df9",
+      "code": "GO500",
+      "name": "GOURDE 500 ML",
+      "unit_price_cents": 7500,
+      "price_on_request": false,
+      "source_row": 180,
+      "previous_name": "GOURDE 500 ML"
+    },
+    {
+      "id": "99e637c5-a88a-5909-ad73-776e059233f4",
+      "code": "C03E",
+      "name": "CHARIOT CARGO 03 ETAGES",
+      "unit_price_cents": 45815,
+      "price_on_request": false,
+      "source_row": 181,
+      "previous_name": "CHARIOT CARGO 03 ETAGES"
+    },
+    {
+      "id": "f2a76617-7c82-545f-a7da-b6e5409fdbf0",
+      "code": "C04E",
+      "name": "CHARIOT CARGO 04 ETAGES",
+      "unit_price_cents": 57596,
+      "price_on_request": false,
+      "source_row": 182,
+      "previous_name": "CHARIOT CARGO 04 ETAGES"
+    },
+    {
+      "id": "d4b4c3b2-cbce-5074-a467-eedf9f18c17d",
+      "code": "CC4E",
+      "name": "CHARIOT CARRE 04 ETAGES",
+      "unit_price_cents": 60214,
+      "price_on_request": false,
+      "source_row": 183,
+      "previous_name": "CHARIOT CARRE 04 ETAGES"
+    },
+    {
+      "id": "31578bd1-4ce9-5311-8693-a5affb530f6d",
+      "code": "RRAPM",
+      "name": "RANGEMENT RECTANGLE AMIRAL PM",
+      "unit_price_cents": 5831,
+      "price_on_request": false,
+      "source_row": 184,
+      "previous_name": "RANGEMENT RECTANGLE AMIRAL PM"
+    },
+    {
+      "id": "0f50f658-21b4-56d8-84ef-ed18d0d4e139",
+      "code": "RRAGM",
+      "name": "RANGEMENT RECTANGLE AMIRAL GM",
+      "unit_price_cents": 8925,
+      "price_on_request": false,
+      "source_row": 185,
+      "previous_name": "RANGEMENT RECTANGLE AMIRAL GM"
+    },
+    {
+      "id": "4b5e5579-d9c7-5726-9a6d-e4274f146c14",
+      "code": "CC3E",
+      "name": "CHARIOT CARRE 03 ETAGES",
+      "unit_price_cents": 42483,
+      "price_on_request": false,
+      "source_row": 186,
+      "previous_name": "CHARIOT CARRE 03 ETAGES"
+    },
+    {
+      "id": "71f55014-8c36-5986-ab7d-7e3f2bbb97ef",
+      "code": "CUVPM",
+      "name": "CUVETTE DIAM 32 PM A/C",
+      "unit_price_cents": 14399,
+      "price_on_request": false,
+      "source_row": 187,
+      "previous_name": "CUVETTE DIAM 32 PM A/C"
+    },
+    {
+      "id": "449b1dbc-b7e4-5950-b375-92b89059945e",
+      "code": "CUVMM",
+      "name": "CUVETTE DIAM 36 MM A/C",
+      "unit_price_cents": 18564,
+      "price_on_request": false,
+      "source_row": 188,
+      "previous_name": "CUVETTE DIAM 36 MM A/C"
+    },
+    {
+      "id": "ba4f2375-a1df-5e2a-919b-4815263d5524",
+      "code": "CUVGM",
+      "name": "CUVETTE DIAM 40 GM A/C",
+      "unit_price_cents": 23562,
+      "price_on_request": false,
+      "source_row": 189,
+      "previous_name": "CUVETTE DIAM 40 GM A/C"
+    },
+    {
+      "id": "7d9b63b1-3492-5793-a42e-d9c66f369549",
+      "code": "CUVAC20",
+      "name": "CUVETTE DIAM 20 A/C",
+      "unit_price_cents": 4165,
+      "price_on_request": false,
+      "source_row": 190,
+      "previous_name": "CUVETTE DIAM 20 A/C"
+    },
+    {
+      "id": "67464a54-8dca-50b7-bafd-285508f0ed1b",
+      "code": "CUVA/C24",
+      "name": "CUVETTE DIAM 24 A/C",
+      "unit_price_cents": 6069,
+      "price_on_request": false,
+      "source_row": 191,
+      "previous_name": "CUVETTE DIAM 24 A/C"
+    },
+    {
+      "id": "da2f8e93-b8aa-502e-aee5-b77783235fe7",
+      "code": "CUVA/C28",
+      "name": "CUVETTE DIAM 28 A/C",
+      "unit_price_cents": 8092,
+      "price_on_request": false,
+      "source_row": 192,
+      "previous_name": "CUVETTE DIAM 28 A/C"
+    },
+    {
+      "id": "5c08a23f-9180-5a36-8005-c51fa8a1d881",
+      "code": "CUVP",
+      "name": "CUVETTE DIAM 24 PASSOIRE 2.5 L",
+      "unit_price_cents": 6188,
+      "price_on_request": false,
+      "source_row": 193,
+      "previous_name": "CUVETTE DIAM 24 PASSOIRE 2.5L"
+    },
+    {
+      "id": "13bf02a9-2ff0-5885-b8c3-79442ebba91a",
+      "code": "CUV20",
+      "name": "CUVETTE DIAM 20",
+      "unit_price_cents": 2261,
+      "price_on_request": false,
+      "source_row": 194,
+      "previous_name": "CUVETTE DIAM 20"
+    },
+    {
+      "id": "c70eefcf-ca2f-5290-889f-c73baf2c5531",
+      "code": "CUVS3PM",
+      "name": "CUVETTE S/3 20+24+28 PM",
+      "unit_price_cents": 9000,
+      "price_on_request": false,
+      "source_row": 195,
+      "previous_name": "CUVETTE S/03= 20+24+28 PM"
+    },
+    {
+      "id": "c21b419f-0ef2-545b-ac7e-0a69a1df4fee",
+      "code": "CUVS3GM",
+      "name": "CUVETTE S/3 28+32+36 GM",
+      "unit_price_cents": 18000,
+      "price_on_request": false,
+      "source_row": 196,
+      "previous_name": "CUVETTE S/03= 28+32+36 GM"
+    },
+    {
+      "id": "31305a93-90cf-567d-af6f-78c2d5b67f54",
+      "code": "CPC",
+      "name": "CHAISE DE PLAGE COULEUR",
+      "unit_price_cents": 54450,
+      "price_on_request": false,
+      "source_row": 198,
+      "previous_name": "CHAISE DE PLAGE COULEUR"
+    },
+    {
+      "id": "b7aa1c28-9689-58d8-96d1-afbcffbbd69c",
+      "code": "CPD",
+      "name": "CHAISE DE PLAGE DECORÉE",
+      "unit_price_cents": 48790,
+      "price_on_request": false,
+      "source_row": 199,
+      "previous_name": "CHAISE DE PLAGE DECORÉE"
+    },
+    {
+      "id": "41a4a4ab-3c3b-5a23-86b8-5f795e3e130c",
+      "code": "CRB",
+      "name": "CHAISE ROYALE BLANCHE",
+      "unit_price_cents": 63070,
+      "price_on_request": false,
+      "source_row": 200,
+      "previous_name": "CHAISE ROYALE BLANCHE"
+    },
+    {
+      "id": "5d3f41df-f20e-5129-a0f5-9661be195199",
+      "code": "CFC",
+      "name": "CHAISE FAUTEUIL COULEUR",
+      "unit_price_cents": 73066,
+      "price_on_request": false,
+      "source_row": 203,
+      "previous_name": "CHAISE FAUTEUIL COULEUR"
+    },
+    {
+      "id": "fed9b4be-4998-571d-9736-de8b5533437d",
+      "code": "CPLB",
+      "name": "CHAISE PLIANTE BLANCHE",
+      "unit_price_cents": 65450,
+      "price_on_request": false,
+      "source_row": 205,
+      "previous_name": "CHAISE PLIANTE BLANCHE"
+    },
+    {
+      "id": "66aeafe5-5ed2-5436-b5f1-407d7dd686d0",
+      "code": "CFB",
+      "name": "CHAISE FAUTEUIL BLANC",
+      "unit_price_cents": 73066,
+      "price_on_request": false,
+      "source_row": 206,
+      "previous_name": "CHAISE FAUTEUIL BLANC"
+    },
+    {
+      "id": "2a5638f6-e2de-52d4-9bcd-6648587f5383",
+      "code": "TT28",
+      "name": "TABOURET TRESSE HAUTEUR 28 CM",
+      "unit_price_cents": 19040,
+      "price_on_request": false,
+      "source_row": 208,
+      "previous_name": "TABOURET TRESSE HAUTEUR 28 CM"
+    },
+    {
+      "id": "172148cf-0e7c-5074-b8f7-4d2773fa724f",
+      "code": "TT50",
+      "name": "TABOURET TRESSE HAUTER 50 CM",
+      "unit_price_cents": 30238,
+      "price_on_request": false,
+      "source_row": 209,
+      "previous_name": "TABOURET TRESSE HAUTEUR 50 CM"
+    },
+    {
+      "id": "ad079303-910b-5bab-9ee2-31a135527be7",
+      "code": "TTH",
+      "name": "TABOURET TRESSE HAMMAM",
+      "unit_price_cents": 19040,
+      "price_on_request": false,
+      "source_row": 210,
+      "previous_name": "TABOURET TRESSE HAMMAM"
+    },
+    {
+      "id": "e4a64616-3cd3-5bcd-a325-443c98829987",
+      "code": "M41B",
+      "name": "MAIDA PIED FIXE RONDE 41 CM BLANCHE",
+      "unit_price_cents": 20000,
+      "price_on_request": false,
+      "source_row": 211,
+      "previous_name": "MAIDA PIED FIXE RONDE 41 CM BLANCHE"
+    },
+    {
+      "id": "57ae4117-44ab-5725-a7e4-6a17d8896814",
+      "code": "M41C",
+      "name": "MAIDA PIED FIXE RONDE 41 CM COULEUR",
+      "unit_price_cents": 20000,
+      "price_on_request": false,
+      "source_row": 212,
+      "previous_name": "MAIDA PIED FIXE RONDE 41 CM COULEUR"
+    },
+    {
+      "id": "e42ff6a4-2fb2-51f2-875c-ae8e3f4b00ea",
+      "code": "M60B",
+      "name": "MAIDA PIED FIXE RONDE 60 CM BLANCHE",
+      "unit_price_cents": 35000,
+      "price_on_request": false,
+      "source_row": 214,
+      "previous_name": "MAIDA PIED FIXE RONDE 60 CM BLANCHE"
+    },
+    {
+      "id": "d2ba45c3-b146-52d7-bb96-14acbbb9b267",
+      "code": "M60D",
+      "name": "MAIDA PIED FIXE RONDE 60 CM DECORÉE",
+      "unit_price_cents": 38000,
+      "price_on_request": false,
+      "source_row": 215,
+      "previous_name": "MAIDA PIED FIXE RONDE 60 CM DECORÉE"
+    },
+    {
+      "id": "d968466b-4e7a-52f1-9852-5889f67d0b66",
+      "code": "M65B",
+      "name": "MAIDA PIED DEMONTABLE RONDE 65 CM BLANCHE",
+      "unit_price_cents": 36000,
+      "price_on_request": false,
+      "source_row": 217,
+      "previous_name": "MAIDA PIED DEMONTABLE RONDE 65 CM BLANCHE"
+    },
+    {
+      "id": "dadd0a1a-4f95-50f0-a5a2-d288ab87f9d6",
+      "code": "M65D",
+      "name": "MAIDA PIED DEMONTABLE RONDE 65 CM DECORÉE",
+      "unit_price_cents": 40000,
+      "price_on_request": false,
+      "source_row": 219,
+      "previous_name": "MAIDA PIED DEMONTABLE RONDE 65 CM DECORÉE"
+    },
+    {
+      "id": "19465b7c-d0c4-5660-b017-17b09225b19d",
+      "code": "M75B",
+      "name": "MAIDA PIED DEMONTABLE RONDE 75 CM BLANCHE",
+      "unit_price_cents": 57120,
+      "price_on_request": false,
+      "source_row": 220,
+      "previous_name": "MAIDA PIED DEMONTABLE RONDE 75 CM BLANCHE"
+    },
+    {
+      "id": "43bbf40c-5a83-56a6-9737-e097be111f8a",
+      "code": "M75C",
+      "name": "MAIDA PIED DEMONTABLE RONDE 75 CM COULEUR",
+      "unit_price_cents": 57120,
+      "price_on_request": false,
+      "source_row": 221,
+      "previous_name": "MAIDA PIED DEMONTABLE RONDE 75 CM COULEUR"
+    },
+    {
+      "id": "cd940e3d-736b-57b0-9839-e18f6fa13c0f",
+      "code": "M42B",
+      "name": "MAIDA PIED FIXE CARRE 42 CM BLANCHE",
+      "unit_price_cents": 20000,
+      "price_on_request": false,
+      "source_row": 222,
+      "previous_name": "MAIDA PIED FIXE CARRE 42 CM BLANCHE"
+    },
+    {
+      "id": "9c91e99b-2356-557d-96c5-c2da3b32d1b8",
+      "code": "M42C",
+      "name": "MAIDA PIED FIXE CARRE 42 CM COULEUR",
+      "unit_price_cents": 20000,
+      "price_on_request": false,
+      "source_row": 223,
+      "previous_name": "MAIDA PIED FIXE CARRE 42 CM COULEUR"
+    },
+    {
+      "id": "5145d1f9-6022-5d23-8e92-bc096a349d83",
+      "code": "TPOB",
+      "name": "TABLE PLIANTE OSTORA BLANCHE",
+      "unit_price_cents": 90000,
+      "price_on_request": false,
+      "source_row": 224,
+      "previous_name": "TABLE PLIANTE OSTORA BLANCHE"
+    },
+    {
+      "id": "53cbd8ee-25bc-5e29-b4db-0bffa6aa84a9",
+      "code": "TPOC",
+      "name": "TABLE PLIANTE OSTORA COULEUR",
+      "unit_price_cents": 90000,
+      "price_on_request": false,
+      "source_row": 225,
+      "previous_name": "TABLE PLIANTE OSTORA COULEUR"
+    },
+    {
+      "id": "1eb27f90-d773-5071-8480-b5ecb26bf0a2",
+      "code": "TOB",
+      "name": "TABLE OVALE BLANCHE",
+      "unit_price_cents": 196350,
+      "price_on_request": false,
+      "source_row": 226,
+      "previous_name": "TABLE OVAL BLANCHE"
+    },
+    {
+      "id": "9b034ab8-38ba-53fe-99e5-1ec9a94c678c",
+      "code": "TOC",
+      "name": "TABLE OVALE COULEUR",
+      "unit_price_cents": 196350,
+      "price_on_request": false,
+      "source_row": 227,
+      "previous_name": "TABLE OVAL COULEUR"
+    },
+    {
+      "id": "35557489-aac6-5615-be3a-4238f785d5b0",
+      "code": "TOD",
+      "name": "TABLE OVALE DECOREE",
+      "unit_price_cents": 208131,
+      "price_on_request": false,
+      "source_row": 228,
+      "previous_name": "TABLE OVAL DECORÉE"
+    },
+    {
+      "id": "27c709bf-3122-5748-909b-a36d118d82d9",
+      "code": "TCB",
+      "name": "TABLE CHREA BLANCHE",
+      "unit_price_cents": 230979,
+      "price_on_request": false,
+      "source_row": 229,
+      "previous_name": "TABLE CHREA BLANCHE"
+    },
+    {
+      "id": "f83efe6d-8792-5131-b12b-e0c954eabdc6",
+      "code": "TCD",
+      "name": "ABLE CHREA DECOREE",
+      "unit_price_cents": 272272,
+      "price_on_request": false,
+      "source_row": 231,
+      "previous_name": "TABLE CHREA DECORÉE"
+    },
+    {
+      "id": "d8c22840-78d4-55ad-9bda-3333e98f3aa1",
+      "code": "TRECD",
+      "name": "TABLE RECTANGLE DECOREE",
+      "unit_price_cents": 119000,
+      "price_on_request": false,
+      "source_row": 232,
+      "previous_name": "TABLE RECTANGLE DECORÉE"
+    },
+    {
+      "id": "e3bc0649-b0b3-5dd3-8c2e-5e3f40da9d5e",
+      "code": "TREC",
+      "name": "TABLE RECTANGLE BLANCHE",
+      "unit_price_cents": 117810,
+      "price_on_request": false,
+      "source_row": 233,
+      "previous_name": "TABLE RECTANGLE BLANC"
+    },
+    {
+      "id": "9b178905-0565-5e5c-ae42-4dca679c624f",
+      "code": "B10L",
+      "name": "BASSINE 10 L",
+      "unit_price_cents": 12971,
+      "price_on_request": false,
+      "source_row": 235,
+      "previous_name": "BASSINE 10 L"
+    },
+    {
+      "id": "bf0b0c07-7e38-5511-8aef-3bfdb276905f",
+      "code": "B25L",
+      "name": "BASSINE 25 L",
+      "unit_price_cents": 16541,
+      "price_on_request": false,
+      "source_row": 236,
+      "previous_name": "BASSINE 25 L"
+    },
+    {
+      "id": "5bf0d5e4-4c2f-50a3-b374-e06954b9f9fa",
+      "code": "B35L",
+      "name": "BASSINE 35 L",
+      "unit_price_cents": 26299,
+      "price_on_request": false,
+      "source_row": 237,
+      "previous_name": "BASSINE 35 L"
+    },
+    {
+      "id": "84507584-1b0e-536c-bfd8-d603b4690dd3",
+      "code": "B50L",
+      "name": "BASSINE 50 L",
+      "unit_price_cents": 33082,
+      "price_on_request": false,
+      "source_row": 238,
+      "previous_name": "BASSINE 50 L"
+    },
+    {
+      "id": "a9d87652-7b79-559b-9668-a6febf0a1773",
+      "code": "B65L",
+      "name": "BASSINE 65 L",
+      "unit_price_cents": 48433,
+      "price_on_request": false,
+      "source_row": 239,
+      "previous_name": "BASSINE 65 L"
+    },
+    {
+      "id": "5c805c85-c40d-5c94-80b5-fe3f6c321044",
+      "code": "B28D",
+      "name": "BASSINE DIAM 28",
+      "unit_price_cents": 5474,
+      "price_on_request": false,
+      "source_row": 240,
+      "previous_name": "BASSINE DIAM 28"
+    },
+    {
+      "id": "30cc3e33-8153-57ed-810c-f525c8b345ce",
+      "code": "B30D",
+      "name": "BASSINE DIAM 30",
+      "unit_price_cents": 8211,
+      "price_on_request": false,
+      "source_row": 241,
+      "previous_name": "BASSINE DIAM 30"
+    },
+    {
+      "id": "a70fff21-eb08-5dfb-8120-7c1cbfe6e197",
+      "code": "B40D",
+      "name": "BASSINE DIAM 40",
+      "unit_price_cents": 13685,
+      "price_on_request": false,
+      "source_row": 242,
+      "previous_name": "BASSINE DIAM 40"
+    },
+    {
+      "id": "52fc07b0-3935-5a2a-9eee-b42c63855799",
+      "code": "R12L",
+      "name": "RONDEAUX 12 L",
+      "unit_price_cents": 9877,
+      "price_on_request": false,
+      "source_row": 243,
+      "previous_name": "RONDEAUX 12L"
+    },
+    {
+      "id": "7b957fae-eda0-5348-9580-f694ec2a70e4",
+      "code": "R16L",
+      "name": "RONDEAUX 16 L",
+      "unit_price_cents": 13685,
+      "price_on_request": false,
+      "source_row": 244,
+      "previous_name": "RONDEAUX 16L"
+    },
+    {
+      "id": "ad03823a-eb61-554f-a727-d99c0d1b09aa",
+      "code": "R24L",
+      "name": "RONDEAUX 24 L",
+      "unit_price_cents": 19635,
+      "price_on_request": false,
+      "source_row": 245,
+      "previous_name": "RONDEAUX 24L"
+    },
+    {
+      "id": "e763884b-6315-549b-b8e3-a819adcb4106",
+      "code": "R35L",
+      "name": "RONDEAUX 35 L",
+      "unit_price_cents": 26180,
+      "price_on_request": false,
+      "source_row": 246,
+      "previous_name": "RONDEAUX 35L"
+    },
+    {
+      "id": "d8f7ea97-b912-527d-9be3-ac9be73ce92a",
+      "code": "CUV10",
+      "name": "CUVETTE 10",
+      "unit_price_cents": 1071,
+      "price_on_request": false,
+      "source_row": 247,
+      "previous_name": "CUVETTE 10"
+    },
+    {
+      "id": "a1e6ce65-1b0f-59d9-b12f-174b8df017cf",
+      "code": "S14P",
+      "name": "SEAUX 14L POIGNEE PLASTIQUE",
+      "unit_price_cents": 14161,
+      "price_on_request": false,
+      "source_row": 249,
+      "previous_name": "SEAUX 14L POIGNÉE PLASTIQUE"
+    },
+    {
+      "id": "feaa4b60-6d67-5e32-ba18-834efe038d7f",
+      "code": "S14L",
+      "name": "SEAUX 14L POIGNEE METAL",
+      "unit_price_cents": 14280,
+      "price_on_request": false,
+      "source_row": 250,
+      "previous_name": "SEAUX 14L POIGNÉE MÉTAL"
+    },
+    {
+      "id": "4fb6a73c-53cf-5e57-b4cf-feb11e37a59a",
+      "code": "BYBLOS",
+      "name": "SÈCHE LINGE BYBLOS",
+      "unit_price_cents": 169575,
+      "price_on_request": false,
+      "source_row": 251,
+      "previous_name": "SECHE LINGE BYBLOS"
+    },
+    {
+      "id": "426bd47c-eaf1-5de5-8522-a3750f105baf",
+      "code": "CAPD",
+      "name": "CORBEILLE A PINCE DENTELLE",
+      "unit_price_cents": 4522,
+      "price_on_request": false,
+      "source_row": 253,
+      "previous_name": "CORBEILLE A PINCE DENTELLE"
+    },
+    {
+      "id": "f83cb512-b349-50a4-b5c4-7bb10be4ea76",
+      "code": "CF320MM",
+      "name": "CINTRE FOULARD MULTI USGE 320 MM",
+      "unit_price_cents": 3451,
+      "price_on_request": false,
+      "source_row": 255,
+      "previous_name": "CINTRE FOULARD MULTI USAGE 320MM"
+    },
+    {
+      "id": "f9a4c58d-06d7-545c-b0ff-c947e1f95963",
+      "code": "CC110MM",
+      "name": "CINTRE CEINTURE MULTI USAGE 110 MM",
+      "unit_price_cents": 1309,
+      "price_on_request": false,
+      "source_row": 256,
+      "previous_name": "CINTRE CEINTURE MULTI USAGE 110MM"
+    },
+    {
+      "id": "4f0d804c-2e3b-51bc-9016-f957813e2ade",
+      "code": "CP370*340",
+      "name": "CINTRE PANTALONS",
+      "unit_price_cents": 6545,
+      "price_on_request": false,
+      "source_row": 257,
+      "previous_name": "CINTRE PANTALONS"
+    },
+    {
+      "id": "2f27169c-1b3d-50cf-b8de-f3da9e093349",
+      "code": "PCI",
+      "name": "PORTE CINTRE",
+      "unit_price_cents": 2261,
+      "price_on_request": false,
+      "source_row": 258,
+      "previous_name": "PORTE CINTRE"
+    },
+    {
+      "id": "8b7148bd-516e-536b-80a3-1bcb4dbbc960",
+      "code": "CLRPM",
+      "name": "CORBEILLE A LINGE RECT PM",
+      "unit_price_cents": 14875,
+      "price_on_request": false,
+      "source_row": 259,
+      "previous_name": "CORBEILLE A LINGE RECT PM"
+    },
+    {
+      "id": "d9d864b6-4edf-59c7-97fe-28b1fabdbfdf",
+      "code": "CLRGM",
+      "name": "CORBEILLE A LINGE RECT GM",
+      "unit_price_cents": 22015,
+      "price_on_request": false,
+      "source_row": 260,
+      "previous_name": "CORBEILLE A LINGE RECT GM"
+    },
+    {
+      "id": "899e14a0-88eb-5b76-ac31-e913322dee08",
+      "code": "CLPM",
+      "name": "CORBELLE A LINGE RONDE PM",
+      "unit_price_cents": 8211,
+      "price_on_request": false,
+      "source_row": 261,
+      "previous_name": "CORBEILLE A LINGE RONDE PM"
+    },
+    {
+      "id": "76540547-cbea-5fcf-8b23-5b08a79affae",
+      "code": "CLMM",
+      "name": "CORBELLE A LINGE RONDE MM",
+      "unit_price_cents": 9877,
+      "price_on_request": false,
+      "source_row": 262,
+      "previous_name": "CORBEILLE A LINGE RONDE MM"
+    },
+    {
+      "id": "956ba8be-588e-559b-b0cb-9da8782b60a4",
+      "code": "CLGM",
+      "name": "CORBELLE A LINGE RONDE GM",
+      "unit_price_cents": 16422,
+      "price_on_request": false,
+      "source_row": 263,
+      "previous_name": "CORBEILLE A LINGE RONDE GM"
+    },
+    {
+      "id": "0ed66e13-7080-5018-a3cf-9df59dc910b4",
+      "code": "CN",
+      "name": "CORBEILLE NOUR",
+      "unit_price_cents": 3094,
+      "price_on_request": false,
+      "source_row": 264,
+      "previous_name": "CORBEILLE NOUR"
+    },
+    {
+      "id": "5cd83fa2-752d-5550-931c-f81b0fccc482",
+      "code": "CF",
+      "name": "CORBEILLE FERDAOUS",
+      "unit_price_cents": 2975,
+      "price_on_request": false,
+      "source_row": 265,
+      "previous_name": "CORBEILLE FERDAOUS"
+    },
+    {
+      "id": "77fe47ce-55a6-5914-b572-6b2c3951200a",
+      "code": "CM",
+      "name": "CORBEILLE MILANO",
+      "unit_price_cents": 2975,
+      "price_on_request": false,
+      "source_row": 266,
+      "previous_name": "CORBEILLE MILANO"
+    },
+    {
+      "id": "d13e25d2-cd2a-5331-bade-c1e62993bfa2",
+      "code": "CA04L",
+      "name": "CORBEILLE ANDALOUS 04L",
+      "unit_price_cents": 6545,
+      "price_on_request": false,
+      "source_row": 267,
+      "previous_name": "CORBEILLE ANDALOUSE 04L"
+    },
+    {
+      "id": "2812ce9c-a1c5-5b18-8368-c260b3752909",
+      "code": "CA09L",
+      "name": "CORBEILLE ANDALOUS 09L",
+      "unit_price_cents": 9401,
+      "price_on_request": false,
+      "source_row": 268,
+      "previous_name": "CORBEILLE ANDALOUSE 09L"
+    },
+    {
+      "id": "4f8b5c26-e063-5648-b373-d3e62a8bcd8c",
+      "code": "CA20L",
+      "name": "CORBEILLE ANDALOUS 20L",
+      "unit_price_cents": 15232,
+      "price_on_request": false,
+      "source_row": 269,
+      "previous_name": "CORBEILLE ANDALOUSE 20L"
+    },
+    {
+      "id": "6c831003-0141-508c-9e53-440a88a69f97",
+      "code": "CA50L",
+      "name": "CORBEILLE ANDALOUS 50 L",
+      "unit_price_cents": 32725,
+      "price_on_request": false,
+      "source_row": 270,
+      "previous_name": "CORBEILLE ANDALOUSE 50L"
+    },
+    {
+      "id": "1e9456f4-71c8-5390-bb39-7baf4d9936e2",
+      "code": "CW4LS/C",
+      "name": "CORBEILLE WAHA 4L S/C",
+      "unit_price_cents": 6426,
+      "price_on_request": false,
+      "source_row": 271,
+      "previous_name": "CORBEILLE WAHA 04L S/C"
+    },
+    {
+      "id": "7a4568e7-2770-5b39-8ed9-a9c0c5343784",
+      "code": "CW10LS/C",
+      "name": "CORBEILLE WAHA 10L S/C",
+      "unit_price_cents": 10948,
+      "price_on_request": false,
+      "source_row": 272,
+      "previous_name": "CORBEILLE WAHA 10L S/C"
+    },
+    {
+      "id": "3334670f-b94a-5642-ac3e-72af60d57c6e",
+      "code": "CW21LS/C",
+      "name": "CORBEILLE WAHA 21L S/C",
+      "unit_price_cents": 19992,
+      "price_on_request": false,
+      "source_row": 273,
+      "previous_name": "CORBEILLE WAHA 21L S/C"
+    },
+    {
+      "id": "d435e414-05df-5ac6-8675-6b068248e44e",
+      "code": "CW4LA/C",
+      "name": "CORBEILLE WAHA 4L A/C",
+      "unit_price_cents": 9282,
+      "price_on_request": false,
+      "source_row": 274,
+      "previous_name": "CORBEILLE WAHA 04L A/C"
+    },
+    {
+      "id": "eb17030e-f068-5bfe-bac1-b36b2c026c9a",
+      "code": "CW10LA/C",
+      "name": "CORBEILLE WAHA 10L A/C",
+      "unit_price_cents": 16779,
+      "price_on_request": false,
+      "source_row": 275,
+      "previous_name": "CORBEILLE WAHA 10L A/C"
+    },
+    {
+      "id": "514e44b4-27af-5173-893c-7f359b2d5061",
+      "code": "CW21LA/C",
+      "name": "CORBEILLE WAHA 21L AC",
+      "unit_price_cents": 28560,
+      "price_on_request": false,
+      "source_row": 276,
+      "previous_name": "CORBEILLE WAHA 21L A/C"
+    },
+    {
+      "id": "8512863b-f48c-5c2a-9555-5b88ce60f059",
+      "code": "CE4L3/E",
+      "name": "CORBEILLE ETAGER 4L 03 ETAGES",
+      "unit_price_cents": 25942,
+      "price_on_request": false,
+      "source_row": 277,
+      "previous_name": "CORBEILLE ETAGERE 4L 03 ETAGES"
+    },
+    {
+      "id": "a849b5f6-0da9-5411-9a08-cbe39d13caa4",
+      "code": "CK2L",
+      "name": "CORBEILLE CAKE 2L",
+      "unit_price_cents": 3000,
+      "price_on_request": false,
+      "source_row": 278,
+      "previous_name": "CORBEILLE CAKE 2L"
+    },
+    {
+      "id": "7d92eb2a-3b61-5b63-a71e-e08df0a00df1",
+      "code": "CS10L",
+      "name": "CORBEILLE SQUARE 10L",
+      "unit_price_cents": 11000,
+      "price_on_request": false,
+      "source_row": 279,
+      "previous_name": "CORBEILLE SQUARE 10L"
+    },
+    {
+      "id": "e7a3c12c-1782-5e90-916c-f8fe6da2df44",
+      "code": "BTN",
+      "name": "BROSSE TOILETTE NEPTUNE",
+      "unit_price_cents": 7497,
+      "price_on_request": false,
+      "source_row": 282,
+      "previous_name": "BROSSE TOILETTE NEPTUNE"
+    },
+    {
+      "id": "bf4726b4-aa64-52af-9a49-b26e67b23840",
+      "code": "P",
+      "name": "PELLE",
+      "unit_price_cents": 6069,
+      "price_on_request": false,
+      "source_row": 283,
+      "previous_name": "PELLE"
+    },
+    {
+      "id": "c53cf766-b620-50bc-a101-b82fe884093e",
+      "code": "SRA",
+      "name": "SUPPORT ROBINET ACTION",
+      "unit_price_cents": 4000,
+      "price_on_request": false,
+      "source_row": 284,
+      "previous_name": "SUPPORT ROBINET ACTION"
+    },
+    {
+      "id": "cc933f86-c8b5-5398-8d49-89c8ace4b06e",
+      "code": "RCM5E",
+      "name": "RANGE CHAUSSURE MISTRAL 5 ETAGE",
+      "unit_price_cents": 107100,
+      "price_on_request": false,
+      "source_row": 285,
+      "previous_name": "RANGE CHAUSSURE MISTRAL 5 ETAGE"
+    },
+    {
+      "id": "f5095a41-7ee7-5049-931c-cd1c45424cbd",
+      "code": "CED21",
+      "name": "COMMODE ELEGANCE DECORR REF 21",
+      "unit_price_cents": 225000,
+      "price_on_request": false,
+      "source_row": 286,
+      "previous_name": "COMMODE ELEGANCE REF 21 DECORÉE"
+    },
+    {
+      "id": "543a3b18-f2af-5f4b-a553-d1f756ec5c54",
+      "code": "CED10",
+      "name": "COMMODE ELEGANCE DECORR REF 10",
+      "unit_price_cents": 294525,
+      "price_on_request": false,
+      "source_row": 287,
+      "previous_name": "COMMODE ELEGANCE REF 10 DECORÉE"
+    },
+    {
+      "id": "582adbd7-576d-5d76-88da-fd1af89d8a23",
+      "code": "CB3E",
+      "name": "COMMODE BRICO 3 ETAGE COULEUR",
+      "unit_price_cents": 34748,
+      "price_on_request": false,
+      "source_row": 289,
+      "previous_name": "COMMODE BRICO 03 ETAGES COULEUR"
+    },
+    {
+      "id": "36b62005-15b1-5ccd-bf60-2daea72ed6fd",
+      "code": "CB4E",
+      "name": "COMMODE BRICO 4 ETAGE COULEUR",
+      "unit_price_cents": 44387,
+      "price_on_request": false,
+      "source_row": 290,
+      "previous_name": "COMMODE BRICO 04 ETAGES COULEUR"
+    },
+    {
+      "id": "9e2f6c1b-de51-5a69-8529-3724b5b6afa1",
+      "code": "CB5E",
+      "name": "COMMODE BRICO 5 ETAGE COULEUR",
+      "unit_price_cents": 54264,
+      "price_on_request": false,
+      "source_row": 291,
+      "previous_name": "COMMODE BRICO 05 ETAGES COULEUR"
+    },
+    {
+      "id": "38b3d6dc-34b4-5d20-ad3b-32fbdbe43c12",
+      "code": "CBT",
+      "name": "COMMODE BAHDJA TRESSE",
+      "unit_price_cents": 215033,
+      "price_on_request": false,
+      "source_row": 292,
+      "previous_name": "COMMODE BAHDJA TRESSE"
+    },
+    {
+      "id": "b2ffecea-02ef-5d11-b386-4491b9af75b8",
+      "code": "KB",
+      "name": "KIT DE BANIO",
+      "unit_price_cents": 14994,
+      "price_on_request": false,
+      "source_row": 294,
+      "previous_name": "KIT DE BANIO"
+    },
+    {
+      "id": "5bb677c3-3049-54c6-a9f3-81c35ab73c8b",
+      "code": "DSL",
+      "name": "DISTRIBUTEUR SAVON LIQUIDE",
+      "unit_price_cents": 6598,
+      "price_on_request": false,
+      "source_row": 295,
+      "previous_name": "DISTRIBUTEUR SAVON LIQUIDE"
+    },
+    {
+      "id": "87194851-3496-5ce5-93ea-804c09067175",
+      "code": "PALHD",
+      "name": "PANIER A LINGE HOME",
+      "unit_price_cents": 52360,
+      "price_on_request": false,
+      "source_row": 297,
+      "previous_name": "PANIER A LINGE HOME DESIGN"
+    },
+    {
+      "id": "19f7fb7f-004e-503f-a522-be2b05f180da",
+      "code": "PTR2.5L",
+      "name": "POUBELLE TRESSE 2.5 L",
+      "unit_price_cents": 17255,
+      "price_on_request": false,
+      "source_row": 301,
+      "previous_name": "POUBELLE TRESSE 02.5L"
+    },
+    {
+      "id": "d017f355-cfd0-570b-998f-40eb7aba1726",
+      "code": "PTR05L",
+      "name": "POUBELLE TRESSE 5 L",
+      "unit_price_cents": 25000,
+      "price_on_request": false,
+      "source_row": 302,
+      "previous_name": "POUBELLE TRESSE 05L"
+    },
+    {
+      "id": "731e3f5a-66ba-5960-b586-38428f786a4e",
+      "code": "PTR12L",
+      "name": "POUBELLE TRESSE 12 L",
+      "unit_price_cents": 45000,
+      "price_on_request": false,
+      "source_row": 303,
+      "previous_name": "POUBELLE TRESSE 12L"
+    },
+    {
+      "id": "76913178-4d5b-5a76-8214-057f778d2062",
+      "code": "PTRS03",
+      "name": "POUBELLE TRESSE S/3",
+      "unit_price_cents": 86050,
+      "price_on_request": false,
+      "source_row": 304,
+      "previous_name": "POUBELLE TRESSE S/03"
+    },
+    {
+      "id": "b15c73ff-7a3c-593c-bd9c-b8077b5a439b",
+      "code": "PE",
+      "name": "POUBELLE EMRAUDE 40 L",
+      "unit_price_cents": 77350,
+      "price_on_request": false,
+      "source_row": 305,
+      "previous_name": "POUBELLE EMRAUDE 40L"
+    },
+    {
+      "id": "60f66adc-e32e-501c-a263-d21270f5b594",
+      "code": "PDT",
+      "name": "POUBELLE DIAMANT 6L",
+      "unit_price_cents": 28798,
+      "price_on_request": false,
+      "source_row": 306,
+      "previous_name": "POUBELLE DIAMANT 06 L"
+    },
+    {
+      "id": "e2b52581-f157-5a5a-a261-3e3f2e6b6eda",
+      "code": "PST2.5L",
+      "name": "POUBELLE SMART 2.5 L",
+      "unit_price_cents": 17255,
+      "price_on_request": false,
+      "source_row": 309,
+      "previous_name": "POUBELLE SMART 02.5L"
+    },
+    {
+      "id": "9e839490-6254-5b79-8f95-f61c8d2a059d",
+      "code": "PST05L",
+      "name": "POUBELLE SMART 5 L",
+      "unit_price_cents": 25000,
+      "price_on_request": false,
+      "source_row": 310,
+      "previous_name": "POUBELLE SMART 05L"
+    },
+    {
+      "id": "d035d460-5f95-5697-a7be-8cf35a3c82cb",
+      "code": "PST12L",
+      "name": "POUBELLE SMART 12 L",
+      "unit_price_cents": 45000,
+      "price_on_request": false,
+      "source_row": 311,
+      "previous_name": "POUBELLE SMART 12L"
+    },
+    {
+      "id": "f91a4282-dd59-5196-88b6-818b9f18122c",
+      "code": "BSD",
+      "name": "BOITE SABIRA DECORÉE",
+      "unit_price_cents": 5831,
+      "price_on_request": false,
+      "source_row": 312,
+      "previous_name": "BOITE SABIRA DECORÉE"
+    },
+    {
+      "id": "73e7044f-8565-59d7-9a93-45da24ac2ead",
+      "code": "BS S/D",
+      "name": "BOITE SABIRA S/DECORÉE",
+      "unit_price_cents": 3500,
+      "price_on_request": false,
+      "source_row": 313,
+      "previous_name": "BOITE SABIRA S/DECORÉE"
+    },
+    {
+      "id": "c560579d-a2bf-5792-9996-550ebf45aab5",
+      "code": "PMPD",
+      "name": "PORTE MANGER PICNIQUE RECT DECORÉE",
+      "unit_price_cents": 8005,
+      "price_on_request": false,
+      "source_row": 314,
+      "previous_name": "PORTE MANGER PICNIQUE RECT DECORÉE"
+    },
+    {
+      "id": "e82f55be-019f-5705-ac6c-574395e26cf0",
+      "code": "PMFFD",
+      "name": "PORTE MANGER FAST FOOD DECORÉE",
+      "unit_price_cents": 8211,
+      "price_on_request": false,
+      "source_row": 315,
+      "previous_name": "PORTE MANGER FAST FOOD OVAL DECORÉE"
+    },
+    {
+      "id": "2867d064-a86a-5f7c-af35-ec8c66b8674d",
+      "code": "PS",
+      "name": "PORTE STYLO",
+      "unit_price_cents": 1785,
+      "price_on_request": false,
+      "source_row": 316,
+      "previous_name": "PORTE STYLO"
+    },
+    {
+      "id": "b338ddb0-6f93-5cd0-963a-f35db2f60922",
+      "code": "BS",
+      "name": "BOITE SANDWICH",
+      "unit_price_cents": 7300,
+      "price_on_request": false,
+      "source_row": 317,
+      "previous_name": "BOITE SANDWICHE"
+    },
+    {
+      "id": "33235120-f58a-5d33-84b6-3d1b762a4cb8",
+      "code": "PBD",
+      "name": "POUBELLE BUREAU RONDE DECORÉE",
+      "unit_price_cents": 9163,
+      "price_on_request": false,
+      "source_row": 319,
+      "previous_name": "POUBELLE BUREAU ROND DECORÉE"
+    },
+    {
+      "id": "568489db-6585-54a7-8a8d-eefd8b324b9e",
+      "code": "PDEC",
+      "name": "POUBELLE OVAL DECORÉE",
+      "unit_price_cents": 14280,
+      "price_on_request": false,
+      "source_row": 320,
+      "previous_name": "POUBELLE OVAL DECORÉE"
+    },
+    {
+      "id": "a4e9d935-d305-5943-97ac-29d6fcdf263a",
+      "code": "TABED",
+      "name": "TABOURET ENFANT DECORÉE",
+      "unit_price_cents": 9282,
+      "price_on_request": false,
+      "source_row": 321,
+      "previous_name": "TABOURET ENFANT DECORÉE"
+    },
+    {
+      "id": "9c217396-8d7d-51ae-9cf0-ae800e8ac846",
+      "code": "TABMMD",
+      "name": "TABOURET MM DECORÉE",
+      "unit_price_cents": 12495,
+      "price_on_request": false,
+      "source_row": 322,
+      "previous_name": "TABOURET MM DECORÉE"
+    },
+    {
+      "id": "308f70a7-fe62-54d2-80c5-ef9e70816b06",
+      "code": "CED",
+      "name": "CHAISE ENFANT DECORÉE",
+      "unit_price_cents": 18315,
+      "price_on_request": false,
+      "source_row": 323,
+      "previous_name": "CHAISE ENFANT DECORÉE"
+    },
+    {
+      "id": "ecbbd882-a39a-53e8-9b6a-912184dcd162",
+      "code": "VE",
+      "name": "VERRES ENFANTS",
+      "unit_price_cents": 12019,
+      "price_on_request": false,
+      "source_row": 324,
+      "previous_name": "VERRES ENFANTS"
+    },
+    {
+      "id": "582f566a-bf19-5f82-885b-c4b276b97a29",
+      "code": "VECM",
+      "name": "VERRES ENFANTS COUVERCLE MICKEY",
+      "unit_price_cents": 4000,
+      "price_on_request": false,
+      "source_row": 326,
+      "previous_name": "VERRES ENFANTS COUVERCLE MICKEY"
+    },
+    {
+      "id": "0fa98640-a6c1-5de4-8af3-abbce6c5c42d",
+      "code": "VCPM",
+      "name": "VASE CORAIL MULTI FANCTION PM",
+      "unit_price_cents": 1300,
+      "price_on_request": false,
+      "source_row": 327,
+      "previous_name": "VASE CORAIL MULTI FONCTION PM"
+    },
+    {
+      "id": "46bb42d3-d161-5294-823c-7a9cae7724e2",
+      "code": "VCMM",
+      "name": "VASE CORAIL MULTI FANCTION MM",
+      "unit_price_cents": 1904,
+      "price_on_request": false,
+      "source_row": 328,
+      "previous_name": "VASE CORAIL MULTI FONCTION MM"
+    },
+    {
+      "id": "143ce37a-8b2c-55ee-b542-f466669a47d6",
+      "code": "VCGM",
+      "name": "VASE CORAIL MULTI FANCTION GM",
+      "unit_price_cents": 3800,
+      "price_on_request": false,
+      "source_row": 329,
+      "previous_name": "VASE CORAIL MULTI FONCTION GM"
+    },
+    {
+      "id": "9a582d7a-7026-59e4-b051-ec3b41921e46",
+      "code": "PAFR",
+      "name": "POT A FLEUR ROND",
+      "unit_price_cents": 7378,
+      "price_on_request": false,
+      "source_row": 330,
+      "previous_name": "POT A FLEUR ROND"
+    },
+    {
+      "id": "e3183558-3271-55bd-aa71-d9729301e064",
+      "code": "PAFC",
+      "name": "POT A FLEUR CARRE",
+      "unit_price_cents": 15708,
+      "price_on_request": false,
+      "source_row": 331,
+      "previous_name": "POT A FLEUR CARRE"
+    },
+    {
+      "id": "e8c4bf11-4d3c-54da-bc69-af6c9103e543",
+      "code": "PAFE",
+      "name": "POT A FLEUR ETAGER 1 ETAGES",
+      "unit_price_cents": 15000,
+      "price_on_request": false,
+      "source_row": 332,
+      "previous_name": "POT A FLEUR ETAGER 1 ETAGE"
+    },
+    {
+      "id": "9bd91085-294b-5091-8eb2-c2636bea0496",
+      "code": "PAFE2/E",
+      "name": "POT A FLEUR ETAGER 2 ETAGES",
+      "unit_price_cents": 23099,
+      "price_on_request": false,
+      "source_row": 333,
+      "previous_name": "POT A FLEUR ETAGER 2 ETAGES"
+    },
+    {
+      "id": "efc41a04-e337-582d-9e83-c3374611acc9",
+      "code": "PAFE3/E",
+      "name": "POT A FLEUR ETAGER 3 ETAGES",
+      "unit_price_cents": 29000,
+      "price_on_request": false,
+      "source_row": 334,
+      "previous_name": "POT A FLEUR ETAGER 3 ETAGES"
+    },
+    {
+      "id": "2ac773bb-43db-5814-a446-32f47b3915f0",
+      "code": "PAFE4/E",
+      "name": "POT A FLEUR ETAGER 4 ETAGES",
+      "unit_price_cents": 38000,
+      "price_on_request": false,
+      "source_row": 335,
+      "previous_name": "POT A FLEUR ETAGER 4 ETAGES"
+    },
+    {
+      "id": "cc0bb385-33b0-5fd9-843e-a988d9d859ce",
+      "code": "PAFE5/E",
+      "name": "POT A FLEUR ETAGER 5 ETAGES",
+      "unit_price_cents": 41000,
+      "price_on_request": false,
+      "source_row": 336,
+      "previous_name": "POT A FLEUR ETAGER 5 ETAGES"
+    },
+    {
+      "id": "887a99a0-808f-56ec-9dd8-7d27ebf169a6",
+      "code": "PPV",
+      "name": "PANIER PICNIQUE VANITY",
+      "unit_price_cents": 32963,
+      "price_on_request": false,
+      "source_row": 337,
+      "previous_name": "PANIER PICNIQUE VANITY"
+    },
+    {
+      "id": "26402a5e-df14-5d21-99ff-170cd29fbd8a",
+      "code": "PTR",
+      "name": "PANIER TRESSE",
+      "unit_price_cents": 26894,
+      "price_on_request": false,
+      "source_row": 338,
+      "previous_name": "PANIER TRESSE"
+    },
+    {
+      "id": "181f1d66-7fe0-5578-88bb-2c05368d52a0",
+      "code": "BE04L",
+      "name": "BONBONNE A EAU 04 L AMAZONE",
+      "unit_price_cents": 76000,
+      "price_on_request": false,
+      "source_row": 340,
+      "previous_name": "BONBONNE A EAU 04L AMAZONE"
+    },
+    {
+      "id": "a9518f5c-0621-5914-8f97-f80a5c4352ee",
+      "code": "BE08L",
+      "name": "BONBONNE A EAU 08 L AMAZONE",
+      "unit_price_cents": 102960,
+      "price_on_request": false,
+      "source_row": 341,
+      "previous_name": "BONBONNE A EAU 08L AMAZONE"
+    },
+    {
+      "id": "403dc961-83e6-50f0-96f1-0e6ad81be02a",
+      "code": "G12",
+      "name": "GLACIERE OCEANIC 12 L",
+      "unit_price_cents": 91630,
+      "price_on_request": false,
+      "source_row": 342,
+      "previous_name": "GLACIERE OCEANIC 12L"
+    },
+    {
+      "id": "ea2a9075-3468-57c1-bab4-847b041aa610",
+      "code": "G25",
+      "name": "GLACIERE OCEANIC 25 L",
+      "unit_price_cents": 117810,
+      "price_on_request": false,
+      "source_row": 343,
+      "previous_name": "GLACIERE OCEANIC 25L"
+    },
+    {
+      "id": "b2706d29-c373-5add-af70-03d0429d1629",
+      "code": "VP",
+      "name": "VISIERE DE PROTECTION",
+      "unit_price_cents": 20230,
+      "price_on_request": false,
+      "source_row": 344,
+      "previous_name": "VISIERE DE PROTECTION"
+    }
+  ],
+  "company": {
+    "company_name": "UNIPLAST SARL",
+    "company_name_fr": "UNIPLAST SARL — Home Design",
+    "phone": "0770 07 88 02",
+    "secondary_phone": "0770 26 04 04",
+    "address": "Lot n° 34, zone industrielle Nedjma (ex-Chteibo), Sidi Chami, Oran, Algérie",
+    "facebook_url": "https://www.facebook.com/uniplast.algeria/",
+    "website_url": "https://uniplast-dz.netlify.app/",
+    "about_title": "UNIPLAST SARL, à vos côtés depuis 1998.",
+    "about_body": "Implantée à Sidi Chami, dans la wilaya d’Oran, UNIPLAST SARL est une entreprise algérienne de transformation des matières plastiques, en activité depuis 1998.\n\nNous proposons des articles pour la maison et les professionnels : boîtes de conservation, rangement, entretien, mobilier et accessoires du quotidien. Découvrez nos collections et leurs différents formats. Notre équipe vous accompagne dans le choix des références et la préparation de vos commandes.",
+    "tax_note": "Tarifs unitaires en dinars algériens (DA), selon la liste de prix fournie par UNIPLAST. Aucun taux de taxe supplémentaire appliqué."
+  },
+  "previous_defaults": {
+    "company_name": "UNIPLAST",
+    "company_name_fr": "UNIPLAST — Home Design",
+    "phone": "",
+    "secondary_phone": "",
+    "address": "",
+    "facebook_url": "",
+    "website_url": "",
+    "about_title": "Des solutions utiles, signées UNIPLAST.",
+    "about_body": "UNIPLAST propose des produits en plastique pour la maison, les commerces et les professionnels. Conservation, rangement, entretien et mobilier : découvrez nos collections et leurs différents formats.\n\nNotre équipe vous accompagne dans le choix des références, le colisage et vos projets de fabrication sur mesure. Contactez-nous pour préparer votre commande.",
+    "tax_note": "Tarifs unitaires issus de la colonne P.V. TTC du catalogue fourni. Aucun taux de taxe supplémentaire appliqué."
+  }
+}

@@ -46,6 +46,10 @@ interface Store {
   emptyCart: () => void;
   repeatOrder: (order: Order) => void;
   admin: boolean;
+  clientApproved: boolean;
+  quickProductId: string | null;
+  openProduct: (id: string) => void;
+  closeProduct: () => void;
   checkAdmin: () => Promise<void>;
   toast: Toast;
   notify: (s: string, error?: boolean) => void;
@@ -82,6 +86,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [quantityProduct, setQuantityProduct] = useState<Product | null>(null),
     [added, setAdded] = useState<Product | null>(null),
     toastTimer = useRef<number | undefined>(undefined);
+  const [clientApproved, setClientApproved] = useState(false);
+  const [quickProductId, setQuickProductId] = useState<string | null>(null);
   const loadSequence = useRef(0);
   const notify = useCallback((message: string, error = false) => {
     setToast({ message, error });
@@ -91,9 +97,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     const sequence = ++loadSequence.current;
     try {
-      const c = await api.loadCatalog();
+      const [c, session] = await Promise.all([
+        api.loadCatalog(),
+        api.customerSession(),
+      ]);
       if (sequence !== loadSequence.current) return;
       setCatalog(c);
+      setClientApproved(
+        !!(
+          session.personal &&
+          session.access?.status === "approved" &&
+          session.access.phone
+        ),
+      );
       if (c.products.some((p) => p.price_hidden)) {
         setQuantityProduct(null);
         setAdded(null);
@@ -253,6 +269,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           navigate("/panier");
         },
         admin,
+        clientApproved,
+        quickProductId,
+        openProduct: setQuickProductId,
+        closeProduct: () => setQuickProductId(null),
         checkAdmin,
         toast,
         notify,

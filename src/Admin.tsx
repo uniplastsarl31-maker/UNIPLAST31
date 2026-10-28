@@ -121,8 +121,9 @@ function newProduct(family: string, packLabel: string): Product {
     pack_label: packLabel,
     unit_price_cents: 0,
     price_on_request: true,
-    available: false,
-    availability_confirmed: false,
+    available: true,
+    availability_confirmed: true,
+    weight_grams: null,
     stock_cartons: null,
     is_new: false,
     upcoming: false,
@@ -494,6 +495,35 @@ function Overview({
 }
 function ProductManager() {
   const { catalog, refresh, notify } = useStore();
+  const [updateReport, setUpdateReport] = useState<{
+    matched: number;
+    renamed: number;
+    review_count: number;
+  } | null>(null);
+  useEffect(() => {
+    if (api.localMode)
+      void api
+        .localCall("catalog-update")
+        .then(setUpdateReport)
+        .catch(() => {});
+  }, []);
+  const downloadBackup = async () => {
+    try {
+      const backup = await api.localCall("catalog-backup");
+      const url = URL.createObjectURL(
+        new Blob([JSON.stringify(backup, null, 2)], {
+          type: "application/json",
+        }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "UNIPLAST-avant-mise-a-jour-2026-10-28.json";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) {
+      notify((error as Error).message, true);
+    }
+  };
   const [q, setQ] = useState(""),
     [family, setFamily] = useState(""),
     [filter, setFilter] = useState(""),
@@ -512,6 +542,10 @@ function ProductManager() {
   if (filter === "unknown")
     products = products.filter((p) => !p.availability_confirmed);
   if (filter === "price") products = products.filter((p) => p.price_on_request);
+  if (filter === "photo") products = products.filter((p) => !p.images.length);
+  products.sort((a, b) =>
+    a.name.localeCompare(b.name, "fr", { sensitivity: "base", numeric: true }),
+  );
   if (filter === "barcode") products = products.filter((p) => !p.barcode);
   if (filter === "offers")
     products = products.filter((p) => p.discount_price_cents !== null);
@@ -557,8 +591,8 @@ function ProductManager() {
         <div>
           <h2>{catalog.products.length} références au catalogue</h2>
           <p>
-            Prix unitaires issus de P.V. TTC. Le code produit et le code-barres
-            sont distincts.
+            Prix unitaires en DA. Le code produit et le code-barres sont
+            distincts.
           </p>
         </div>
         <button
@@ -576,6 +610,22 @@ function ProductManager() {
           Ajouter un produit
         </button>
       </div>
+      {updateReport && (
+        <div className="catalog-update-note">
+          <p>
+            Mise à jour du 28/10/2026 : {updateReport.matched} références
+            rapprochées, {updateReport.renamed} noms actualisés.{" "}
+            {updateReport.review_count} lignes à vérifier dans le fichier de
+            livraison.
+          </p>
+          <button
+            className="btn btn-outline"
+            onClick={() => void downloadBackup()}
+          >
+            <Download size={15} /> Sauvegarde avant mise à jour
+          </button>
+        </div>
+      )}
       <div className="panel">
         <div className="manager-toolbar">
           <div className="catalog-search">
@@ -615,7 +665,8 @@ function ProductManager() {
           >
             <option value="">Tous les états</option>
             <option value="unknown">Disponibilité à confirmer</option>
-            <option value="price">Prix absent</option>
+            <option value="price">Sans prix</option>
+            <option value="photo">Sans photo</option>
             <option value="barcode">Code-barres à vérifier</option>
             <option value="offers">Avec un réglage de remise</option>
           </select>
@@ -959,6 +1010,22 @@ function ProductEditor({
                 />
               </Field>
             </div>
+            <Field label="Poids unitaire (g)">
+              <input
+                type="number"
+                min="0.01"
+                max="10000000"
+                step="0.01"
+                placeholder="À renseigner"
+                value={p.weight_grams ?? ""}
+                onChange={(e) =>
+                  set(
+                    "weight_grams",
+                    e.target.value === "" ? null : Number(e.target.value),
+                  )
+                }
+              />
+            </Field>
             <Field label="Matière">
               <input
                 maxLength={100}

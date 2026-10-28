@@ -102,7 +102,7 @@ test("Netlify: durable snapshots, private access and concurrent orders", async (
       assert.equal(catalog.families.length, 17);
       assert.equal(
         catalog.products.filter((p) => p.price_on_request).length,
-        34,
+        33,
       );
       const writes = f.stores.state.writes;
       const publicCatalog = (await f.call("catalog", undefined, "visitor"))
@@ -274,6 +274,25 @@ test("Netlify: durable snapshots, private access and concurrent orders", async (
       );
     },
   );
+  await t.test("PNG uploads, original bytes and admin-only migration backup survive cold invocations", async () => {
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64");
+    const upload = await f.call("upload?public=1", png, "admin", {
+      binary: true, headers: { "content-type": "image/x-png" },
+    });
+    assert.equal(upload.status, 200);
+    const image = await f.call(upload.data, undefined, "visitor");
+    assert.equal(image.status, 200);
+    assert.equal(image.headers.get("content-type"), "image/png");
+    const id = new URL(upload.data, SITE).searchParams.get("id");
+    assert.deepEqual(Buffer.from(await f.stores.files.get(id)), png);
+    assert.equal((await f.call("catalog-backup", undefined, "visitor")).status, 403);
+    const backup = await f.call("catalog-backup");
+    assert.equal(backup.status, 200);
+    assert.equal(backup.data.products.length, 350);
+    const report = await f.call("catalog-update");
+    assert.equal(report.data.matched, 305);
+    assert.equal(report.data.review_count, 38);
+  });
   await t.test(
     "a definite upload conflict removes only its orphan and retries durably",
     async () => {

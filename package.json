@@ -25,7 +25,8 @@
     "jspdf": "^3.0.3",
     "lucide-react": "^0.468.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "@zxing/library": "0.21.3"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.3.10",

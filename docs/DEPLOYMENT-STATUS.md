@@ -1,13 +1,7 @@
-# حالة النشر — 28 أكتوبر 2026
+# État de livraison — 28 octobre 2026
 
-الهدف الحالي هو **Netlify فقط**. جُهّز إصلاح جديد يشغّل API المتجر داخل Netlify Functions ويحفظ البيانات في Netlify Blobs، مع بقاء نسخة RUN.BAT مستقلة على الكمبيوتر.
+Le dépôt GitHub vérifié avant cette livraison est `uniplastsarl31-maker/UNIPLAST31`, commit `ad199fb22764fb4bfd3a8b580a7b8c1e75f1a442`. Le précédent correctif Netlify a été installé avec succès et l’administration a été initialisée par le propriétaire.
 
-سبب الخطأ المنشور: الواجهة القديمة تطلب `/api/local/catalog` الذي لم يكن موجودًا على الاستضافة. في الفحص المباشر أعاد رابط Netlify حالة 404 بدل بيانات الكتالوج. المستودع القديم لم يتضمن `netlify.toml` أو وظيفة المتجر.
+La présente livraison ajoute le catalogue actualisé, les cartes compactes, le détail en fenêtre, les corrections d’images et de scanner, le poids et les filtres. **Cette nouvelle version n’a pas encore été poussée sur GitHub ni publiée sur Netlify.** L’archive incrémentale est comparée au commit indiqué ci-dessus. Les données persistantes du magasin ne sont pas incluses dans l’archive.
 
-الإصلاح متوفر ومختبر محليًا. نجحت 10 اختبارات منطق المتجر و11 اختبارًا للخادم المحلي و12 اختبارًا لحفظ Netlify. نجح بناء الواجهات الثلاث، وتجهيز وظيفة shop بأداة Netlify الرسمية، وفحص حزمتها مع SDK Blobs الحقيقي وخدمة تخزين بديلة معزولة. جرى اختبار حفظ الإعدادات وعزل Deploy Preview والكتالوج، ودخول الإدارة وعرض نموذج العميل على الهاتف داخل بيئة الاختبار.
-
-**لم يُرفع هذا الإصلاح إلى حساب المالك ولم يؤكَّد نشره على https://uniplast-dz.netlify.app/ خلال تجهيز الملفات.** يلزم تحديث GitHub، ضبط متغيرات Netlify الخاصة، ثم إعادة النشر والتحقق. متصفح Codex يعرض طلب تسجيل الدخول لكل من GitHub وNetlify، ولا تتوفر صلاحية دفع Git من الطرفية.
-
-الدليل: [NETLIFY-FR.md](NETLIFY-FR.md). لا توجد مفاتيح أو كلمات مرور إنتاجية أو قاعدة اختبار ضمن الأرشيف. بيانات الكمبيوتر لا تُرفع تلقائيًا إلى الموقع.
-
-نشر Sites المؤرخ 27 أكتوبر كان محاولة سابقة مستقلة؛ ملف هويته القديم بقي دون تعديل. هذه الحزمة لا تعيد النشر عليه ولا تتطلب Render.
+Voir `MISE-A-JOUR-28-10-2026-FR.md` ou le guide arabe pour l’installation et la liste des vérifications. Le projet reste destiné à Netlify Functions + Blobs, avec un mode local RUN.BAT indépendant. L’identité Sites existante est conservée sans publication.

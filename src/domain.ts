@@ -25,6 +25,46 @@ export function normalizeSearch(value: string): string {
     .toLowerCase()
     .trim();
 }
+export const compareProductNames = (a: Product, b: Product) =>
+  a.name.localeCompare(b.name, "fr", { sensitivity: "base", numeric: true }) ||
+  a.code.localeCompare(b.code, "fr", { numeric: true });
+export function belowPrice(
+  p: Product,
+  maximumCents: number,
+  authenticatedByPhone: boolean,
+  now = Date.now(),
+): boolean {
+  return (
+    authenticatedByPhone &&
+    !p.price_hidden &&
+    !p.price_on_request &&
+    Number.isSafeInteger(maximumCents) &&
+    maximumCents > 0 &&
+    priceOf(p, now) < maximumCents
+  );
+}
+export function normalizeBarcode(value: string): string {
+  return normalizeSearch(value)
+    .replace(/^\][a-z]\d/i, "")
+    .replace(/\s/g, "");
+}
+export function findBarcodeProduct(
+  products: Product[],
+  value: string,
+): Product | undefined {
+  const code = normalizeBarcode(value);
+  const same = (barcode: string | null) => {
+    if (!barcode || !code) return false;
+    const stored = normalizeBarcode(barcode);
+    return (
+      stored === code ||
+      (/^\d{12,13}$/.test(stored) &&
+        /^\d{12,13}$/.test(code) &&
+        stored.padStart(13, "0") === code.padStart(13, "0"))
+    );
+  };
+  return products.find((p) => same(p.barcode));
+}
 export function activeDiscount(product: Product, now = Date.now()): boolean {
   if (product.price_hidden)
     return (
@@ -212,6 +252,13 @@ export function validateProduct(p: Product): string | null {
     )
       return "Définissez une période de promotion valide.";
   }
+  if (
+    p.weight_grams != null &&
+    (!Number.isFinite(p.weight_grams) ||
+      p.weight_grams <= 0 ||
+      p.weight_grams > 10000000)
+  )
+    return "Le poids doit être un nombre positif, en grammes.";
   if (p.images.length > 10) return "10 images maximum par produit.";
   return null;
 }

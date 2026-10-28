@@ -41,9 +41,11 @@ import {
   timeRemaining,
   activeSeasons,
   safeWebUrl,
+  compareProductNames,
+  belowPrice,
 } from "./domain";
 import { navigate, useStore } from "./store";
-import { Badges, Empty, ProductPhoto, Quantity, buyLabel } from "./ui";
+import { Badges, Empty, Modal, ProductPhoto, Quantity, buyLabel } from "./ui";
 import { previewMode } from "./api";
 
 export function Header({
@@ -269,6 +271,18 @@ export function Footer({
               notre formulaire de demande.
             </p>
           )}
+          {s.viber_phone && (
+            <a
+              href={
+                "viber://chat?number=" +
+                encodeURIComponent(
+                  "+213" + s.viber_phone.replace(/\D/g, "").replace(/^0/, ""),
+                )
+              }
+            >
+              Viber : {s.viber_phone}
+            </a>
+          )}
           {s.email && <a href={"mailto:" + s.email}>{s.email}</a>}
           {s.secondary_phone && (
             <a href={"tel:" + s.secondary_phone}>{s.secondary_phone}</a>
@@ -326,14 +340,23 @@ export function Footer({
   );
 }
 export function ProductCard({ product: p }: { product: Product }) {
-  const { catalog, now, openQuantity } = useStore();
+  const { catalog, now, openQuantity, openProduct } = useStore();
   const discounted = activeDiscount(p, now),
     s = catalog!.settings;
   return (
     <article
       className={`product-card ${discounted ? "discounted" : ""} ${p.availability_confirmed && !p.available ? "sold-out" : ""}`}
     >
-      <a href={"#/produit/" + p.id} className="card-image-link">
+      <a
+        href={"#/produit/" + p.id}
+        className="card-image-link"
+        onClick={(e) => {
+          if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+            e.preventDefault();
+            openProduct(p.id);
+          }
+        }}
+      >
         <ProductPhoto image={p.images[0]} name={p.name} />
         <Badges product={p} now={now} />
         <span className="card-detail-arrow">
@@ -342,7 +365,22 @@ export function ProductCard({ product: p }: { product: Product }) {
       </a>
       <div className="card-info">
         <span className="product-code">RÉF. {p.code}</span>
-        <a href={"#/produit/" + p.id} className="product-title">
+        {p.availability_confirmed &&
+          (!p.available || p.stock_cartons === 0) && (
+            <span className="card-unavailable">
+              Indisponible pour le moment
+            </span>
+          )}
+        <a
+          href={"#/produit/" + p.id}
+          className="product-title"
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+              e.preventDefault();
+              openProduct(p.id);
+            }
+          }}
+        >
           {p.name}
         </a>
         <div className="product-specs">
@@ -358,7 +396,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         <div className="product-pricing">
           {p.price_hidden ? (
             <a className="price-locked" href="#/client-agree">
-              <ShieldCheck size={15} /> Tarifs réservés aux clients agréés
+              <ShieldCheck size={15} /> Voir les prix
             </a>
           ) : p.price_on_request ? (
             <strong className="on-request">Prix sur demande</strong>
@@ -379,7 +417,13 @@ export function ProductCard({ product: p }: { product: Product }) {
           )}
         </div>
         <div className="card-actions">
-          <a href={"#/produit/" + p.id}>
+          <a
+            href={"#/produit/" + p.id}
+            onClick={(e) => {
+              e.preventDefault();
+              openProduct(p.id);
+            }}
+          >
             Détails <ArrowUpRight size={14} />
           </a>
           {p.price_hidden ? (
@@ -740,11 +784,12 @@ export function Collections() {
   );
 }
 export function Catalogue({ params }: { params: URLSearchParams }) {
-  const { catalog, now } = useStore();
+  const { catalog, now, clientApproved } = useStore();
+  const [maximum, setMaximum] = useState("");
   const [q, setQ] = useState(params.get("q") || ""),
     [family, setFamily] = useState(params.get("famille") || ""),
     [filter, setFilter] = useState(params.get("filtre") || ""),
-    [sort, setSort] = useState(params.get("tri") || "recommande"),
+    [sort, setSort] = useState(params.get("tri") || "nom"),
     [page, setPage] = useState(1),
     [mobileFilters, setMobileFilters] = useState(false);
   const queryString = params.toString();
@@ -752,7 +797,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     setQ(params.get("q") || "");
     setFamily(params.get("famille") || "");
     setFilter(params.get("filtre") || "");
-    setSort(params.get("tri") || "recommande");
+    setSort(params.get("tri") || "nom");
     setPage(1);
   }, [queryString]);
   if (!catalog) return null;
@@ -804,6 +849,15 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
   if (filter === "bientot") products = products.filter((p) => p.upcoming);
   if (filter === "sur-demande")
     products = products.filter((p) => p.price_on_request);
+  if (filter === "sans-photo")
+    products = products.filter((p) => !p.images.length);
+  if (filter === "sans-prix")
+    products = products.filter((p) => p.price_on_request);
+  if (clientApproved && maximum)
+    products = products.filter((p) =>
+      belowPrice(p, Math.round(Number(maximum) * 100), clientApproved, now),
+    );
+  if (sort === "nom") products.sort(compareProductNames);
   if (sort === "prix-croissant")
     products.sort(
       (a, b) =>
@@ -828,11 +882,12 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     setQ("");
     setFamily("");
     setFilter("");
-    setSort("recommande");
+    setSort("nom");
+    setMaximum("");
     setPage(1);
   };
   return (
-    <main className="container page">
+    <main className="container page catalogue-page">
       <div className="breadcrumb">
         <a href="#/">Accueil</a>
         <ChevronRight size={12} />
@@ -922,7 +977,8 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             ["promotions", "En promotion"],
             ["nouveautes", "Nouveautés"],
             ["bientot", "Bientôt disponibles"],
-            ["sur-demande", "Prix sur demande"],
+            ["sans-photo", "Sans photo"],
+            ["sans-prix", "Sans prix"],
           ].map(([v, label]) => (
             <label className="radio-filter" key={v}>
               <input
@@ -938,6 +994,34 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
               {label}
             </label>
           ))}
+          {clientApproved && (
+            <div className="price-filter">
+              <h4>Budget par unité</h4>
+              <label>
+                Prix inférieur à (DA)
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="Ex. 100"
+                  value={maximum}
+                  onChange={(e) => {
+                    setMaximum(e.target.value);
+                    setPage(1);
+                  }}
+                />
+              </label>
+              <button
+                className={maximum === "100" ? "selected" : ""}
+                onClick={() => {
+                  setMaximum(maximum === "100" ? "" : "100");
+                  setPage(1);
+                }}
+              >
+                Moins de 100 DA
+              </button>
+            </div>
+          )}
           <button className="reset-filters" onClick={reset}>
             Réinitialiser les filtres
           </button>
@@ -980,6 +1064,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
                 setPage(1);
               }}
             >
+              <option value="nom">Nom : A à Z</option>
               <option value="recommande">Notre sélection</option>
               <option value="prix-croissant">Prix croissant</option>
               <option value="prix-decroissant">Prix décroissant</option>
@@ -991,7 +1076,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             <span>
               {products.length} résultat{products.length > 1 ? "s" : ""}
             </span>
-            {(q || family || filter) && (
+            {(q || family || filter || (clientApproved && maximum)) && (
               <button onClick={reset}>
                 Effacer la sélection <X size={12} />
               </button>
@@ -1055,12 +1140,41 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     </main>
   );
 }
-export function ProductDetails({ id }: { id: string }) {
+export function ProductQuickView() {
+  const { catalog, quickProductId, closeProduct } = useStore();
+  useEffect(() => {
+    const close = () => closeProduct();
+    window.addEventListener("hashchange", close);
+    return () => window.removeEventListener("hashchange", close);
+  }, [closeProduct]);
+  if (!quickProductId || !catalog) return null;
+  const product = catalog.products.find((p) => p.id === quickProductId);
+  return (
+    <Modal
+      title={product?.name || "Détails du produit"}
+      onClose={closeProduct}
+      wide
+      className="product-quick-view"
+    >
+      <ProductDetails id={quickProductId} onClose={closeProduct} />
+    </Modal>
+  );
+}
+export function ProductDetails({
+  id,
+  onClose,
+}: {
+  id: string;
+  onClose?: () => void;
+}) {
   const { catalog, now, addCart } = useStore();
+  const Wrapper = onClose ? "div" : "main";
+  const [zoom, setZoom] = useState(false);
   const [image, setImage] = useState(0),
     [n, setN] = useState(1);
   useEffect(() => {
     setImage(0);
+    setZoom(false);
     setN(1);
   }, [id]);
   if (!catalog) return null;
@@ -1071,7 +1185,7 @@ export function ProductDetails({ id }: { id: string }) {
   );
   if (!p)
     return (
-      <main className="container page">
+      <Wrapper className={onClose ? "quick-view-body" : "container page"}>
         <Empty
           title="Produit introuvable"
           body="Cette référence a été retirée ou n’est plus visible."
@@ -1080,14 +1194,14 @@ export function ProductDetails({ id }: { id: string }) {
             Retour au catalogue
           </a>
         </Empty>
-      </main>
+      </Wrapper>
     );
   const family = catalog.families.find((f) => f.id === p.family_id),
     discount = activeDiscount(p, now),
     currency = catalog.settings.currency;
   return (
-    <main className="container page">
-      <div className="breadcrumb">
+    <Wrapper className={onClose ? "quick-view-body" : "container page"}>
+      <div className={onClose ? "quick-view-collection" : "breadcrumb"}>
         <a href="#/">Accueil</a>
         <ChevronRight size={12} />
         <a href={"#/catalogue?famille=" + p.family_id}>
@@ -1098,7 +1212,16 @@ export function ProductDetails({ id }: { id: string }) {
       </div>
       <div className="product-detail-layout">
         <div className="detail-gallery">
-          <div className="detail-image">
+          <div className={`detail-image ${zoom ? "photo-enlarged" : ""}`}>
+            {p.images.length > 0 && (
+              <button
+                className="photo-zoom"
+                aria-label={zoom ? "Réduire la photo" : "Agrandir la photo"}
+                onClick={() => setZoom(!zoom)}
+              >
+                <span>{zoom ? "Réduire" : "Agrandir"}</span>
+              </button>
+            )}
             <ProductPhoto image={p.images[image]} name={p.name} eager />
             <Badges product={p} now={now} />
           </div>
@@ -1108,7 +1231,11 @@ export function ProductDetails({ id }: { id: string }) {
                 <button
                   key={im.url}
                   className={image === i ? "selected" : ""}
-                  onClick={() => setImage(i)}
+                  onClick={() => {
+                    setImage(i);
+                    setZoom(false);
+                  }}
+                  aria-pressed={image === i}
                   aria-label={`Afficher la photo ${i + 1}`}
                 >
                   <img src={im.url} alt={`Vue ${i + 1}`} />
@@ -1167,6 +1294,14 @@ export function ProductDetails({ id }: { id: string }) {
               <dd>{p.capacity || "Non renseignée"}</dd>
             </div>
             <div>
+              <dt>Poids unitaire</dt>
+              <dd>
+                {p.weight_grams != null
+                  ? `${new Intl.NumberFormat("fr-DZ").format(p.weight_grams)} g`
+                  : "Non renseigné"}
+              </dd>
+            </div>
+            <div>
               <dt>Matière</dt>
               <dd>{p.material || "Non renseignée"}</dd>
             </div>
@@ -1188,7 +1323,10 @@ export function ProductDetails({ id }: { id: string }) {
                 />
                 <button
                   className="btn btn-primary"
-                  onClick={() => addCart(p, n)}
+                  onClick={() => {
+                    onClose?.();
+                    addCart(p, n);
+                  }}
                 >
                   <ShoppingBag size={18} />
                   Ajouter au panier
@@ -1213,7 +1351,7 @@ export function ProductDetails({ id }: { id: string }) {
               <div>
                 <b>
                   {p.availability_confirmed
-                    ? "Produit indisponible"
+                    ? "Indisponible pour le moment"
                     : "Disponibilité à confirmer"}
                 </b>
                 <p>
@@ -1227,19 +1365,31 @@ export function ProductDetails({ id }: { id: string }) {
               </div>
             </div>
           )}
+          {onClose && (
+            <button
+              className="btn btn-outline quick-view-back"
+              onClick={onClose}
+            >
+              <ArrowLeft size={16} /> Retour au catalogue
+            </button>
+          )}
           <div className="detail-reassurance">
             <ShieldCheck size={16} />
             Prix et disponibilité vérifiés lors de l’envoi de la commande.
           </div>
         </div>
       </div>
-      <ProductRail
-        title="Dans la même collection"
-        products={catalog.products
-          .filter((item) => item.family_id === p.family_id && item.id !== p.id)
-          .slice(0, 8)}
-        href={"#/catalogue?famille=" + p.family_id}
-      />
-    </main>
+      {!onClose && (
+        <ProductRail
+          title="Dans la même collection"
+          products={catalog.products
+            .filter(
+              (item) => item.family_id === p.family_id && item.id !== p.id,
+            )
+            .slice(0, 8)}
+          href={"#/catalogue?famille=" + p.family_id}
+        />
+      )}
+    </Wrapper>
   );
 }

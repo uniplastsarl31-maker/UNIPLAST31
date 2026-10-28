@@ -14,7 +14,7 @@ import {
 import type { IScannerControls } from "@zxing/browser";
 import { Modal, Field, ProductPhoto, Quantity, Spinner } from "./ui";
 import { navigate, useStore } from "./store";
-import { money, priceOf } from "./domain";
+import { money, priceOf, findBarcodeProduct } from "./domain";
 import * as api from "./api";
 
 export function LoginDialog({ onClose }: { onClose: () => void }) {
@@ -225,87 +225,139 @@ export function PasswordRecovery() {
   );
 }
 export function ScannerDialog({ onClose }: { onClose: () => void }) {
-  const { catalog } = useStore();
-  const [manual, setManual] = useState(""),
-    [scanning, setScanning] = useState(false),
-    [message, setMessage] = useState(""),
+  const { catalog, openProduct } = useStore();
+  const [manual, setManual] = useState("");
+  const [scanning, setScanning] = useState(false),
     [starting, setStarting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [torch, setTorch] = useState(false),
+    [hasTorch, setHasTorch] = useState(false);
   const video = useRef<HTMLVideoElement>(null),
-    controls = useRef<IScannerControls | null>(null),
-    disposed = useRef(false),
-    found = useRef(false);
+    controls = useRef<IScannerControls | null>(null);
+  const disposed = useRef(false),
+    found = useRef(false),
+    generation = useRef(0);
   const stop = () => {
+    generation.current++;
     controls.current?.stop();
     controls.current = null;
     const stream = video.current?.srcObject as MediaStream | null;
     stream?.getTracks().forEach((t) => t.stop());
     if (video.current) video.current.srcObject = null;
     setScanning(false);
+    setTorch(false);
+    setHasTorch(false);
   };
   useEffect(() => {
     disposed.current = false;
     return () => {
       disposed.current = true;
+      generation.current++;
       controls.current?.stop();
-      const stream = video.current?.srcObject as MediaStream | null;
-      stream?.getTracks().forEach((t) => t.stop());
+      (video.current?.srcObject as MediaStream | null)
+        ?.getTracks()
+        .forEach((t) => t.stop());
     };
   }, []);
   const match = (value: string) => {
-    const code = value
-        .trim()
-        .replace(/[٠-٩]/g, (c) => String(c.charCodeAt(0) - 1632)),
-      p = catalog?.products.find((p) => p.barcode === code);
+    if (disposed.current) return;
+    const product = findBarcodeProduct(catalog?.products || [], value);
     stop();
-    if (p) {
+    setManual(value);
+    if (product) {
       onClose();
-      navigate("/produit/" + p.id);
+      openProduct(product.id);
     } else
       setMessage(
-        "Aucun produit ne correspond à ce code-barres. Vérifiez la saisie ou recherchez par référence.",
+        `Code lu : ${value}. Aucun produit correspondant. Vous pouvez réessayer ou saisir la référence dans la recherche.`,
       );
   };
-  const start = async () => {
-    if (starting || scanning) return;
+  const start = async (deviceId?: string) => {
+    if (starting) return;
+    stop();
     setMessage("");
-    if (!window.isSecureContext) {
-      setMessage(
-        "La caméra nécessite une connexion HTTPS. Utilisez la saisie manuelle.",
-      );
-      return;
-    }
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setMessage(
-        "La caméra n’est pas disponible dans ce navigateur. Utilisez la saisie manuelle.",
-      );
-      return;
-    }
-    setStarting(true);
     found.current = false;
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      setMessage(
+        "La caméra nécessite HTTPS et un navigateur compatible. Vous pouvez lire une photo du code ou saisir ses chiffres.",
+      );
+      return;
+    }
+    const attempt = generation.current;
+    setStarting(true);
     try {
-      const { BrowserMultiFormatReader } = await import("@zxing/browser");
-      if (disposed.current) return;
-      const reader = new BrowserMultiFormatReader();
-      setScanning(true);
-      const c = await reader.decodeFromVideoDevice(
-        undefined,
+      const { barcodeReader, cameraConstraints } = await import("./barcode");
+      if (disposed.current || attempt !== generation.current) return;
+      const reader = barcodeReader();
+      const c = await reader.decodeFromConstraints(
+        cameraConstraints(deviceId),
         video.current!,
-        (result) => {
-          if (result && !found.current) {
+        (result, _error, scan) => {
+          if (
+            result &&
+            !found.current &&
+            !disposed.current &&
+            attempt === generation.current
+          ) {
             found.current = true;
+            scan.stop();
             match(result.getText());
           }
         },
       );
+      if (disposed.current || found.current || attempt !== generation.current) {
+        c.stop();
+        return;
+      }
       controls.current = c;
-      if (disposed.current || found.current) c.stop();
-    } catch (e) {
+      setScanning(true);
+      setHasTorch(!!c.switchTorch);
+      const stream = video.current?.srcObject as MediaStream | null;
+      const track = stream?.getVideoTracks()[0];
+      if (track) {
+        const caps = track.getCapabilities?.() as MediaTrackCapabilities & {
+          focusMode?: string[];
+        };
+        if (caps?.focusMode?.includes("continuous"))
+          void track
+            .applyConstraints({
+              advanced: [
+                { focusMode: "continuous" } as MediaTrackConstraintSet,
+              ],
+            })
+            .catch(() => {});
+      }
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      if (!disposed.current)
+        setCameras(devices.filter((d) => d.kind === "videoinput"));
+    } catch (error) {
+      if (disposed.current || attempt !== generation.current) return;
       stop();
+      const name = (error as Error).name;
       setMessage(
-        (e as Error).name === "NotAllowedError"
-          ? "L’accès à la caméra a été refusé. Vous pouvez saisir le code manuellement."
-          : "Impossible de démarrer la caméra. Vérifiez les autorisations et utilisez la saisie manuelle si nécessaire.",
+        name === "NotAllowedError"
+          ? "Caméra refusée. Autorisez la caméra dans les réglages du site, ou utilisez une photo du code."
+          : name === "NotReadableError"
+            ? "La caméra est utilisée par une autre application. Fermez-la puis réessayez."
+            : "Impossible de démarrer cette caméra. Essayez une photo du code ou la saisie manuelle.",
       );
+    } finally {
+      if (!disposed.current) setStarting(false);
+    }
+  };
+  const photo = async (file: File) => {
+    stop();
+    setStarting(true);
+    setMessage("");
+    const attempt = generation.current;
+    try {
+      const { barcodeFromPhoto } = await import("./barcode");
+      const code = await barcodeFromPhoto(file);
+      if (!disposed.current && attempt === generation.current) match(code);
+    } catch (e) {
+      if (!disposed.current && attempt === generation.current)
+        setMessage((e as Error).message);
     } finally {
       if (!disposed.current) setStarting(false);
     }
@@ -313,15 +365,15 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
   return (
     <Modal title="Scanner un code-barres" onClose={onClose}>
       <p className="dialog-copy">
-        Retrouvez directement un produit avec le code-barres enregistré dans le
-        catalogue.
+        Cadrez le code entier avec la caméra arrière. Gardez une distance de 15
+        à 25 cm, puis rapprochez doucement.
       </p>
       <div className={`scanner-window ${scanning ? "scanning" : ""}`}>
-        <video ref={video} muted playsInline />
+        <video ref={video} muted playsInline autoPlay />
         {!scanning && (
           <div>
             <ScanLine size={45} strokeWidth={1} />
-            <span>Placez le code-barres face à la caméra</span>
+            <span>Code-barres net, bien éclairé et sans reflet</span>
           </div>
         )}
         {scanning && <span className="scanner-target" />}
@@ -331,15 +383,70 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
         disabled={starting}
         onClick={() => (scanning ? stop() : void start())}
       >
-        {starting ? <Spinner /> : <Camera size={18} />}{" "}
+        {starting ? <Spinner /> : <Camera size={18} />}
         {starting
-          ? "Accès à la caméra…"
+          ? "Lecture en cours…"
           : scanning
             ? "Arrêter la caméra"
-            : "Activer la caméra"}
+            : "Activer la caméra arrière"}
       </button>
+      {scanning && (
+        <div className="scanner-tools">
+          {cameras.length > 1 && (
+            <select
+              aria-label="Choisir une caméra"
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) void start(e.target.value);
+              }}
+            >
+              <option value="" disabled>
+                Changer de caméra
+              </option>
+              {cameras.map((c, i) => (
+                <option key={c.deviceId} value={c.deviceId}>
+                  {c.label || `Caméra ${i + 1}`}
+                </option>
+              ))}
+            </select>
+          )}
+          {hasTorch && (
+            <button
+              className="btn btn-outline"
+              onClick={() => {
+                void controls.current
+                  ?.switchTorch?.(!torch)
+                  .then(() => setTorch(!torch))
+                  .catch(() =>
+                    setMessage(
+                      "L’éclairage n’est pas disponible sur cette caméra.",
+                    ),
+                  );
+              }}
+            >
+              {torch ? "Éteindre" : "Éclairer"}
+            </button>
+          )}
+        </div>
+      )}
+      <label
+        className={`btn btn-outline full-width scanner-photo ${starting ? "disabled" : ""}`}
+      >
+        <Camera size={18} /> Lire une photo du code
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          disabled={starting}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void photo(file);
+            e.target.value = "";
+          }}
+        />
+      </label>
       <div className="or-divider">
-        <span>ou saisissez le code</span>
+        <span>ou saisissez les chiffres</span>
       </div>
       <form
         className="manual-barcode"
@@ -350,6 +457,7 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
       >
         <input
           aria-label="Code-barres"
+          inputMode="numeric"
           required
           value={manual}
           onChange={(e) => setManual(e.target.value)}
@@ -368,8 +476,8 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
         </p>
       )}
       <small className="muted-copy">
-        L’autorisation est demandée à l’activation uniquement. La caméra
-        s’arrête après lecture ou fermeture.
+        La lecture reste sur votre téléphone. La caméra s’arrête après lecture
+        ou fermeture.
       </small>
     </Modal>
   );

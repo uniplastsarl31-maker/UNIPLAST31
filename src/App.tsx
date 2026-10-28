@@ -8,6 +8,7 @@ import {
   Home,
   Catalogue,
   ProductDetails,
+  ProductQuickView,
   Collections,
 } from "./Storefront";
 import { Checkout, MyOrders, RequestForm } from "./Commerce";
@@ -168,6 +169,7 @@ function Router() {
         {content}
       </div>
       <Footer openPolicy={setPolicy} />
+      <ProductQuickView />
       {login && <LoginDialog onClose={() => setLogin(false)} />}
       {scanner && <ScannerDialog onClose={() => setScanner(false)} />}
       {policy && (

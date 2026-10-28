@@ -144,6 +144,14 @@ export function AdvancedSettings({
               onChange={(e) => set("whatsapp_phone", e.target.value)}
             />
           </Field>
+          <Field label="Viber de l’entreprise">
+            <input
+              type="tel"
+              maxLength={40}
+              value={s.viber_phone || ""}
+              onChange={(e) => set("viber_phone", e.target.value)}
+            />
+          </Field>
           <Field label="Site internet (HTTPS)">
             <input
               type="url"

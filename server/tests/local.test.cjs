@@ -90,7 +90,7 @@ test("local store: real persistence, private prices, PIN access and immutable or
         assert.equal(catalog.families.length, 17);
         assert.equal(
           catalog.products.filter((p) => p.price_on_request).length,
-          34,
+          33,
         );
         assert.equal((await call("product-save", product)).status, 200);
         const hidden = (
@@ -190,7 +190,7 @@ test("local store: real persistence, private prices, PIN access and immutable or
         order = (await call("order-create", payload, "client")).data;
         assert.equal(order.total_cents, 10000);
         assert.equal(order.items[0].unit_price_cents, 500);
-        assert.equal(order.company_snapshot.company_name, "UNIPLAST");
+        assert.equal(order.company_snapshot.company_name, "UNIPLAST SARL");
         const replay = (await call("order-create", payload, "client")).data;
         assert.equal(replay.id, order.id);
         assert.equal(

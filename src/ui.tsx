@@ -3,30 +3,47 @@ import { Box, Minus, Plus, X } from "lucide-react";
 import type { Product, ProductImage } from "./types";
 import { activeDiscount, canBuy, discountPercent } from "./domain";
 
+const modalStack: symbol[] = [];
+let savedBody: { overflow: string; paddingRight: string; y: number } | null =
+  null;
+
 export function Modal({
   title,
   onClose,
   children,
   wide = false,
+  className = "",
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
   wide?: boolean;
+  className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null),
     closer = useRef(onClose);
   closer.current = onClose;
   useEffect(() => {
+    const token = Symbol();
+    if (!modalStack.length) {
+      const gap = window.innerWidth - document.documentElement.clientWidth;
+      savedBody = {
+        overflow: document.body.style.overflow,
+        paddingRight: document.body.style.paddingRight,
+        y: window.scrollY,
+      };
+      document.body.style.overflow = "hidden";
+      if (gap > 0) document.body.style.paddingRight = gap + "px";
+    }
+    modalStack.push(token);
     const prev = document.activeElement as HTMLElement | null;
-    const saved = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const f = () =>
       ref.current
         ?.querySelector<HTMLElement>("button,input,select,textarea,a[href]")
-        ?.focus();
+        ?.focus({ preventScroll: true });
     f();
     const key = (e: KeyboardEvent) => {
+      if (modalStack.at(-1) !== token) return;
       if (e.key === "Escape") closer.current();
       if (e.key === "Tab") {
         const all = Array.from(
@@ -47,9 +64,16 @@ export function Modal({
     };
     document.addEventListener("keydown", key);
     return () => {
-      document.body.style.overflow = saved;
+      const index = modalStack.indexOf(token);
+      if (index !== -1) modalStack.splice(index, 1);
+      if (!modalStack.length && savedBody) {
+        document.body.style.overflow = savedBody.overflow;
+        document.body.style.paddingRight = savedBody.paddingRight;
+        window.scrollTo({ top: savedBody.y, behavior: "instant" });
+        savedBody = null;
+      }
       document.removeEventListener("keydown", key);
-      prev?.focus();
+      if (prev?.isConnected) prev.focus({ preventScroll: true });
     };
   }, []);
   return (
@@ -64,7 +88,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`modal ${wide ? "modal-wide" : ""}`}
+        className={`modal ${wide ? "modal-wide" : ""} ${className}`}
       >
         <div className="modal-title">
           <h2>{title}</h2>
@@ -96,6 +120,10 @@ export function ProductPhoto({
           alt={name}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
+          onLoad={(e) => {
+            e.currentTarget.style.removeProperty("display");
+            e.currentTarget.parentElement?.classList.remove("image-failed");
+          }}
           style={{
             transform: `translate(${Math.max(-50, Math.min(50, image.x))}%,${Math.max(-50, Math.min(50, image.y))}%) scale(${Math.max(0.5, Math.min(3, image.scale))})`,
           }}
@@ -120,7 +148,7 @@ export function Badges({ product: p, now }: { product: Product; now: number }) {
       {!p.availability_confirmed ? (
         <span className="badge unknown">À confirmer</span>
       ) : !p.available || p.stock_cartons === 0 ? (
-        <span className="badge unavailable">Indisponible</span>
+        <span className="badge unavailable">Indisponible pour le moment</span>
       ) : p.upcoming ? (
         <span className="badge upcoming">Bientôt disponible</span>
       ) : (

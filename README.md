@@ -1,3 +1,5 @@
+> Livraison du 28/10/2026 : voir [mise à jour du catalogue et de l’interface](docs/MISE-A-JOUR-28-10-2026-FR.md). Les noms et tarifs rapprochés sont appliqués une seule fois aux données persistantes. Le fichier CSV d’origine reste intact pour la traçabilité.
+
 # UNIPLAST — متجر فرنسي جاهز لـ Netlify
 
 الكتالوج الأصلي: **350 منتجًا / 17 عائلة**. واجهة فرنسية متجاوبة، سلايدر للرئيسية ولكل عائلة، تخفيضات بارزة، تعريف بالشركة واقتراحات الزبائن. الشعار وصور المنتجات الأصلية محفوظة.

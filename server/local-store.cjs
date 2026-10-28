@@ -55,6 +55,8 @@ const cleanText = (v, max, min = 0) => {
   return v.trim();
 };
 
+const { applyCatalogUpdate, catalogUpdateVersion } = require('./catalog-update.cjs');
+
 function createLocalStore({
   dataDir = path.join(__dirname, "..", ".uniplast-data"),
   seedPath,
@@ -124,6 +126,7 @@ function createLocalStore({
       put("settings", defaultSettings);
       setMeta("seeded", "1");
     });
+  applyCatalogUpdate({ meta, setMeta, all, get, put, transaction });
   const settings = () => ({ ...defaultSettings, ...get("settings", "true") });
   const setupToken = crypto.randomBytes(32).toString("hex");
   const cookieName = hosting ? "__Host-uniplast_session" : "uniplast_session";
@@ -319,6 +322,16 @@ function createLocalStore({
           true
         );
       }
+      if (req.method === "GET" && name === "catalog-update") {
+        admin(s);
+        reply(res, JSON.parse(meta("catalog-update:" + catalogUpdateVersion) || "null"));
+        return true;
+      }
+      if (req.method === "GET" && name === "catalog-backup") {
+        admin(s);
+        reply(res, get("catalog-backup", catalogUpdateVersion));
+        return true;
+      }
       if (req.method === "GET" && name === "file") {
         const id = address.searchParams.get("id"),
           file = db.prepare("SELECT * FROM uploads WHERE id=?").get(id);
@@ -347,7 +360,7 @@ function createLocalStore({
       }
       assert(req.method === "POST", "Méthode non autorisée.", 405);
       if (name === "upload") {
-        const type = String(req.headers["content-type"] || "").split(";")[0],
+        const type = String(req.headers["content-type"] || "").split(";")[0].trim().toLowerCase().replace("image/x-png", "image/png"),
           isPublic = address.searchParams.get("public") === "1";
         if (isPublic) admin(s);
         else assert(s, "Connectez-vous avant de joindre un fichier.", 403);

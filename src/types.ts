@@ -28,6 +28,7 @@ export interface Product {
   dimensions: string;
   capacity: string;
   material: string;
+  weight_grams?: number | null;
   pack_size: number;
   pack_label: string;
   unit_price_cents: number;
@@ -77,6 +78,7 @@ export interface Settings {
   about_image: string;
   price_visibility: "public" | "approved";
   secondary_phone: string;
+  viber_phone?: string;
   whatsapp_phone: string;
   website_url: string;
   facebook_url: string;
