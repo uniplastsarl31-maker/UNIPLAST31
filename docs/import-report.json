@@ -1,0 +1,615 @@
+{
+  "source": "uniplast_produits.csv",
+  "sha256": "917bbcdc4a37c5a66a401d7b139c5d33845e010d7431856bc1665e746d7cb65c",
+  "imported_at": "2026-10-27",
+  "products": 350,
+  "families": 17,
+  "missing_prices": 34,
+  "duplicate_barcodes": {
+    "6134338008378": 2,
+    "6134338006978": 2,
+    "6134338003798": 2,
+    "6134338005063": 2
+  },
+  "missing_source_barcodes": 38,
+  "matched_images": 5,
+  "availability": "Not provided. All products require admin confirmation before purchase.",
+  "mapping": "Left-hand Réf., Libellé, Colisage, P.V. TTC, Poids, Code barre, Capacity, Dimensions. Right-hand list deliberately not joined by row.",
+  "price_interpretation": "P.V. TTC treated as the unit price in DZD. No tax rate is invented. Original decimal precision preserved in centimes.",
+  "family_counts": {
+    "Emballages alimentaires": 44,
+    "Boîtes Crystal": 28,
+    "Boîtes de conservation": 63,
+    "Céréales & épices": 9,
+    "Repas & pique-nique": 4,
+    "Bassines & cuvettes": 23,
+    "Seaux & Clipso": 11,
+    "Paniers & corbeilles": 24,
+    "Poubelles": 11,
+    "Rangement de la maison": 27,
+    "Égouttoirs & accessoires": 15,
+    "Vaisselle & service": 32,
+    "Mobilier": 31,
+    "Hygiène & entretien": 6,
+    "Glacières & gourdes": 8,
+    "Pots & jardin": 10,
+    "Autres accessoires": 4
+  },
+  "issues": [
+    {
+      "code": "BCR01",
+      "name": "BOITE CRYSTAL RC01 (300ml) MINI",
+      "row": 17,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMA1250ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI 1250ML REF 03",
+      "row": 45,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMA2000ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI 2000ML REF 04",
+      "row": 46,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMA460ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI 460ML REF 01",
+      "row": 47,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMA800ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI 800ML REF 02",
+      "row": 48,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMAS1250ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI S/4 (1250ML) REF 03",
+      "row": 49,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMAS2000ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI S/4 (2000ML) REF 04",
+      "row": 50,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMAS460ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI S/4 (460ML) REF 01",
+      "row": 51,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMAS800ML",
+      "name": "BOITE EMBALLAGE CARRE MAXI S/4 (800ML) REF 02",
+      "row": 52,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMI1000ML",
+      "name": "BOITE EMBALLAGE CARRE MINI 1000ML REF 04",
+      "row": 53,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMI300ML",
+      "name": "BOITE EMBALLAGE CARRE MINI 300ML REF 01",
+      "row": 54,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMI450ML",
+      "name": "BOITE EMBALLAGE CARRE MINI 450ML REF 02",
+      "row": 55,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMI650ML",
+      "name": "BOITE EMBALLAGE CARRE MINI 650ML REF 03",
+      "row": 56,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMIS1000ML",
+      "name": "BOITE EMBALLAGE CARRE MINI S/4 (1000ML) REF 04",
+      "row": 57,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMIS300ML",
+      "name": "BOITE EMBALLAGE CARRE MINI S/4 (300ML) REF 01",
+      "row": 58,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMIS450ML",
+      "name": "BOITE EMBALLAGE CARRE MINI S/4 (450ML) REF 02",
+      "row": 59,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECMIS650ML",
+      "name": "BOITE EMBALLAGE CARRE MINI S/4 (650ML) REF 03",
+      "row": 60,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECP1400ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI 1400ML REF 02",
+      "row": 61,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECP2100ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI 2100ML REF 03",
+      "row": 62,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECP3100ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI 3100ML REF 04",
+      "row": 63,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECP900ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI 900ML REF 01",
+      "row": 64,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECPS1400ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI S/4 (1400ML) REF 02",
+      "row": 65,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECPS2100ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI S/4 (2100ML) REF 03",
+      "row": 66,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECPS3100ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI S/4 (3100ML) REF 04",
+      "row": 67,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BECPS900ML",
+      "name": "BOITE EMBALLAGE CARRE PROMAXI S/4 (900ML) REF 01",
+      "row": 68,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMA1000ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI 1000ML REF 03",
+      "row": 69,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMA400ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI 400ML REF 01",
+      "row": 70,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMA650ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI 650ML REF 02",
+      "row": 71,
+      "notes": [
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMAS1000ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI S/4 (1000ML) REF 03",
+      "row": 72,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMAS400ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI S/4 (400ML) REF 01",
+      "row": 73,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMAS650ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MAXI S/4 (650ML) REF 02",
+      "row": 74,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMI480ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI 480ML REF 02",
+      "row": 76,
+      "notes": [
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMI730ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI 730ML REF 03",
+      "row": 77,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMIS300ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI S/4 (300ML) REF 01",
+      "row": 78,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMIS480ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI S/4 (480ML) REF 02",
+      "row": 79,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERMIS730ML",
+      "name": "BOITE EMBALLAGE RECTANGLE MINI S/4 (730ML) REF 03",
+      "row": 80,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERS750ML",
+      "name": "BOITE EMBALLAGE RONDE S/3 (750ML) REF 04",
+      "row": 85,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERS300ML",
+      "name": "BOITE EMBALLAGE RONDE S/4 (300ML) REF 01",
+      "row": 86,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERS400ML",
+      "name": "BOITE EMBALLAGE RONDE S/4 (400ML) REF 02",
+      "row": 87,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BERS500ML",
+      "name": "BOITE EMBALLAGE RONDE S/4 (500ML) REF 03",
+      "row": 88,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BMG1.6L",
+      "name": "BOITE MIAMI 1.6L GM REF 03",
+      "row": 102,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BS",
+      "name": "BOITE SANDWICHE",
+      "row": 115,
+      "notes": [
+        "Code-barres absent du fichier source."
+      ]
+    },
+    {
+      "code": "BSR9",
+      "name": "BOITE STAR R09 (4.4l) MAXI",
+      "row": 140,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BSR10",
+      "name": "BOITE STAR R10 (6.3l) MAXI",
+      "row": 141,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BS600",
+      "name": "BOITE SWING 600 ML MM",
+      "row": 144,
+      "notes": [
+        "Code-barres EAN-13 invalide : à vérifier."
+      ]
+    },
+    {
+      "code": "BSS/3",
+      "name": "BOITE SWING SERIE 03 (350+600+980 ML)",
+      "row": 146,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BE08L",
+      "name": "BONBONNE A EAU 08L AMAZONE",
+      "row": 160,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BM1250T",
+      "name": "BROC EL MORDJENE TRANSPARENT 1250 ML",
+      "row": 164,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "BM1250TST",
+      "name": "BROC EL MORDJENE TRANSPARENT 1250 ML MAGIMIX",
+      "row": 165,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "BTF",
+      "name": "BROSSE TOILETTE FARACHA",
+      "row": 167,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "BTN",
+      "name": "BROSSE TOILETTE NEPTUNE",
+      "row": 168,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "P4985",
+      "name": "BROSSE TOILETTE",
+      "row": 169,
+      "notes": [
+        "Code-barres absent du fichier source.",
+        "Ancienne annotation de stock conservée dans la source, non utilisée comme stock actuel."
+      ]
+    },
+    {
+      "code": "CO5T",
+      "name": "COMMODE OMEGA 05 ETAGES TRANSPARENT",
+      "row": 190,
+      "notes": [
+        "Code-barres EAN-13 invalide : à vérifier."
+      ]
+    },
+    {
+      "code": "GLACIÈRE12",
+      "name": "GLACIERE HAWAY 12L PROMOTION FIN ÉTÉ",
+      "row": 240,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "GLACIÈRE25",
+      "name": "GLACIERE HAWAY 25LPROMOTION FIN ÉTÉ",
+      "row": 241,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "G12",
+      "name": "GLACIERE OCEANIC 12L",
+      "row": 242,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "G25",
+      "name": "GLACIERE OCEANIC 25L",
+      "row": 243,
+      "notes": [
+        "Code-barres partagé par plusieurs références : à vérifier."
+      ]
+    },
+    {
+      "code": "GO500",
+      "name": "GOURDE 500 ML",
+      "row": 246,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "P2775",
+      "name": "PAILLE",
+      "row": 260,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Ancienne annotation de stock conservée dans la source, non utilisée comme stock actuel."
+      ]
+    },
+    {
+      "code": "POLY 001",
+      "name": "POLYSTYRÈNE PS 32CM X 20CMX 0.8CM",
+      "row": 269,
+      "notes": [
+        "Prix absent : vente bloquée jusqu’à saisie du tarif.",
+        "Code-barres absent du fichier source.",
+        "Ancienne annotation de stock conservée dans la source, non utilisée comme stock actuel."
+      ]
+    },
+    {
+      "code": "PE",
+      "name": "POUBELLE EMRAUDE 40L",
+      "row": 283,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    },
+    {
+      "code": "BYC",
+      "name": "SECHE LINGE BYBLOS COULEUR",
+      "row": 321,
+      "notes": [
+        "Code-barres EAN-13 invalide : à vérifier."
+      ]
+    },
+    {
+      "code": "BM1500ST",
+      "name": "SERVICE BROC EL MORDJENE TRANSPARENT 1500ML",
+      "row": 325,
+      "notes": [
+        "Capacité reprise explicitement du libellé produit."
+      ]
+    }
+  ]
+}
