@@ -84,10 +84,10 @@ test("local store: real persistence, private prices, PIN access and immutable or
         pack_size: 10,
       };
     await t.test(
-      "350 references and 17 families seeded, prices never sent to visitors",
+      "350 references and eight requested families, prices never sent to visitors",
       async () => {
         assert.equal(catalog.products.length, 350);
-        assert.equal(catalog.families.length, 17);
+        assert.equal(catalog.families.length, 8);
         assert.equal(
           catalog.products.filter((p) => p.price_on_request).length,
           33,
@@ -300,6 +300,13 @@ test("local store: real persistence, private prices, PIN access and immutable or
             notes: "",
           },
           details: {
+            items: [
+              {
+                name: "Contenant rectangulaire",
+                quantity_units: 500,
+                images: [],
+              },
+            ],
             description: "Un contenant rectangulaire sur mesure.",
             quantity: "500 pièces",
             dimensions: "",

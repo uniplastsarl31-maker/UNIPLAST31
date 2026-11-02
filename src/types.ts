@@ -6,6 +6,13 @@ export interface ProductImage {
   y: number;
 }
 export interface Family {
+  aliases?: string[];
+  kind?: "standard" | "new";
+  introduction?: string;
+  slider_enabled?: boolean;
+  slider_autoplay?: boolean;
+  slider_interval?: number;
+  promotions?: Hero[];
   slides?: Hero[];
   slider_height?: number;
   id: string;
@@ -35,6 +42,7 @@ export interface Product {
   available: boolean;
   stock_cartons: number | null;
   is_new: boolean;
+  new_until?: string | null;
   upcoming: boolean;
   preorder_enabled: boolean;
   discount_price_cents: number | null;
@@ -57,6 +65,8 @@ export interface Product {
   };
 }
 export interface Hero {
+  layout?: "split" | "poster";
+  product_id?: string;
   scale?: number;
   fit?: "contain" | "cover";
   x?: number;
@@ -71,6 +81,9 @@ export interface Hero {
   visible: boolean;
 }
 export interface Settings {
+  product_display?: ProductDisplay;
+  custom_order?: CustomOrderOptions;
+  family_options?: FamilyOptions;
   home_slider_height: number;
   slider_interval: number;
   about_title: string;
@@ -103,6 +116,40 @@ export interface Settings {
   heroes: Hero[];
   privacy: string;
   terms: string;
+}
+export interface ProductDisplay {
+  weight: boolean;
+  material: boolean;
+  dimensions: boolean;
+  capacity: boolean;
+  barcode: boolean;
+  pack: boolean;
+  availability: boolean;
+  description: boolean;
+  new_badge: boolean;
+  related_products: boolean;
+  hide_empty: boolean;
+}
+export interface CustomOrderOptions {
+  enabled: boolean;
+  terms: string;
+  min_units: number;
+  minimum_scope: "per_item" | "total";
+  require_photo: boolean;
+  require_acceptance: boolean;
+  max_items: number;
+}
+export interface FamilyOptions {
+  slider: boolean;
+  introduction: boolean;
+  promotions: boolean;
+  quick_navigation: boolean;
+  custom_link: boolean;
+}
+export interface CustomRequestItem {
+  name: string;
+  quantity_units: number;
+  images: string[];
 }
 export interface Season {
   id: string;
@@ -191,6 +238,13 @@ export interface RequestRecord {
   customer: Customer & { email?: string };
   cartons: number;
   details: {
+    items?: CustomRequestItem[];
+    terms_accepted?: boolean;
+    conditions_snapshot?: {
+      terms: string;
+      min_units: number;
+      minimum_scope: "per_item" | "total";
+    };
     description: string;
     dimensions: string;
     capacity: string;

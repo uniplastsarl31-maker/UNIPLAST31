@@ -16,7 +16,15 @@ import type {
 import { defaultSettings } from "./catalog";
 import { localMode, localCall, localUpload, imageLimitMo } from "./localApi";
 export { localMode, localCall } from "./localApi";
-import { canBuy, cartTotals, validateProduct, safeWebUrl } from "./domain";
+import {
+  canBuy,
+  cartTotals,
+  validateProduct,
+  safeWebUrl,
+  customOrderOptions,
+  validateCustomItems,
+  validateFeatureSettings,
+} from "./domain";
 
 const url = import.meta.env.VITE_SUPABASE_URL?.trim(),
   key = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
@@ -494,6 +502,8 @@ export async function reorderFamilies(ids: string[]) {
   if (error) fail(error);
 }
 export async function saveSettings(settings: Settings) {
+  const featureError = validateFeatureSettings(settings);
+  if (featureError) throw new Error(featureError);
   if (localMode) return localCall("settings-save", settings);
   for (const value of [
     settings.website_url,
@@ -666,6 +676,20 @@ export async function submitRequest(
   if (previewMode) {
     const previous = previewRequestKeys.get(requestKey);
     if (previous) return structuredClone(previous);
+    if (request.kind === "custom") {
+      const options = customOrderOptions(memory.settings),
+        problem = validateCustomItems(
+          request.details.items,
+          options,
+          request.details.terms_accepted,
+        );
+      if (problem) throw new Error(problem);
+      request.details.conditions_snapshot = {
+        terms: options.terms,
+        min_units: options.min_units,
+        minimum_scope: options.minimum_scope,
+      };
+    }
     const r: RequestRecord = {
       ...request,
       id: crypto.randomUUID(),

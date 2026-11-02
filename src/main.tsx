@@ -3,4 +3,5 @@ import App from "./App";
 import "./styles.css";
 import "./experience.css";
 import "./catalogue-update.css";
+import "./family-experience.css";
 createRoot(document.getElementById("root")!).render(<App />);

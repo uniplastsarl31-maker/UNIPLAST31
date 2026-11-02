@@ -27,6 +27,7 @@ test("hosted PIN access, bcrypt, persistent lockout, private history and present
       "002_customer_features.sql",
       "003_pin_and_presentation.sql",
       "004_product_weight.sql",
+      "005_family_options.sql",
     ])
       await db.exec(
         await readFile(

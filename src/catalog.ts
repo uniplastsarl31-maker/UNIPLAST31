@@ -1,5 +1,13 @@
 import type { Settings } from "./types";
+import {
+  defaultProductDisplay,
+  defaultCustomOrder,
+  defaultFamilyOptions,
+} from "./domain";
 export const defaultSettings: Settings = {
+  product_display: { ...defaultProductDisplay },
+  custom_order: { ...defaultCustomOrder },
+  family_options: { ...defaultFamilyOptions },
   home_slider_height: 520,
   slider_interval: 6,
   about_title: "UNIPLAST SARL, à vos côtés depuis 1998.",

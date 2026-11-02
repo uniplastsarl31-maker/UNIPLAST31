@@ -1,7 +1,14 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { Box, Minus, Plus, X } from "lucide-react";
+import { Box, Minus, Plus, X, Sparkles } from "lucide-react";
 import type { Product, ProductImage } from "./types";
-import { activeDiscount, canBuy, discountPercent } from "./domain";
+import {
+  activeDiscount,
+  canBuy,
+  discountPercent,
+  isNewProduct,
+  productDisplay,
+} from "./domain";
+import { useStore } from "./store";
 
 const modalStack: symbol[] = [];
 let savedBody: { overflow: string; paddingRight: string; y: number } | null =
@@ -142,19 +149,27 @@ export function ProductPhoto({
   );
 }
 export function Badges({ product: p, now }: { product: Product; now: number }) {
+  const { catalog } = useStore();
+  const display = productDisplay(catalog?.settings || {});
   const discount = activeDiscount(p, now);
   return (
     <div className="badges">
-      {!p.availability_confirmed ? (
-        <span className="badge unknown">À confirmer</span>
-      ) : !p.available || p.stock_cartons === 0 ? (
-        <span className="badge unavailable">Indisponible pour le moment</span>
-      ) : p.upcoming ? (
-        <span className="badge upcoming">Bientôt disponible</span>
-      ) : (
-        <span className="badge available">Disponible</span>
+      {display.new_badge && isNewProduct(p, now) && (
+        <span className="badge new">
+          <Sparkles size={13} aria-hidden="true" />
+          NOUVEAU
+        </span>
       )}
-      {p.is_new && <span className="badge new">Nouveau</span>}
+      {display.availability &&
+        (!p.availability_confirmed ? (
+          <span className="badge unknown">À confirmer</span>
+        ) : !p.available || p.stock_cartons === 0 ? (
+          <span className="badge unavailable">Indisponible pour le moment</span>
+        ) : p.upcoming ? (
+          <span className="badge upcoming">Bientôt disponible</span>
+        ) : (
+          <span className="badge available">Disponible</span>
+        ))}
       {discount && (
         <span className="badge sale">−{discountPercent(p, now)} %</span>
       )}

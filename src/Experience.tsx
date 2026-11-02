@@ -16,6 +16,7 @@ import type { Family, Hero, Settings } from "./types";
 import { useStore } from "./store";
 import { Field, Spinner } from "./ui";
 import * as api from "./api";
+import { customOrderOptions } from "./domain";
 
 export function familySlides(f: Family): Hero[] {
   return f.slides?.length
@@ -25,7 +26,9 @@ export function familySlides(f: Family): Hero[] {
           id: f.id + "-intro",
           eyebrow: "LA COLLECTION UNIPLAST",
           title: f.name,
-          body: "Des formats pratiques pour répondre à vos besoins. Explorez les références et trouvez votre solution.",
+          body:
+            f.introduction ||
+            "Des formats pratiques pour répondre à vos besoins. Explorez les références et trouvez votre solution.",
           image: f.image,
           cta: "Découvrir les produits",
           family_id: f.id,
@@ -48,15 +51,18 @@ export function Slider({
   height = 520,
   interval = 6,
   compact = false,
+  autoplay = true,
 }: {
   slides: Hero[];
   height?: number;
   interval?: number;
   compact?: boolean;
+  autoplay?: boolean;
 }) {
+  const { openProduct } = useStore();
   const visible = slides.filter((h) => h.visible),
     [index, setIndex] = useState(0),
-    [paused, setPaused] = useState(false),
+    [paused, setPaused] = useState(!autoplay),
     [hover, setHover] = useState(false),
     [reduced, setReduced] = useState(false),
     start = useRef(0);
@@ -64,6 +70,7 @@ export function Slider({
   useEffect(() => {
     setIndex(0);
   }, [signature]);
+  useEffect(() => setPaused(!autoplay), [autoplay]);
   useEffect(() => {
     const q = window.matchMedia("(prefers-reduced-motion: reduce)");
     const change = () => setReduced(q.matches);
@@ -88,7 +95,11 @@ export function Slider({
     setIndex((i) => (i + n + visible.length) % visible.length);
   return (
     <section
-      className={"brand-slider " + (compact ? "family-slider" : "")}
+      className={
+        "brand-slider " +
+        (compact ? "family-slider " : "") +
+        (slide.layout === "poster" ? "slider-poster" : "")
+      }
       style={
         {
           "--slider-height": Math.max(260, Math.min(760, height)) + "px",
@@ -122,13 +133,20 @@ export function Slider({
         <a
           className="btn btn-primary"
           href={
-            compact
-              ? "#collection-products"
-              : slide.family_id
-                ? "#/catalogue?famille=" + slide.family_id
-                : "#/catalogue"
+            slide.product_id
+              ? "#/produit/" + slide.product_id
+              : compact
+                ? "#collection-products"
+                : slide.family_id
+                  ? "#/catalogue?famille=" + slide.family_id
+                  : "#/catalogue"
           }
           onClick={(e) => {
+            if (slide.product_id) {
+              e.preventDefault();
+              openProduct(slide.product_id);
+              return;
+            }
             if (compact) {
               e.preventDefault();
               document
@@ -225,12 +243,14 @@ export function SlideEditor({
   familyId = "",
   height,
   onHeight,
+  promotion = false,
 }: {
   slides: Hero[];
   onChange: (s: Hero[]) => void;
   familyId?: string;
   height: number;
   onHeight: (h: number) => void;
+  promotion?: boolean;
 }) {
   const { catalog, notify } = useStore();
   const [busy, setBusy] = useState(false);
@@ -249,20 +269,24 @@ export function SlideEditor({
   }
   return (
     <div className="slide-editor">
-      <Field label={"Hauteur du diaporama : " + height + " px"}>
-        <input
-          type="range"
-          min={260}
-          max={760}
-          step={20}
-          value={height}
-          onChange={(e) => onHeight(Number(e.target.value))}
-        />
-      </Field>
-      <p className="muted-copy">
-        La hauteur s’adapte automatiquement sur téléphone. Le zoom règle la
-        taille de chaque image.
-      </p>
+      {!promotion && (
+        <>
+          <Field label={"Hauteur du diaporama : " + height + " px"}>
+            <input
+              type="range"
+              min={260}
+              max={760}
+              step={20}
+              value={height}
+              onChange={(e) => onHeight(Number(e.target.value))}
+            />
+          </Field>
+          <p className="muted-copy">
+            La hauteur s’adapte automatiquement sur téléphone. Le zoom règle la
+            taille de chaque image.
+          </p>
+        </>
+      )}
       {slides.map((h, i) => (
         <details
           className="slide-edit-row"
@@ -316,6 +340,38 @@ export function SlideEditor({
                 value={h.eyebrow}
                 onChange={(e) => change(i, { eyebrow: e.target.value })}
               />
+            </Field>
+            <Field label="Mise en page du visuel">
+              <select
+                value={h.layout || "split"}
+                onChange={(e) =>
+                  change(i, { layout: e.target.value as Hero["layout"] })
+                }
+              >
+                <option value="split">Image et texte côte à côte</option>
+                <option value="poster">Affiche complète</option>
+              </select>
+            </Field>
+            <Field label="Produit à ouvrir (facultatif)">
+              <select
+                value={h.product_id || ""}
+                onChange={(e) => change(i, { product_id: e.target.value })}
+              >
+                <option value="">Les produits de la collection</option>
+                {catalog?.products
+                  .filter(
+                    (p) =>
+                      !familyId ||
+                      p.family_id === familyId ||
+                      catalog.families.find((f) => f.id === familyId)?.kind ===
+                        "new",
+                  )
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.code} · {p.name}
+                    </option>
+                  ))}
+              </select>
             </Field>
             <Field label="Titre de la diapositive">
               <textarea
@@ -464,7 +520,9 @@ export function SlideEditor({
         }
       >
         <Plus size={17} />
-        Ajouter une diapositive
+        {promotion
+          ? "Ajouter un visuel publicitaire"
+          : "Ajouter une diapositive"}
       </button>
     </div>
   );
@@ -649,16 +707,28 @@ export function AboutSection({ full = false }: { full?: boolean }) {
             <ShieldCheck size={22} />
             Un colisage clair
           </span>
-          <span>
-            <Factory size={22} />
-            Des projets sur mesure
-          </span>
+          {customOrderOptions(s).enabled && (
+            <span>
+              <Factory size={22} />
+              Des projets sur mesure
+            </span>
+          )}
         </div>
         <a
           className="btn btn-outline"
-          href={full ? "#/sur-mesure" : "#/a-propos"}
+          href={
+            full
+              ? customOrderOptions(s).enabled
+                ? "#/sur-mesure"
+                : "#/catalogue"
+              : "#/a-propos"
+          }
         >
-          {full ? "Parlons de votre projet" : "Découvrir UNIPLAST"}
+          {full
+            ? customOrderOptions(s).enabled
+              ? "Parlons de votre projet"
+              : "Explorer le catalogue"
+            : "Découvrir UNIPLAST"}
           <ArrowRight size={18} />
         </a>
       </div>

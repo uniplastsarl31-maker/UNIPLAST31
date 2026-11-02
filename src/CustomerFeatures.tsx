@@ -53,18 +53,9 @@ export function AdvancedSettings({
           catalog?.families
             .filter((f) =>
               (title === "Ramadan"
-                ? [
-                    "Emballages alimentaires",
-                    "Boîtes de conservation",
-                    "Céréales & épices",
-                    "Vaisselle & service",
-                  ]
+                ? ["Cuisine", "Rangement & Boîtes"]
                 : title === "Été"
-                  ? [
-                      "Glacières & gourdes",
-                      "Repas & pique-nique",
-                      "Pots & jardin",
-                    ]
+                  ? ["pique-nique", "🌿 Jardin"]
                   : []
               ).includes(f.name),
             )

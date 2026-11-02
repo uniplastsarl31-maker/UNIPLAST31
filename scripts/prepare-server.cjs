@@ -15,7 +15,10 @@ for (const [src, name] of [
       target: ts.ScriptTarget.ES2022,
     },
   });
-  fs.writeFileSync(path.join(target, name + ".cjs"), result.outputText);
+  fs.writeFileSync(
+    path.join(target, name + ".cjs"),
+    result.outputText.replace('require("./domain")', 'require("./domain.cjs")'),
+  );
 }
 fs.copyFileSync(
   path.join(root, "src/data/catalog.json"),
@@ -26,9 +29,15 @@ const seed = JSON.parse(
 );
 const update = require("../server/catalog-update.json");
 seed.products = seed.products.map((p) => {
-  const change = update.products.find(x => x.id === p.id && x.code === p.code);
+  const change = update.products.find(
+    (x) => x.id === p.id && x.code === p.code,
+  );
   if (change) Object.assign(p, { name: change.name, name_fr: change.name });
-  if (!p.availability_confirmed && !p.upcoming) Object.assign(p, { available: p.stock_cartons !== 0, availability_confirmed: true });
+  if (!p.availability_confirmed && !p.upcoming)
+    Object.assign(p, {
+      available: p.stock_cartons !== 0,
+      availability_confirmed: true,
+    });
   p.weight_grams = null;
   const { source_metadata, ...safe } = p;
   return {
@@ -41,6 +50,10 @@ seed.products = seed.products.map((p) => {
     discount_end: null,
   };
 });
+const { planFamilyUpdate } = require("../server/family-update.cjs");
+const familyPlan = planFamilyUpdate(seed.products, seed.families, {});
+seed.products = familyPlan.products;
+seed.families = familyPlan.families;
 fs.writeFileSync(
   path.join(root, "src/data/catalog.preview.json"),
   JSON.stringify(seed),

@@ -99,7 +99,7 @@ test("Netlify: durable snapshots, private access and concurrent orders", async (
     async () => {
       catalog = (await f.call("catalog")).data;
       assert.equal(catalog.products.length, 350);
-      assert.equal(catalog.families.length, 17);
+      assert.equal(catalog.families.length, 8);
       assert.equal(
         catalog.products.filter((p) => p.price_on_request).length,
         33,
@@ -274,25 +274,35 @@ test("Netlify: durable snapshots, private access and concurrent orders", async (
       );
     },
   );
-  await t.test("PNG uploads, original bytes and admin-only migration backup survive cold invocations", async () => {
-    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64");
-    const upload = await f.call("upload?public=1", png, "admin", {
-      binary: true, headers: { "content-type": "image/x-png" },
-    });
-    assert.equal(upload.status, 200);
-    const image = await f.call(upload.data, undefined, "visitor");
-    assert.equal(image.status, 200);
-    assert.equal(image.headers.get("content-type"), "image/png");
-    const id = new URL(upload.data, SITE).searchParams.get("id");
-    assert.deepEqual(Buffer.from(await f.stores.files.get(id)), png);
-    assert.equal((await f.call("catalog-backup", undefined, "visitor")).status, 403);
-    const backup = await f.call("catalog-backup");
-    assert.equal(backup.status, 200);
-    assert.equal(backup.data.products.length, 350);
-    const report = await f.call("catalog-update");
-    assert.equal(report.data.matched, 305);
-    assert.equal(report.data.review_count, 38);
-  });
+  await t.test(
+    "PNG uploads, original bytes and admin-only migration backup survive cold invocations",
+    async () => {
+      const png = Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==",
+        "base64",
+      );
+      const upload = await f.call("upload?public=1", png, "admin", {
+        binary: true,
+        headers: { "content-type": "image/x-png" },
+      });
+      assert.equal(upload.status, 200);
+      const image = await f.call(upload.data, undefined, "visitor");
+      assert.equal(image.status, 200);
+      assert.equal(image.headers.get("content-type"), "image/png");
+      const id = new URL(upload.data, SITE).searchParams.get("id");
+      assert.deepEqual(Buffer.from(await f.stores.files.get(id)), png);
+      assert.equal(
+        (await f.call("catalog-backup", undefined, "visitor")).status,
+        403,
+      );
+      const backup = await f.call("catalog-backup");
+      assert.equal(backup.status, 200);
+      assert.equal(backup.data.products.length, 350);
+      const report = await f.call("catalog-update");
+      assert.equal(report.data.matched, 305);
+      assert.equal(report.data.review_count, 38);
+    },
+  );
   await t.test(
     "a definite upload conflict removes only its orphan and retries durably",
     async () => {
@@ -441,4 +451,194 @@ test("Netlify rejects untrusted hosts, cross-origin calls and unavailable persis
   );
   assert.equal(conflict.status, 503);
   assert.equal(conflict.headers.get("set-cookie"), null);
+});
+
+test("family options, new-product expiry and custom article photos persist on Netlify with server-enforced conditions", async () => {
+  const f = fixture();
+  await f.setup();
+  const catalog = (await f.call("catalog")).data;
+  const options = {
+    enabled: true,
+    terms: "Conditions écrites par le propriétaire.",
+    min_units: 1000,
+    minimum_scope: "per_item",
+    require_photo: true,
+    require_acceptance: true,
+    max_items: 3,
+  };
+  assert.equal(
+    (
+      await f.call("settings-save", {
+        ...catalog.settings,
+        custom_order: options,
+        product_display: {
+          ...catalog.settings.product_display,
+          weight: false,
+          material: false,
+        },
+      })
+    ).status,
+    200,
+  );
+  const product = {
+    ...catalog.products[0],
+    is_new: true,
+    new_until: "2027-01-15T10:00:00.000Z",
+    weight_grams: 378.5,
+    material: "PP",
+  };
+  assert.equal((await f.call("product-save", product)).status, 200);
+  assert.equal(
+    (
+      await f.call("product-save", {
+        ...product,
+        family_id: catalog.families.find((f) => f.kind === "new").id,
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (await f.call("product-save", { ...product, new_until: "invalid-date" }))
+      .status,
+    400,
+  );
+  const family = {
+    ...catalog.families.find((f) => f.kind !== "new"),
+    introduction: "Présentation propriétaire",
+    slider_interval: 4,
+    slider_autoplay: false,
+    promotions: [
+      {
+        id: "promo-test",
+        title: "Découvrez le produit",
+        body: "",
+        image: "/assets/basin-10.webp",
+        visible: true,
+        cta: "Voir",
+        eyebrow: "UNIPLAST",
+        family_id: "",
+        product_id: product.id,
+        layout: "poster",
+      },
+    ],
+  };
+  assert.equal((await f.call("family-save", family)).status, 200);
+  const cold = (await f.call("catalog")).data;
+  assert.equal(cold.settings.product_display.weight, false);
+  assert.equal(
+    cold.products.find((p) => p.id === product.id).weight_grams,
+    378.5,
+  );
+  assert.equal(
+    cold.products.find((p) => p.id === product.id).new_until,
+    product.new_until,
+  );
+  assert.equal(
+    cold.families.find((p) => p.id === family.id).promotions[0].layout,
+    "poster",
+  );
+  assert.equal(
+    (await f.call("family-backup", undefined, "visitor")).status,
+    403,
+  );
+  assert.equal((await f.call("family-backup")).data.families.length, 17);
+  await f.call("status", undefined, "guest");
+  await f.call("status", undefined, "otherGuest");
+  const photo = await f.call(
+    "upload?public=0",
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13]),
+    "guest",
+    { binary: true, headers: { "content-type": "image/png" } },
+  );
+  assert.equal(photo.status, 200);
+  assert.equal((await f.call(photo.data, undefined, "otherGuest")).status, 404);
+  const request = {
+    kind: "custom",
+    product_id: null,
+    cartons: 0,
+    customer: {
+      name: "Projet test privé",
+      phone: "0660123456",
+      wilaya: "",
+      address: "",
+      notes: "",
+    },
+    details: {
+      description: "",
+      dimensions: "",
+      capacity: "",
+      color: "",
+      material: "",
+      quantity: "fake quantity",
+      attachments: [],
+      terms_accepted: true,
+      conditions_snapshot: { terms: "forged" },
+      items: [
+        {
+          name: "Boîte à personnaliser",
+          quantity_units: 1000,
+          images: [photo.data],
+        },
+      ],
+    },
+  };
+  const send = (r, who = "guest", key = randomUUID()) =>
+    f.call("request-create", { request: r, key }, who);
+  assert.equal(
+    (
+      await send({
+        ...request,
+        details: {
+          ...request.details,
+          items: [{ ...request.details.items[0], quantity_units: 999 }],
+        },
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await send({
+        ...request,
+        details: { ...request.details, terms_accepted: false },
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await send({
+        ...request,
+        details: {
+          ...request.details,
+          items: [{ ...request.details.items[0], images: [] }],
+        },
+      })
+    ).status,
+    400,
+  );
+  assert.equal((await send(request, "otherGuest")).status, 400);
+  const key = randomUUID(),
+    saved = await send(request, "guest", key);
+  assert.equal(saved.status, 200);
+  assert.equal(saved.data.details.quantity, "1000 pièces");
+  assert.equal(saved.data.details.conditions_snapshot.terms, options.terms);
+  assert.equal(saved.data.details.items[0].name, request.details.items[0].name);
+  assert.equal(
+    (await f.call("requests-list", {})).data[0].details.items[0].images[0],
+    photo.data,
+  );
+  assert.equal((await f.call(photo.data)).status, 200);
+  assert.equal(
+    (
+      await f.call("settings-save", {
+        ...cold.settings,
+        custom_order: { ...options, enabled: false },
+      })
+    ).status,
+    200,
+  );
+  assert.equal((await send(request, "guest", key)).data.id, saved.data.id);
+  assert.equal((await send(request, "guest")).status, 400);
+  assert.equal((await f.call("requests-list", {})).data[0].id, saved.data.id);
 });

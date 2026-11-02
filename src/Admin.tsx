@@ -64,6 +64,8 @@ import { Empty, Field, Modal, ProductPhoto, Spinner } from "./ui";
 import * as api from "./api";
 import { InvoiceActions, InvoicePaper } from "./Commerce";
 import { AdvancedSettings, CustomerAccessManager } from "./CustomerFeatures";
+import { FeatureSettings, FamilyExtrasEditor } from "./FeatureControls";
+import { matchesFamily } from "./domain";
 
 const tabs = [
   ["overview", "Vue d’ensemble", LayoutDashboard],
@@ -534,7 +536,8 @@ function ProductManager() {
   if (!catalog) return null;
   let products = catalog.products.filter(
     (p) =>
-      (!family || p.family_id === family) &&
+      (!family ||
+        catalog.families.some((f) => f.id === family && matchesFamily(p, f))) &&
       normalizeSearch(p.name + " " + p.code + " " + p.barcode).includes(
         normalizeSearch(q),
       ),
@@ -600,7 +603,7 @@ function ProductManager() {
           onClick={() =>
             setEdit(
               newProduct(
-                catalog.families[0]?.id || "",
+                catalog.families.find((f) => f.kind !== "new")?.id || "",
                 catalog.settings.pack_label,
               ),
             )
@@ -898,6 +901,46 @@ function ProductEditor({
         <div className="editor-grid">
           <div>
             <h3>Les informations essentielles</h3>
+            <div
+              className={"new-product-option " + (p.is_new ? "selected" : "")}
+            >
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={p.is_new}
+                  onChange={(e) => set("is_new", e.target.checked)}
+                />
+                <span>
+                  <b>Nouveau produit</b>
+                  <small>
+                    Affiche la pastille NOUVEAU et ajoute ce produit à «
+                    Nouveaux produits », en conservant sa famille principale.
+                  </small>
+                </span>
+                <span className="badge new">NOUVEAU</span>
+              </label>
+              {p.is_new && (
+                <>
+                  <Field label="Fin de la mise en avant (facultatif)">
+                    <input
+                      type="datetime-local"
+                      value={dateInput(p.new_until || null, zone)}
+                      onChange={(e) => {
+                        try {
+                          set("new_until", dateISO(e.target.value, zone));
+                        } catch (error) {
+                          notify((error as Error).message, true);
+                        }
+                      }}
+                    />
+                  </Field>
+                  <small>
+                    Heure : {zone}. Laissez vide pour garder la nouveauté
+                    jusqu’à votre prochaine modification.
+                  </small>
+                </>
+              )}
+            </div>
             <Field label="Nom du produit *">
               <input
                 required
@@ -932,11 +975,13 @@ function ProductEditor({
                 onChange={(e) => set("family_id", e.target.value)}
               >
                 <option value="">Choisir une collection</option>
-                {catalog.families.map((f) => (
-                  <option value={f.id} key={f.id}>
-                    {f.name}
-                  </option>
-                ))}
+                {catalog.families
+                  .filter((f) => f.kind !== "new")
+                  .map((f) => (
+                    <option value={f.id} key={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
               </select>
             </Field>
             <div className="form-grid">
@@ -1227,14 +1272,6 @@ function ProductEditor({
           <label className="checkbox">
             <input
               type="checkbox"
-              checked={p.is_new}
-              onChange={(e) => set("is_new", e.target.checked)}
-            />
-            Nouveau produit
-          </label>
-          <label className="checkbox">
-            <input
-              type="checkbox"
               checked={p.upcoming}
               onChange={(e) => set("upcoming", e.target.checked)}
             />
@@ -1489,7 +1526,7 @@ function FamilyManager() {
             </div>
             <h3>{f.name}</h3>
             <p>
-              {catalog.products.filter((p) => p.family_id === f.id).length}{" "}
+              {catalog.products.filter((p) => matchesFamily(p, f)).length}{" "}
               références
             </p>
             <div className="family-manager-actions">
@@ -1532,6 +1569,7 @@ function FamilyManager() {
               </button>
               <button
                 className="icon-btn danger"
+                disabled={f.kind === "new"}
                 aria-label={"Supprimer " + f.name}
                 onClick={() => {
                   setTarget(f);
@@ -1545,7 +1583,11 @@ function FamilyManager() {
         ))}
       </div>
       {edit && (
-        <Modal title="Modifier la collection" onClose={() => setEdit(null)}>
+        <Modal
+          title="Modifier la collection"
+          onClose={() => setEdit(null)}
+          wide
+        >
           <form onSubmit={(e) => void save(e)}>
             <Field label="Nom de la collection *">
               <input
@@ -1609,6 +1651,7 @@ function FamilyManager() {
               height={edit.slider_height || 380}
               onHeight={(slider_height) => setEdit({ ...edit, slider_height })}
             />
+            <FamilyExtrasEditor family={edit} onChange={setEdit} />
             <button className="btn btn-primary full-width" disabled={busy}>
               {busy ? <Spinner /> : <Save size={16} />}Enregistrer
             </button>
@@ -1631,7 +1674,7 @@ function FamilyManager() {
               >
                 <option value="">Choisir une collection de destination</option>
                 {families
-                  .filter((f) => f.id !== target.id)
+                  .filter((f) => f.id !== target.id && f.kind !== "new")
                   .map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name}
@@ -2004,6 +2047,66 @@ function RequestManager({
                 </p>
               )}
               <p>{selected.details.description}</p>
+              {!!selected.details.items?.length && (
+                <div className="request-article-list">
+                  {selected.details.items.map((item, index) => (
+                    <article className="custom-article" key={index}>
+                      <h3>{item.name}</h3>
+                      <p>
+                        <b>
+                          {item.quantity_units.toLocaleString("fr-FR")} pièces
+                        </b>
+                      </p>
+                      <div className="request-article-images">
+                        {item.images.map((path) =>
+                          links[path] ? (
+                            <a
+                              key={path}
+                              href={links[path]}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img src={links[path]} alt={item.name} />
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-outline"
+                              key={path}
+                              onClick={() => void prepareLink(path)}
+                            >
+                              Afficher la photo privée
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+              {selected.details.conditions_snapshot && (
+                <details className="custom-conditions">
+                  <summary>Conditions lors de l’envoi</summary>
+                  <p className="preserve-lines">
+                    {selected.details.conditions_snapshot.terms ||
+                      "Aucune condition écrite."}
+                  </p>
+                  <p>
+                    Minimum : {selected.details.conditions_snapshot.min_units}{" "}
+                    pièces{" "}
+                    {selected.details.conditions_snapshot.minimum_scope ===
+                    "per_item"
+                      ? "par article"
+                      : "au total"}
+                    .
+                  </p>
+                  <p>
+                    {selected.details.terms_accepted
+                      ? "Conditions acceptées par le client."
+                      : "Acceptation non demandée."}
+                  </p>
+                </details>
+              )}
               <dl className="detail-spec-table">
                 {[
                   ["Dimensions", selected.details.dimensions],
@@ -2108,6 +2211,7 @@ function SettingsManager() {
         autoComplete="off"
       >
         <AdvancedSettings s={s} onChange={setS} />
+        <FeatureSettings s={s} onChange={setS} />
         <section className="panel">
           <h2>Les informations de l’entreprise</h2>
           <div className="form-grid">

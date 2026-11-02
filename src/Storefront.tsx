@@ -1,9 +1,4 @@
-import {
-  Slider,
-  familySlides,
-  AboutSection,
-  SuggestionBanner,
-} from "./Experience";
+import { Slider, AboutSection, SuggestionBanner } from "./Experience";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowDown,
@@ -47,6 +42,14 @@ import {
 import { navigate, useStore } from "./store";
 import { Badges, Empty, Modal, ProductPhoto, Quantity, buyLabel } from "./ui";
 import { previewMode } from "./api";
+import { FamilyLanding } from "./FeatureControls";
+import {
+  isNewProduct,
+  matchesFamily,
+  productDisplay,
+  productSpecifications,
+  customOrderOptions,
+} from "./domain";
 
 export function Header({
   openLogin,
@@ -127,15 +130,17 @@ export function Header({
               <ArrowRight size={20} />
             </button>
           </form>
-          <button
-            className="header-contact"
-            onClick={() => navigate("/sur-mesure")}
-          >
-            <Headphones size={23} />
-            <span>
-              Un besoin particulier ?<b>Parlons de votre projet</b>
-            </span>
-          </button>
+          {customOrderOptions(catalog.settings).enabled && (
+            <button
+              className="header-contact"
+              onClick={() => navigate("/sur-mesure")}
+            >
+              <Headphones size={23} />
+              <span>
+                Un besoin particulier ?<b>Parlons de votre projet</b>
+              </span>
+            </button>
+          )}
           <button className="cart-button" onClick={() => navigate("/panier")}>
             <span className="cart-icon">
               <ShoppingBag size={24} />
@@ -175,8 +180,8 @@ export function Header({
                           {f.name}
                           <span>
                             {
-                              catalog.products.filter(
-                                (p) => p.family_id === f.id,
+                              catalog.products.filter((p) =>
+                                matchesFamily(p, f),
                               ).length
                             }
                           </span>
@@ -192,9 +197,11 @@ export function Header({
               Promotions <span className="tiny-dot" />
             </a>
             <a href="#/a-propos">Qui sommes-nous ?</a>
-            <a href="#/sur-mesure">
-              Fabrication sur mesure <ArrowUpRight size={14} />
-            </a>
+            {customOrderOptions(catalog.settings).enabled && (
+              <a href="#/sur-mesure">
+                Fabrication sur mesure <ArrowUpRight size={14} />
+              </a>
+            )}
             <a href="#/client-agree" className="client-nav">
               <ShieldCheck size={16} /> Client agréé
             </a>
@@ -246,7 +253,9 @@ export function Footer({
           <a href="#/catalogue">Notre catalogue</a>
           <a href="#/collections">Nos collections</a>
           <a href="#/catalogue?filtre=promotions">Promotions</a>
-          <a href="#/sur-mesure">Fabrication sur mesure</a>
+          {customOrderOptions(s).enabled && (
+            <a href="#/sur-mesure">Fabrication sur mesure</a>
+          )}
         </div>
         <div>
           <h4>Votre commande</h4>
@@ -325,9 +334,11 @@ export function Footer({
             </a>
           )}
           {s.address && <p>{s.address}</p>}
-          <a className="footer-project" href="#/sur-mesure">
-            Nous contacter <ArrowUpRight size={16} />
-          </a>
+          {customOrderOptions(s).enabled && (
+            <a className="footer-project" href="#/sur-mesure">
+              Nous contacter <ArrowUpRight size={16} />
+            </a>
+          )}
         </div>
       </div>
       <div className="container footer-bottom">
@@ -383,16 +394,22 @@ export function ProductCard({ product: p }: { product: Product }) {
         >
           {p.name}
         </a>
-        <div className="product-specs">
-          <span>
-            <Package size={13} />
-            {p.pack_size} unités / {p.pack_label}
-          </span>
-          {p.capacity && <span>{p.capacity}</span>}
-        </div>
-        <p className="card-dimensions">
-          {p.dimensions || "Dimensions à renseigner"}
-        </p>
+        {productDisplay(s).pack && (
+          <div className="product-specs">
+            <span>
+              <Package size={13} />
+              {p.pack_size} unités / {p.pack_label}
+            </span>
+            {productDisplay(s).capacity && p.capacity && (
+              <span>{p.capacity}</span>
+            )}
+          </div>
+        )}
+        {productDisplay(s).dimensions && (
+          <p className="card-dimensions">
+            {p.dimensions || "Dimensions à renseigner"}
+          </p>
+        )}
         <div className="product-pricing">
           {p.price_hidden ? (
             <a className="price-locked" href="#/client-agree">
@@ -538,7 +555,7 @@ export function Home() {
     ranked.sort((a, b) => (sales[b.id] || 0) - (sales[a.id] || 0));
   const featured = ranked.filter((p) => p.images.length).slice(0, 8);
   const offers = ranked.filter((p) => p.show_offer && activeDiscount(p, now)),
-    news = ranked.filter((p) => p.is_new),
+    news = ranked.filter((p) => isNewProduct(p, now)),
     upcoming = ranked.filter((p) => p.upcoming),
     popular = ranked.filter((p) => (sales[p.id] || 0) > 0);
   return (
@@ -599,7 +616,7 @@ export function Home() {
                   href={"#/catalogue?famille=" + f.id}
                 >
                   <span className="collection-count">
-                    {products.filter((p) => p.family_id === f.id).length}{" "}
+                    {products.filter((p) => matchesFamily(p, f)).length}{" "}
                     produits
                   </span>
                   {f.image ? (
@@ -625,7 +642,11 @@ export function Home() {
             const selection = ranked.filter(
               (p) =>
                 season.product_ids.includes(p.id) ||
-                season.family_ids.includes(p.family_id),
+                catalog.families.some(
+                  (f) =>
+                    season.family_ids.includes(f.id) &&
+                    matchesFamily(p, f, now),
+                ),
             );
             return selection.length > 0 ? (
               <div className="season-home" key={season.id}>
@@ -689,22 +710,24 @@ export function Home() {
           )}
           <AboutSection />
           <SuggestionBanner />
-          <section className="custom-banner">
-            <div className="custom-banner-icon">
-              <Factory size={48} strokeWidth={1} />
-            </div>
-            <div>
-              <span className="eyebrow">VOS IDÉES PRENNENT FORME</span>
-              <h2>Un besoin qui sort du cadre ?</h2>
-              <p>
-                Dimensions, couleurs, quantités… Parlez-nous de votre projet de
-                fabrication.
-              </p>
-            </div>
-            <a className="btn btn-yellow" href="#/sur-mesure">
-              Présenter mon projet <ArrowUpRight size={18} />
-            </a>
-          </section>
+          {customOrderOptions(catalog.settings).enabled && (
+            <section className="custom-banner">
+              <div className="custom-banner-icon">
+                <Factory size={48} strokeWidth={1} />
+              </div>
+              <div>
+                <span className="eyebrow">VOS IDÉES PRENNENT FORME</span>
+                <h2>Un besoin qui sort du cadre ?</h2>
+                <p>
+                  Dimensions, couleurs, quantités… Parlez-nous de votre projet
+                  de fabrication.
+                </p>
+              </div>
+              <a className="btn btn-yellow" href="#/sur-mesure">
+                Présenter mon projet <ArrowUpRight size={18} />
+              </a>
+            </section>
+          )}
           <div className="universes-heading">
             <span className="eyebrow">LE CATALOGUE, PAR COLLECTION</span>
             <h2>Explorez à votre façon.</h2>
@@ -715,9 +738,7 @@ export function Home() {
               <ProductRail
                 key={f.id}
                 title={f.name}
-                products={ranked
-                  .filter((p) => p.family_id === f.id)
-                  .slice(0, 8)}
+                products={ranked.filter((p) => matchesFamily(p, f)).slice(0, 8)}
                 href={"#/catalogue?famille=" + f.id}
               />
             ))}
@@ -772,7 +793,7 @@ export function Collections() {
               <div>
                 <h2>{f.name}</h2>
                 <span>
-                  {catalog.products.filter((p) => p.family_id === f.id).length}{" "}
+                  {catalog.products.filter((p) => matchesFamily(p, f)).length}{" "}
                   références
                 </span>
               </div>
@@ -802,11 +823,14 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
   }, [queryString]);
   if (!catalog) return null;
   const families = catalog.families.filter((f) => f.visible),
-    familyName = families.find((f) => f.id === family)?.name;
+    selectedFamily = families.find(
+      (f) => f.id === family || f.aliases?.includes(family),
+    ),
+    familyName = selectedFamily?.name;
   let products = rankProducts(catalog.products, catalog.sales, now).filter(
     (p) =>
       families.some((f) => f.id === p.family_id) &&
-      (!family || p.family_id === family),
+      (!family || (!!selectedFamily && matchesFamily(p, selectedFamily, now))),
   );
   const seasonId = params.get("saison"),
     season = activeSeasons(
@@ -819,7 +843,10 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
       ? products.filter(
           (p) =>
             season.product_ids.includes(p.id) ||
-            season.family_ids.includes(p.family_id),
+            catalog.families.some(
+              (f) =>
+                season.family_ids.includes(f.id) && matchesFamily(p, f, now),
+            ),
         )
       : [];
   if (sort === "recommande" && catalog.settings.recommendation_mode === "sales")
@@ -845,7 +872,8 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     );
   if (filter === "promotions")
     products = products.filter((p) => activeDiscount(p, now));
-  if (filter === "nouveautes") products = products.filter((p) => p.is_new);
+  if (filter === "nouveautes")
+    products = products.filter((p) => isNewProduct(p, now));
   if (filter === "bientot") products = products.filter((p) => p.upcoming);
   if (filter === "sur-demande")
     products = products.filter((p) => p.price_on_request);
@@ -899,15 +927,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
           </>
         )}
       </div>
-      {family && families.find((f) => f.id === family) && (
-        <Slider
-          key={family}
-          compact
-          slides={familySlides(families.find((f) => f.id === family)!)}
-          height={families.find((f) => f.id === family)!.slider_height || 380}
-          interval={catalog.settings.slider_interval}
-        />
-      )}
+      {selectedFamily && <FamilyLanding family={selectedFamily} />}
       <div className="catalog-heading" id="collection-products">
         <div>
           <span className="eyebrow">L’UNIVERS UNIPLAST</span>
@@ -918,7 +938,12 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             </a>
           )}
           <p>
-            {catalog.products.length} références pour trouver votre solution.
+            {selectedFamily
+              ? catalog.products.filter((p) =>
+                  matchesFamily(p, selectedFamily, now),
+                ).length
+              : catalog.products.length}{" "}
+            références pour trouver votre solution.
           </p>
         </div>
         <div className="catalog-count">
@@ -957,7 +982,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
           </button>
           {families.map((f) => (
             <button
-              className={`family-filter ${family === f.id ? "selected" : ""}`}
+              className={`family-filter ${selectedFamily?.id === f.id ? "selected" : ""}`}
               key={f.id}
               onClick={() => {
                 setFamily(f.id);
@@ -966,7 +991,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             >
               <span>{f.name}</span>
               <b>
-                {catalog.products.filter((p) => p.family_id === f.id).length}
+                {catalog.products.filter((p) => matchesFamily(p, f)).length}
               </b>
             </button>
           ))}
@@ -1248,7 +1273,13 @@ export function ProductDetails({
           <span className="eyebrow">{family?.name}</span>
           <h1>{p.name}</h1>
           <span className="detail-ref">Référence {p.code}</span>
-          <p className="detail-description">{p.description}</p>
+          {p.availability_confirmed &&
+            (!p.available || p.stock_cartons === 0) && (
+              <p className="card-unavailable">Indisponible pour le moment</p>
+            )}
+          {productDisplay(catalog.settings).description && p.description && (
+            <p className="detail-description">{p.description}</p>
+          )}
           <div className="detail-prices">
             {p.price_hidden ? (
               <a className="price-locked" href="#/client-agree">
@@ -1279,38 +1310,16 @@ export function ProductDetails({
             )}
           </div>
           <dl className="detail-spec-table">
-            <div>
-              <dt>Colisage</dt>
-              <dd>
-                {p.pack_size} unités / {p.pack_label}
-              </dd>
-            </div>
-            <div>
-              <dt>Dimensions</dt>
-              <dd>{p.dimensions || "Non renseignées"}</dd>
-            </div>
-            <div>
-              <dt>Capacité</dt>
-              <dd>{p.capacity || "Non renseignée"}</dd>
-            </div>
-            <div>
-              <dt>Poids unitaire</dt>
-              <dd>
-                {p.weight_grams != null
-                  ? `${new Intl.NumberFormat("fr-DZ").format(p.weight_grams)} g`
-                  : "Non renseigné"}
-              </dd>
-            </div>
-            <div>
-              <dt>Matière</dt>
-              <dd>{p.material || "Non renseignée"}</dd>
-            </div>
-            <div>
-              <dt>Code-barres</dt>
-              <dd className="mono">
-                {p.barcode || "Non renseigné ou à vérifier"}
-              </dd>
-            </div>
+            {productSpecifications(p, catalog.settings).map(
+              ([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd className={label === "Code-barres" ? "mono" : ""}>
+                    {value}
+                  </dd>
+                </div>
+              ),
+            )}
           </dl>
           {canBuy(p) ? (
             <div className="detail-purchase">
@@ -1359,9 +1368,11 @@ export function ProductDetails({
                     ? "Le prix doit être renseigné avant la commande."
                     : "Contactez-nous pour connaître les conditions de disponibilité."}
                 </p>
-                <a href={"#/sur-mesure?produit=" + p.id}>
-                  Demander des informations <ArrowUpRight size={14} />
-                </a>
+                {customOrderOptions(catalog.settings).enabled && (
+                  <a href={"#/sur-mesure?produit=" + p.id}>
+                    Demander des informations <ArrowUpRight size={14} />
+                  </a>
+                )}
               </div>
             </div>
           )}
@@ -1379,7 +1390,7 @@ export function ProductDetails({
           </div>
         </div>
       </div>
-      {!onClose && (
+      {!onClose && productDisplay(catalog.settings).related_products && (
         <ProductRail
           title="Dans la même collection"
           products={catalog.products

@@ -1,7 +1,15 @@
-# État de livraison — 28 octobre 2026
+# État de livraison — 2 novembre 2026
 
-Le dépôt GitHub vérifié avant cette livraison est `uniplastsarl31-maker/UNIPLAST31`, commit `ad199fb22764fb4bfd3a8b580a7b8c1e75f1a442`. Le précédent correctif Netlify a été installé avec succès et l’administration a été initialisée par le propriétaire.
+Cette mise à jour est préparée pour **Netlify Functions + Blobs** et le mode local indépendant **RUN.BAT**. Elle ajoute les huit familles demandées, une sélection automatique Nouveaux produits, une pastille NOUVEAU avec fin facultative, des visuels par famille, des conditions de fabrication et des options d’affichage des caractéristiques.
 
-La présente livraison ajoute le catalogue actualisé, les cartes compactes, le détail en fenêtre, les corrections d’images et de scanner, le poids et les filtres. **Cette nouvelle version n’a pas encore été poussée sur GitHub ni publiée sur Netlify.** L’archive incrémentale est comparée au commit indiqué ci-dessus. Les données persistantes du magasin ne sont pas incluses dans l’archive.
+La base de comparaison est la copie locale propre de UNIPLAST31, commit `01f972ca24fc502e6dbb1b12ac08ea0822a8fb5d`, située sur le Bureau du propriétaire et copiée sans ses données privées dans l’espace de travail. L’état distant actuel de GitHub n’est pas attesté par ce contrôle local.
 
-Voir `MISE-A-JOUR-28-10-2026-FR.md` ou le guide arabe pour l’installation et la liste des vérifications. Le projet reste destiné à Netlify Functions + Blobs, avec un mode local RUN.BAT indépendant. L’identité Sites existante est conservée sans publication.
+**Cette nouvelle livraison n’a pas été poussée sur GitHub ni publiée sur Netlify.** Le propriétaire peut copier le contenu de l’archive de mise à jour dans son dépôt principal, faire Commit to main puis Push origin et attendre Published. Aucun changement des secrets Netlify ni nouvelle initialisation de l’administration n’est demandé pour cette mise à jour d’un magasin déjà installé.
+
+Les données persistantes du magasin publié, les comptes et les fichiers privés sont absents de l’archive. La migration des familles sauvegarde leur état précédent et s’applique une fois dans le stockage existant. L’identité Sites antérieure est conservée sans publication Sites.
+
+La construction locale, l’aperçu et la construction Netlify réussissent. Les 18 tests de domaine/fichiers, 14 tests locaux/migrations, 14 tests Netlify et 23 tests SQL existants réussissent. La fonction assemblée avec l’outil Netlify et le SDK Blobs a aussi été exécutée sur un stockage de test isolé. Ces contrôles ne prouvent pas un déploiement réel.
+
+La vérification du navigateur a couvert le format téléphone 390 × 844, quatre cartes visibles, la pastille NOUVEAU, le détail et le retour au même défilement, les champs masqués, le formulaire de deux articles avec photos privées, sa consultation dans la gestion, la date de fin et un PNG dans un diaporama en mode affiche complète. Le défilement automatique a été observé. Aucune caméra physique de téléphone n’a été utilisée dans cet essai.
+
+Installation et utilisation : [guide français](MISE-A-JOUR-02-11-2026-FR.md) et [guide arabe](MISE-A-JOUR-02-11-2026-AR.md).

@@ -1,4 +1,171 @@
-import type { CartItem, Order, OrderLine, Product, Season } from "./types";
+import type {
+  CartItem,
+  Order,
+  OrderLine,
+  Product,
+  Season,
+  Family,
+  Settings,
+  ProductDisplay,
+  CustomOrderOptions,
+  FamilyOptions,
+  CustomRequestItem,
+} from "./types";
+
+export const defaultProductDisplay: ProductDisplay = {
+  weight: true,
+  material: true,
+  dimensions: true,
+  capacity: true,
+  barcode: true,
+  pack: true,
+  availability: true,
+  description: true,
+  new_badge: true,
+  related_products: true,
+  hide_empty: true,
+};
+export const defaultCustomOrder: CustomOrderOptions = {
+  enabled: true,
+  terms: "",
+  min_units: 0,
+  minimum_scope: "per_item",
+  require_photo: false,
+  require_acceptance: true,
+  max_items: 10,
+};
+export const defaultFamilyOptions: FamilyOptions = {
+  slider: true,
+  introduction: true,
+  promotions: true,
+  quick_navigation: true,
+  custom_link: true,
+};
+export const productDisplay = (s: Pick<Settings, "product_display">) => ({
+  ...defaultProductDisplay,
+  ...s.product_display,
+});
+export const customOrderOptions = (s: Pick<Settings, "custom_order">) => ({
+  ...defaultCustomOrder,
+  ...s.custom_order,
+});
+export const familyOptions = (s: Pick<Settings, "family_options">) => ({
+  ...defaultFamilyOptions,
+  ...s.family_options,
+});
+export const isNewProduct = (p: Product, now = Date.now()) =>
+  p.is_new && (!p.new_until || Date.parse(p.new_until) > now);
+export const matchesFamily = (p: Product, f: Family, now = Date.now()) =>
+  f.kind === "new" ? isNewProduct(p, now) : p.family_id === f.id;
+
+export function productSpecifications(
+  p: Product,
+  settings: Settings,
+): [string, string][] {
+  const d = productDisplay(settings);
+  const rows: [boolean, string, string | null | undefined][] = [
+    [d.pack, "Colisage", `${p.pack_size} unités / ${p.pack_label}`],
+    [d.dimensions, "Dimensions", p.dimensions],
+    [d.capacity, "Capacité", p.capacity],
+    [
+      d.weight,
+      "Poids unitaire",
+      p.weight_grams == null
+        ? ""
+        : `${new Intl.NumberFormat("fr-DZ").format(p.weight_grams)} g`,
+    ],
+    [d.material, "Matière", p.material],
+    [d.barcode, "Code-barres", p.barcode],
+  ];
+  return rows
+    .filter(([visible, , value]) => visible && (!d.hide_empty || !!value))
+    .map(([, label, value]) => [label, value || "Non renseigné"]);
+}
+
+export function validateFeatureSettings(
+  s: Pick<Settings, "product_display" | "custom_order" | "family_options">,
+): string | null {
+  for (const [value, defaults] of [
+    [s.product_display, defaultProductDisplay],
+    [s.family_options, defaultFamilyOptions],
+  ] as const) {
+    if (
+      value != null &&
+      (typeof value !== "object" ||
+        Array.isArray(value) ||
+        Object.entries(value).some(
+          ([k, v]) => !(k in defaults) || typeof v !== "boolean",
+        ))
+    )
+      return "Option d’affichage invalide.";
+  }
+  const c = customOrderOptions(s);
+  if (
+    s.custom_order != null &&
+    (typeof s.custom_order !== "object" ||
+      Array.isArray(s.custom_order) ||
+      Object.keys(s.custom_order).some((k) => !(k in defaultCustomOrder)))
+  )
+    return "Réglages sur mesure invalides.";
+  if (
+    [c.enabled, c.require_photo, c.require_acceptance].some(
+      (v) => typeof v !== "boolean",
+    ) ||
+    typeof c.terms !== "string" ||
+    c.terms.length > 10000 ||
+    !Number.isSafeInteger(c.min_units) ||
+    c.min_units < 0 ||
+    c.min_units > 10000000 ||
+    !["per_item", "total"].includes(c.minimum_scope) ||
+    !Number.isInteger(c.max_items) ||
+    c.max_items < 1 ||
+    c.max_items > 10
+  )
+    return "Vérifiez les conditions, le minimum (0 à 10 000 000 pièces) et le nombre d’articles (1 à 10).";
+  return null;
+}
+export function validateCustomItems(
+  items: CustomRequestItem[] | undefined,
+  options: CustomOrderOptions,
+  accepted = false,
+): string | null {
+  if (!options.enabled)
+    return "Les demandes sur mesure sont momentanément fermées.";
+  if (
+    !Array.isArray(items) ||
+    !items.length ||
+    items.length > options.max_items
+  )
+    return `Ajoutez de 1 à ${options.max_items} articles à votre demande.`;
+  if (
+    items.some(
+      (i) =>
+        !i ||
+        typeof i.name !== "string" ||
+        !i.name.trim() ||
+        i.name.length > 150 ||
+        !Number.isSafeInteger(i.quantity_units) ||
+        i.quantity_units < 1 ||
+        i.quantity_units > 10000000 ||
+        !Array.isArray(i.images) ||
+        i.images.length > 2 ||
+        i.images.some((x) => typeof x !== "string" || x.length > 500),
+    )
+  )
+    return "Chaque article doit avoir un nom, une quantité entière et au maximum 2 photos.";
+  if (options.require_photo && items.some((i) => !i.images.length))
+    return "Ajoutez une photo pour chaque article.";
+  if (
+    options.min_units > 0 &&
+    (options.minimum_scope === "per_item"
+      ? items.some((i) => i.quantity_units < options.min_units)
+      : items.reduce((n, i) => n + i.quantity_units, 0) < options.min_units)
+  )
+    return `Minimum : ${options.min_units.toLocaleString("fr-FR")} pièces ${options.minimum_scope === "per_item" ? "par article" : "au total"}.`;
+  if (options.terms.trim() && options.require_acceptance && accepted !== true)
+    return "Veuillez accepter les conditions de fabrication.";
+  return null;
+}
 
 export const ORDER_LABELS = {
   new: "Nouvelle",
@@ -260,6 +427,13 @@ export function validateProduct(p: Product): string | null {
   )
     return "Le poids doit être un nombre positif, en grammes.";
   if (p.images.length > 10) return "10 images maximum par produit.";
+  if (
+    typeof p.is_new !== "boolean" ||
+    (p.new_until != null &&
+      (typeof p.new_until !== "string" ||
+        !Number.isFinite(Date.parse(p.new_until))))
+  )
+    return "Choisissez un état et une date de fin valides pour la nouveauté.";
   return null;
 }
 export function salesStats(orders: Order[], since = 0) {

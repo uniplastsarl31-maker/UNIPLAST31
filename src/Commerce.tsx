@@ -26,6 +26,12 @@ import { Empty, Field, ProductPhoto, Quantity, Spinner } from "./ui";
 import * as api from "./api";
 import { createOrderPdf } from "./pdf";
 import { imageLimitMo } from "./localApi";
+import {
+  CustomArticles,
+  blankArticle,
+  type CustomArticleDraft,
+} from "./CustomArticles";
+import { customOrderOptions, validateCustomItems } from "./domain";
 
 const blankCustomer: Customer = {
   name: "",
@@ -766,22 +772,26 @@ export function RequestForm({ product }: { product?: Product }) {
     [capacity, setCapacity] = useState(""),
     [color, setColor] = useState(""),
     [material, setMaterial] = useState(""),
-    [quantity, setQuantity] = useState(""),
+    [articles, setArticles] = useState<CustomArticleDraft[]>([blankArticle()]),
+    [accepted, setAccepted] = useState(false),
     [cartons, setCartons] = useState(1),
     [files, setFiles] = useState<File[]>([]),
     [busy, setBusy] = useState(false),
     [reference, setReference] = useState("");
   const requestKey = useRef(crypto.randomUUID()),
     lock = useRef(false);
+  const options = customOrderOptions(catalog?.settings || {});
   const queryProduct = new URLSearchParams(
       window.location.hash.split("?")[1],
     ).get("produit"),
     requested = catalog?.products.find((p) => p.id === queryProduct);
   useEffect(() => {
-    if (requested)
+    if (requested) {
       setDescription(
         `Demande de renseignements concernant ${requested.name}, référence ${requested.code}.`,
       );
+      setArticles([{ ...blankArticle(), name: requested.name }]);
+    }
   }, [requested?.id]);
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -791,6 +801,30 @@ export function RequestForm({ product }: { product?: Product }) {
     try {
       if (product && (!product.upcoming || !product.preorder_enabled))
         throw new Error("La précommande n’est pas ouverte pour ce produit.");
+      if (!product) {
+        const issue = validateCustomItems(
+          articles.map((i) => ({
+            name: i.name,
+            quantity_units: i.quantity_units,
+            images: i.files.map((f) => f.name),
+          })),
+          options,
+          accepted,
+        );
+        if (issue) throw new Error(issue);
+      }
+      const items = [];
+      if (!product)
+        for (const article of articles) {
+          const images = [];
+          for (const file of article.files)
+            images.push(await api.uploadReference(file));
+          items.push({
+            name: article.name,
+            quantity_units: article.quantity_units,
+            images,
+          });
+        }
       const attachments = [];
       for (const file of files)
         attachments.push(await api.uploadReference(file));
@@ -806,8 +840,11 @@ export function RequestForm({ product }: { product?: Product }) {
             capacity,
             color,
             material,
-            quantity: product ? `${cartons} cartons` : quantity,
+            quantity: product
+              ? `${cartons} cartons`
+              : items.reduce((n, i) => n + i.quantity_units, 0) + " pièces",
             attachments,
+            ...(!product ? { items, terms_accepted: accepted } : {}),
           },
         },
         requestKey.current,
@@ -820,6 +857,19 @@ export function RequestForm({ product }: { product?: Product }) {
       lock.current = false;
     }
   };
+  if (!product && !options.enabled)
+    return (
+      <main className="container page">
+        <Empty
+          title="Les demandes sur mesure sont momentanément fermées."
+          body="Vous pouvez continuer à consulter nos collections."
+        >
+          <a className="btn btn-primary" href="#/catalogue">
+            Explorer le catalogue
+          </a>
+        </Empty>
+      </main>
+    );
   if (reference)
     return (
       <main className="container page">
@@ -883,10 +933,13 @@ export function RequestForm({ product }: { product?: Product }) {
             </Field>
           ) : (
             <>
-              <Field label="Description du produit souhaité *">
+              <CustomArticles
+                value={articles}
+                onChange={setArticles}
+                options={options}
+              />
+              <Field label="Précisions sur votre projet (facultatif)">
                 <textarea
-                  required
-                  minLength={10}
                   maxLength={5000}
                   rows={4}
                   value={description}
@@ -926,15 +979,6 @@ export function RequestForm({ product }: { product?: Product }) {
                   />
                 </Field>
               </div>
-              <Field label="Quantité souhaitée *">
-                <input
-                  required
-                  value={quantity}
-                  maxLength={100}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  placeholder="Précisez la quantité et l’unité"
-                />
-              </Field>
               <label className="file-drop">
                 <Paperclip size={24} />
                 <b>Ajouter des références</b>
@@ -978,6 +1022,23 @@ export function RequestForm({ product }: { product?: Product }) {
               ))}
             </>
           )}
+          {!product && options.terms.trim() && (
+            <section className="custom-conditions">
+              <h3>Conditions de fabrication</h3>
+              <p className="preserve-lines">{options.terms}</p>
+              {options.require_acceptance && (
+                <label className="checkbox">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={accepted}
+                    onChange={(e) => setAccepted(e.target.checked)}
+                  />
+                  J’ai lu et j’accepte ces conditions.
+                </label>
+              )}
+            </section>
+          )}
           {api.previewMode && (
             <p className="notice amber">
               <Info size={17} />
@@ -994,6 +1055,19 @@ export function RequestForm({ product }: { product?: Product }) {
           </button>
         </form>
         <aside className="request-aside">
+          {!product && options.min_units > 0 && (
+            <div className="custom-minimum">
+              <b>Minimum de commande</b>
+              <strong>
+                {options.min_units.toLocaleString("fr-FR")} pièces
+              </strong>
+              <span>
+                {options.minimum_scope === "per_item"
+                  ? "Pour chaque article"
+                  : "Pour l’ensemble de la demande"}
+              </span>
+            </div>
+          )}
           <span className="request-aside-icon">
             <Package size={36} strokeWidth={1} />
           </span>
