@@ -1,3 +1,5 @@
+> Complément du 3 novembre 2026 : cadres photo, cercle au premier plan, aperçu direct et transitions. 20 tests domaine/fichiers et 29 tests locaux/Netlify passent. Ce complément est préparé localement, sans publication. Les contrôles de la livraison précédente sont conservés ci-dessous pour traçabilité.
+
 # État de livraison — 2 novembre 2026
 
 Cette mise à jour est préparée pour **Netlify Functions + Blobs** et le mode local indépendant **RUN.BAT**. Elle ajoute les huit familles demandées, une sélection automatique Nouveaux produits, une pastille NOUVEAU avec fin facultative, des visuels par famille, des conditions de fabrication et des options d’affichage des caractéristiques.

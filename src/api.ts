@@ -14,6 +14,7 @@ import type {
   CustomerAccess,
 } from "./types";
 import { defaultSettings } from "./catalog";
+import { validateSlideComposition } from "./slider";
 import { localMode, localCall, localUpload, imageLimitMo } from "./localApi";
 export { localMode, localCall } from "./localApi";
 import {
@@ -450,6 +451,10 @@ export async function removeProduct(id: string) {
   if (error) fail(error);
 }
 export async function saveFamily(family: Family) {
+  for (const h of [...(family.slides || []), ...(family.promotions || [])]) {
+    const problem = validateSlideComposition(h);
+    if (problem) throw new Error(problem);
+  }
   if (localMode) return localCall("family-save", family);
   if (!family.name.trim())
     throw new Error("Le nom de la collection est obligatoire.");
@@ -502,6 +507,10 @@ export async function reorderFamilies(ids: string[]) {
   if (error) fail(error);
 }
 export async function saveSettings(settings: Settings) {
+  for (const h of settings.heroes) {
+    const problem = validateSlideComposition(h);
+    if (problem) throw new Error(problem);
+  }
   const featureError = validateFeatureSettings(settings);
   if (featureError) throw new Error(featureError);
   if (localMode) return localCall("settings-save", settings);

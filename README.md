@@ -1,3 +1,5 @@
+> تحديث السلايدر 03/11/2026: [الصور والإطارات والمعاينة المباشرة](docs/SLIDER-03-11-2026-AR.md).
+
 > تحديث 02/11/2026: [دليل الاستعمال بالعربية](docs/MISE-A-JOUR-02-11-2026-AR.md) · [Guide français](docs/MISE-A-JOUR-02-11-2026-FR.md). وسم NOUVEAU، العائلات المطلوبة، صفحات العائلات، شروط التصنيع حسب الطلب، وإظهار خصائص المنتجات أو إخفاؤها.
 
 > Livraison du 28/10/2026 : voir [mise à jour du catalogue et de l’interface](docs/MISE-A-JOUR-28-10-2026-FR.md). Les noms et tarifs rapprochés sont appliqués une seule fois aux données persistantes. Le fichier CSV d’origine reste intact pour la traçabilité.

@@ -17,6 +17,9 @@ import { useStore } from "./store";
 import { Field, Spinner } from "./ui";
 import * as api from "./api";
 import { customOrderOptions } from "./domain";
+import { SliderVisual } from "./SlideVisual";
+import { SlideCompositionEditor } from "./SlideCompositionEditor";
+import { slideComposition } from "./slider";
 
 export function familySlides(f: Family): Hero[] {
   return f.slides?.length
@@ -67,10 +70,22 @@ export function Slider({
     [reduced, setReduced] = useState(false),
     start = useRef(0);
   const signature = visible.map((h) => h.id).join("|");
+  const artworkSignature = visible.map((h) => h.image).join("|");
   useEffect(() => {
     setIndex(0);
   }, [signature]);
   useEffect(() => setPaused(!autoplay), [autoplay]);
+  useEffect(() => {
+    for (let offset = 1; offset <= Math.min(2, visible.length - 1); offset++) {
+      const src = visible[(index + offset) % visible.length]?.image;
+      if (src) {
+        const next = new window.Image();
+        next.decoding = "async";
+        next.fetchPriority = "low";
+        next.src = src;
+      }
+    }
+  }, [index, artworkSignature]);
   useEffect(() => {
     const q = window.matchMedia("(prefers-reduced-motion: reduce)");
     const change = () => setReduced(q.matches);
@@ -91,6 +106,7 @@ export function Slider({
   }, [paused, hover, reduced, visible.length, interval, signature]);
   if (!visible.length) return null;
   const slide = visible[index % visible.length];
+  const composition = slideComposition(slide);
   const advance = (n: number) =>
     setIndex((i) => (i + n + visible.length) % visible.length);
   return (
@@ -103,6 +119,13 @@ export function Slider({
       style={
         {
           "--slider-height": Math.max(260, Math.min(760, height)) + "px",
+          "--copy-duration": composition.duration_ms + "ms",
+          "--copy-motion":
+            composition.transition === "none" || reduced
+              ? "none"
+              : composition.transition === "slide"
+                ? "slider-copy-glide"
+                : "slider-copy-fade",
         } as CSSProperties
       }
       aria-label={
@@ -123,71 +146,76 @@ export function Slider({
         if (Math.abs(delta) > 60) advance(delta > 0 ? -1 : 1);
       }}
     >
-      <div className="slider-copy" key={slide.id + "-text"}>
-        <span className="eyebrow">
-          <i />
-          {slide.eyebrow || "UNIPLAST · HOME DESIGN"}
-        </span>
-        {compact ? <h2>{slide.title}</h2> : <h1>{slide.title}</h1>}
-        <p>{slide.body}</p>
-        <a
-          className="btn btn-primary"
-          href={
-            slide.product_id
-              ? "#/produit/" + slide.product_id
-              : compact
-                ? "#collection-products"
-                : slide.family_id
-                  ? "#/catalogue?famille=" + slide.family_id
-                  : "#/catalogue"
-          }
-          onClick={(e) => {
-            if (slide.product_id) {
-              e.preventDefault();
-              openProduct(slide.product_id);
-              return;
-            }
-            if (compact) {
-              e.preventDefault();
-              document
-                .getElementById("collection-products")
-                ?.scrollIntoView({ behavior: reduced ? "instant" : "smooth" });
-            }
-          }}
+      <div className="slider-copy-slot">
+        <div className="slider-copy-reserve" aria-hidden="true" inert>
+          {visible
+            .filter((h) => h.layout !== "poster")
+            .map((h) => (
+              <div className="slider-copy" key={h.id}>
+                <span className="eyebrow">
+                  <i />
+                  {h.eyebrow || "UNIPLAST · HOME DESIGN"}
+                </span>
+                <div className="slider-reserve-title">{h.title}</div>
+                <p>{h.body}</p>
+                <span className="btn btn-primary">
+                  {h.cta || "Explorer la collection"}
+                  <ArrowRight size={20} />
+                </span>
+                <div className="slider-caption">
+                  <span>UNIPLAST</span>
+                  <b>Le sens du pratique.</b>
+                </div>
+              </div>
+            ))}
+        </div>
+        <div
+          className="slider-copy slider-copy-current"
+          key={slide.id + "-text"}
         >
-          {slide.cta || "Explorer la collection"}
-          <ArrowRight size={20} />
-        </a>
-        <div className="slider-caption">
-          <span>UNIPLAST</span>
-          <b>Le sens du pratique.</b>
+          <span className="eyebrow">
+            <i />
+            {slide.eyebrow || "UNIPLAST · HOME DESIGN"}
+          </span>
+          {compact ? <h2>{slide.title}</h2> : <h1>{slide.title}</h1>}
+          <p>{slide.body}</p>
+          <a
+            className="btn btn-primary"
+            href={
+              slide.product_id
+                ? "#/produit/" + slide.product_id
+                : compact
+                  ? "#collection-products"
+                  : slide.family_id
+                    ? "#/catalogue?famille=" + slide.family_id
+                    : "#/catalogue"
+            }
+            onClick={(e) => {
+              if (slide.product_id) {
+                e.preventDefault();
+                openProduct(slide.product_id);
+                return;
+              }
+              if (compact) {
+                e.preventDefault();
+                document
+                  .getElementById("collection-products")
+                  ?.scrollIntoView({
+                    behavior: reduced ? "instant" : "smooth",
+                  });
+              }
+            }}
+          >
+            {slide.cta || "Explorer la collection"}
+            <ArrowRight size={20} />
+          </a>
+          <div className="slider-caption">
+            <span>UNIPLAST</span>
+            <b>Le sens du pratique.</b>
+          </div>
         </div>
       </div>
-      <div className="slider-visual" key={slide.id + "-image"}>
-        <div className="slider-disc" />
-        {slide.image ? (
-          <img
-            src={slide.image}
-            alt={slide.title.replace(/\n/g, " ")}
-            fetchPriority={compact ? "auto" : "high"}
-            style={{
-              objectFit: slide.fit || "contain",
-              objectPosition: `${50 + (slide.x || 0)}% ${50 + (slide.y || 0)}%`,
-              transform: `scale(${slide.scale || 1})`,
-            }}
-          />
-        ) : (
-          <div className="slider-family-placeholder">
-            <Layers size={100} strokeWidth={0.8} />
-            <span>{slide.title}</span>
-          </div>
-        )}
-        <span className="slider-seal">
-          HOME
-          <br />
-          <strong>DESIGN.</strong>
-        </span>
-      </div>
+      <SliderVisual slide={slide} reduced={reduced} />
       {visible.length > 1 && (
         <div className="slider-controls">
           <span className="slider-counter">
@@ -254,13 +282,22 @@ export function SlideEditor({
 }) {
   const { catalog, notify } = useStore();
   const [busy, setBusy] = useState(false);
+  const latestSlides = useRef(slides),
+    latestChange = useRef(onChange);
+  latestSlides.current = slides;
+  latestChange.current = onChange;
+  const changeById = (id: string, patch: Partial<Hero>) =>
+    latestChange.current(
+      latestSlides.current.map((h) => (h.id === id ? { ...h, ...patch } : h)),
+    );
   const change = (i: number, patch: Partial<Hero>) =>
-    onChange(slides.map((h, n) => (n === i ? { ...h, ...patch } : h)));
+    changeById(slides[i].id, patch);
   async function upload(i: number, file: File) {
+    const id = slides[i].id;
     setBusy(true);
     try {
       const im = await api.uploadProductImage(file);
-      change(i, { image: im.url });
+      changeById(id, { image: im.url });
     } catch (e) {
       notify((e as Error).message, true);
     } finally {
@@ -424,7 +461,13 @@ export function SlideEditor({
                 }}
               />
             </Field>
-            {h.image && (
+            {!promotion && (
+              <SlideCompositionEditor
+                slide={h}
+                onChange={(next) => change(i, next)}
+              />
+            )}
+            {promotion && h.image && (
               <div className="slide-image-preview">
                 <img
                   src={h.image}
@@ -437,53 +480,57 @@ export function SlideEditor({
                 />
               </div>
             )}
-            <div className="form-grid">
-              <Field
-                label={
-                  "Taille de l’image : " +
-                  Math.round((h.scale || 1) * 100) +
-                  " %"
-                }
-              >
-                <input
-                  type="range"
-                  min={0.5}
-                  max={2}
-                  step={0.05}
-                  value={h.scale || 1}
-                  onChange={(e) => change(i, { scale: Number(e.target.value) })}
-                />
-              </Field>
-              <Field label="Affichage de l’image">
-                <select
-                  value={h.fit || "contain"}
-                  onChange={(e) =>
-                    change(i, { fit: e.target.value as Hero["fit"] })
+            {promotion && (
+              <div className="form-grid">
+                <Field
+                  label={
+                    "Taille de l’image : " +
+                    Math.round((h.scale || 1) * 100) +
+                    " %"
                   }
                 >
-                  <option value="contain">Image entière</option>
-                  <option value="cover">Remplir et recadrer</option>
-                </select>
-              </Field>
-              <Field label="Position horizontale">
-                <input
-                  type="range"
-                  min={-50}
-                  max={50}
-                  value={h.x || 0}
-                  onChange={(e) => change(i, { x: Number(e.target.value) })}
-                />
-              </Field>
-              <Field label="Position verticale">
-                <input
-                  type="range"
-                  min={-50}
-                  max={50}
-                  value={h.y || 0}
-                  onChange={(e) => change(i, { y: Number(e.target.value) })}
-                />
-              </Field>
-            </div>
+                  <input
+                    type="range"
+                    min={0.5}
+                    max={2}
+                    step={0.05}
+                    value={h.scale || 1}
+                    onChange={(e) =>
+                      change(i, { scale: Number(e.target.value) })
+                    }
+                  />
+                </Field>
+                <Field label="Affichage de l’image">
+                  <select
+                    value={h.fit || "contain"}
+                    onChange={(e) =>
+                      change(i, { fit: e.target.value as Hero["fit"] })
+                    }
+                  >
+                    <option value="contain">Image entière</option>
+                    <option value="cover">Remplir et recadrer</option>
+                  </select>
+                </Field>
+                <Field label="Position horizontale">
+                  <input
+                    type="range"
+                    min={-50}
+                    max={50}
+                    value={h.x || 0}
+                    onChange={(e) => change(i, { x: Number(e.target.value) })}
+                  />
+                </Field>
+                <Field label="Position verticale">
+                  <input
+                    type="range"
+                    min={-50}
+                    max={50}
+                    value={h.y || 0}
+                    onChange={(e) => change(i, { y: Number(e.target.value) })}
+                  />
+                </Field>
+              </div>
+            )}
             <label className="checkbox">
               <input
                 type="checkbox"

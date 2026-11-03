@@ -6,6 +6,7 @@ const { DatabaseSync } = require("node:sqlite");
 const { promisify } = require("node:util");
 const scrypt = promisify(crypto.scrypt);
 const { defaultSettings } = require("./generated/defaults.cjs");
+const { validateSlideComposition } = require("./generated/slider.cjs");
 const {
   validateProduct,
   canBuy,
@@ -1114,6 +1115,8 @@ function validateSlides(slides, height) {
           /^[a-f0-9-]{36}$/i.test(h.product_id)),
       "Diapositive invalide.",
     );
+    const compositionError = validateSlideComposition(h);
+    assert(!compositionError, compositionError);
     cleanText(h.title, 200, 1);
     cleanText(h.body || "", 1500);
     assert(

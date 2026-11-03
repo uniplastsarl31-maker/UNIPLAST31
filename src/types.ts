@@ -65,6 +65,7 @@ export interface Product {
   };
 }
 export interface Hero {
+  composition?: Partial<SlideComposition>;
   layout?: "split" | "poster";
   product_id?: string;
   scale?: number;
@@ -79,6 +80,18 @@ export interface Hero {
   cta: string;
   family_id: string;
   visible: boolean;
+}
+export interface SlideComposition {
+  photo_mode: "product" | "behind" | "circle" | "rounded";
+  frame_visible: boolean;
+  frame_size: number;
+  frame_width: number;
+  frame_color: string;
+  background_color: string;
+  blend: "normal" | "multiply";
+  signature_visible: boolean;
+  transition: "fade" | "slide" | "none";
+  duration_ms: number;
 }
 export interface Settings {
   product_display?: ProductDisplay;

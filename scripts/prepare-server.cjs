@@ -7,6 +7,7 @@ fs.mkdirSync(target, { recursive: true });
 for (const [src, name] of [
   ["domain", "domain"],
   ["catalog", "defaults"],
+  ["slider", "slider"],
 ]) {
   const source = fs.readFileSync(path.join(root, "src", src + ".ts"), "utf8");
   const result = ts.transpileModule(source, {

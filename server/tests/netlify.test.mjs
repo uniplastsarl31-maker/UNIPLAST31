@@ -642,3 +642,18 @@ test("family options, new-product expiry and custom article photos persist on Ne
   assert.equal((await send(request, "guest")).status, 400);
   assert.equal((await f.call("requests-list", {})).data[0].id, saved.data.id);
 });
+
+
+test("slider frames and transitions persist on cold Netlify calls; malformed controls cannot be saved", async () => {
+  const f = fixture(); await f.setup();
+  const c = (await f.call("catalog")).data;
+  const composition = { photo_mode:"behind",frame_visible:true,frame_size:88,frame_width:6,frame_color:"#ffffff",background_color:"#dfeaf0",blend:"normal",signature_visible:false,transition:"fade",duration_ms:750 };
+  const heroes = c.settings.heroes.map((h,i)=>i===0?{...h,composition,fit:"cover"}:h);
+  assert.equal((await f.call("settings-save",{...c.settings,heroes})).status,200);
+  assert.deepEqual((await f.call("catalog")).data.settings.heroes[0].composition,composition);
+  assert.equal((await f.call("catalog")).data.settings.heroes[1].composition,undefined);
+  assert.equal((await f.call("settings-save",{...c.settings,heroes:[{...heroes[0],composition:{...composition,duration_ms:99999}}]})).status,400);
+  const family = {...c.families[1],slides:[{...heroes[0],composition:{...composition,photo_mode:"circle"}}]};
+  assert.equal((await f.call("family-save",family)).status,200);
+  assert.equal((await f.call("catalog")).data.families.find(f=>f.id===family.id).slides[0].composition.photo_mode,"circle");
+});
