@@ -13,6 +13,7 @@ import { pdfLimitMo } from "./localApi";
 import { useStore } from "./store";
 import { Field, Spinner } from "./ui";
 import { normalizeSearch, safeWebUrl } from "./domain";
+import { MediaSettings } from "./VideoFeatures";
 
 export { CustomerAccount, CustomerAccessManager } from "./ClientAccess";
 
@@ -80,6 +81,7 @@ export function AdvancedSettings({
       : "");
   return (
     <>
+      <MediaSettings s={s} onChange={onChange} />
       <section className="panel">
         <h2>
           <LockKeyhole size={21} /> Visibilité des prix

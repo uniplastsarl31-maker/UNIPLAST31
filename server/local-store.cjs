@@ -7,6 +7,9 @@ const { promisify } = require("node:util");
 const scrypt = promisify(crypto.scrypt);
 const { defaultSettings } = require("./generated/defaults.cjs");
 const { validateSlideComposition } = require("./generated/slider.cjs");
+const { validateMediaSettings } = require("./generated/media.cjs");
+const { createLargeUploads } = require("./large-uploads.cjs");
+const { createCatalogTransfer } = require("./catalog-transfer.cjs");
 const {
   validateProduct,
   canBuy,
@@ -75,6 +78,7 @@ function createLocalStore({
   seedData,
   allowSetup = true,
   hosting = null,
+  preserveExistingCatalog = true,
   readUpload = (id) => fs.readFileSync(path.join(dataDir, "uploads", id)),
 } = {}) {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -123,7 +127,8 @@ function createLocalStore({
       throw e;
     }
   };
-  if (!meta("seeded"))
+  const existingCatalog = !!meta("seeded");
+  if (!existingCatalog)
     transaction(() => {
       const seed =
         seedData ||
@@ -138,17 +143,19 @@ function createLocalStore({
       put("settings", defaultSettings);
       setMeta("seeded", "1");
     });
-  applyCatalogUpdate({ meta, setMeta, all, get, put, transaction });
-  applyFamilyUpdate({
-    meta,
-    setMeta,
-    all,
-    get,
-    put,
-    transaction,
-    remove: (kind, id) =>
-      db.prepare("DELETE FROM documents WHERE kind=? AND id=?").run(kind, id),
-  });
+  if (!existingCatalog || !preserveExistingCatalog) {
+    applyCatalogUpdate({ meta, setMeta, all, get, put, transaction });
+    applyFamilyUpdate({
+      meta,
+      setMeta,
+      all,
+      get,
+      put,
+      transaction,
+      remove: (kind, id) =>
+        db.prepare("DELETE FROM documents WHERE kind=? AND id=?").run(kind, id),
+    });
+  }
   const settings = () => ({ ...defaultSettings, ...get("settings", "true") });
   const setupToken = crypto.randomBytes(32).toString("hex");
   const cookieName = hosting ? "__Host-uniplast_session" : "uniplast_session";
@@ -265,6 +272,38 @@ function createLocalStore({
     });
     res.end(payload);
   };
+  const largeUploads = createLargeUploads({
+    get,
+    put,
+    all,
+    db,
+    dataDir,
+    readUpload,
+    body,
+    reply,
+    assert,
+    admin,
+    uid,
+    nowISO,
+  });
+  const catalogTransfer = createCatalogTransfer({
+    all,
+    get,
+    put,
+    meta,
+    setMeta,
+    remove: (kind, id) =>
+      db.prepare("DELETE FROM documents WHERE kind=? AND id=?").run(kind, id),
+    transaction,
+    admin,
+    assert,
+    cleanText,
+    hashSecret,
+    verify,
+    limit,
+    uid,
+    nowISO,
+  });
   async function handle(req, res) {
     const address = new URL(req.url || "/", "http://127.0.0.1");
     if (!address.pathname.startsWith("/api/local/")) return false;
@@ -294,6 +333,17 @@ function createLocalStore({
       const name = address.pathname.slice(11),
         s = role(req),
         ip = hosting?.clientIp || req.socket.remoteAddress || "local";
+      if (await largeUploads.handle(req, address, s, res)) return true;
+      if (req.method === "GET" && name.startsWith("transfer-")) {
+        assert(
+          ["transfer-status", "transfer-backup"].includes(name),
+          "Méthode non autorisée.",
+          405,
+        );
+        const result = await catalogTransfer(name, undefined, s, address);
+        reply(res, result.result);
+        return true;
+      }
       if (req.method === "GET" && name === "status") {
         if (!s) session(res, "guest", uid());
         return (
@@ -371,6 +421,8 @@ function createLocalStore({
           "Fichier inaccessible.",
           404,
         );
+        if (await largeUploads.readFile(file, req.headers.range, res))
+          return true;
         const content = await readUpload(file.id);
         assert(content, "Fichier inaccessible.", 404);
         res.writeHead(200, {
@@ -452,6 +504,11 @@ function createLocalStore({
         throw new Error("Requête JSON invalide.");
       }
       let result = null;
+      const transfer = await catalogTransfer(name, p, s, address);
+      if (transfer.handled) {
+        reply(res, transfer.result);
+        return true;
+      }
       switch (name) {
         case "setup": {
           assert(
@@ -705,6 +762,33 @@ function createLocalStore({
           break;
         case "settings-save": {
           admin(s);
+          for (const key of [
+            "topbar_tagline",
+            "youtube_url",
+            "videos_enabled",
+            "videos_title",
+            "videos",
+          ])
+            if (p[key] === undefined) p[key] = settings()[key];
+          const mediaError = validateMediaSettings(p);
+          assert(!mediaError, mediaError);
+          for (const video of p.videos || [])
+            if (
+              video.source === "upload" &&
+              video.url?.startsWith("/api/local/file?")
+            ) {
+              const id = new URL(
+                video.url,
+                "http://127.0.0.1",
+              ).searchParams.get("id");
+              const uploaded = db
+                .prepare("SELECT mime,public FROM uploads WHERE id=?")
+                .get(id);
+              assert(
+                uploaded?.public && uploaded.mime.startsWith("video/"),
+                "Le fichier choisi n’est pas une vidéo publique du magasin.",
+              );
+            }
           for (const key of [
             "product_display",
             "custom_order",

@@ -66,6 +66,8 @@ import { InvoiceActions, InvoicePaper } from "./Commerce";
 import { AdvancedSettings, CustomerAccessManager } from "./CustomerFeatures";
 import { FeatureSettings, FamilyExtrasEditor } from "./FeatureControls";
 import { matchesFamily } from "./domain";
+import { CatalogTransfer } from "./CatalogTransfer";
+import "./catalog-transfer.css";
 
 const tabs = [
   ["overview", "Vue d’ensemble", LayoutDashboard],
@@ -2371,6 +2373,7 @@ function SettingsManager() {
           </button>
         </div>
       </form>
+      <CatalogTransfer />
       <AdminPasswordSettings />
     </>
   );

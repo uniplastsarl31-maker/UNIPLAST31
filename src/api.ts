@@ -15,7 +15,13 @@ import type {
 } from "./types";
 import { defaultSettings } from "./catalog";
 import { validateSlideComposition } from "./slider";
-import { localMode, localCall, localUpload, imageLimitMo } from "./localApi";
+import {
+  localMode,
+  localCall,
+  localUpload,
+  imageLimitMo,
+  pdfLimitMo,
+} from "./localApi";
 export { localMode, localCall } from "./localApi";
 import {
   canBuy,
@@ -397,9 +403,12 @@ export async function setCustomerAccess(
   if (error) fail(error);
 }
 export async function uploadCompanyCatalog(file: File): Promise<string> {
+  file = await validatedFile(file, pdfLimitMo, true);
+  if (file.type !== "application/pdf")
+    throw new Error("Choisissez un document PDF valide.");
   if (localMode) return localUpload(file, true);
-  if (file.type !== "application/pdf" || file.size > 15 * 1024 * 1024)
-    throw new Error("Choisissez un PDF de 15 Mo au maximum.");
+  if (file.size > pdfLimitMo * 1024 * 1024)
+    throw new Error(`Choisissez un PDF de ${pdfLimitMo} Mo au maximum.`);
   const header = new Uint8Array(await file.slice(0, 5).arrayBuffer());
   if (String.fromCharCode(...header) !== "%PDF-")
     throw new Error("Le fichier ne contient pas un document PDF valide.");

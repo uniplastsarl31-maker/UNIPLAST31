@@ -94,6 +94,11 @@ export interface SlideComposition {
   duration_ms: number;
 }
 export interface Settings {
+  topbar_tagline?: string;
+  youtube_url?: string;
+  videos_enabled?: boolean;
+  videos_title?: string;
+  videos?: SiteVideo[];
   product_display?: ProductDisplay;
   custom_order?: CustomOrderOptions;
   family_options?: FamilyOptions;
@@ -129,6 +134,14 @@ export interface Settings {
   heroes: Hero[];
   privacy: string;
   terms: string;
+}
+export interface SiteVideo {
+  id: string;
+  title: string;
+  source: "youtube" | "upload";
+  url: string;
+  poster_url: string;
+  visible: boolean;
 }
 export interface ProductDisplay {
   weight: boolean;

@@ -43,6 +43,8 @@ import { navigate, useStore } from "./store";
 import { Badges, Empty, Modal, ProductPhoto, Quantity, buyLabel } from "./ui";
 import { previewMode } from "./api";
 import { FamilyLanding } from "./FeatureControls";
+import { VideoSection } from "./VideoFeatures";
+import { DEFAULT_TAGLINE, youtubeChannelUrl } from "./media";
 import {
   isNewProduct,
   matchesFamily,
@@ -85,7 +87,9 @@ export function Header({
           <span>
             UNIPLAST <i /> HOME DESIGN
           </span>
-          <span>Des solutions pour la maison et les professionnels</span>
+          <span className="topbar-tagline">
+            {catalog.settings.topbar_tagline ?? DEFAULT_TAGLINE}
+          </span>
           <span className="topbar-lang">
             Français ·{" "}
             {catalog.settings.currency === "DZD"
@@ -321,6 +325,15 @@ export function Footer({
               rel="noopener noreferrer"
             >
               Site internet ↗
+            </a>
+          )}
+          {youtubeChannelUrl(s.youtube_url || "") && (
+            <a
+              href={youtubeChannelUrl(s.youtube_url || "")}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              YouTube ↗
             </a>
           )}
           {(safeWebUrl(s.catalog_pdf_url) ||
@@ -709,6 +722,7 @@ export function Home() {
             />
           )}
           <AboutSection />
+          <VideoSection />
           <SuggestionBanner />
           {customOrderOptions(catalog.settings).enabled && (
             <section className="custom-banner">

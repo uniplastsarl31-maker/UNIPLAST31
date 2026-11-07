@@ -57,8 +57,28 @@ function responseCollector() {
     end(data) {
       this.data = data;
     },
+    stream(iterable) {
+      this.streaming = iterable;
+    },
     response() {
-      return new Response(this.data, {
+      const iterator = this.streaming?.[Symbol.asyncIterator]();
+      const streamed = iterator
+        ? new ReadableStream({
+            async pull(controller) {
+              try {
+                const result = await iterator.next();
+                if (result.done) controller.close();
+                else controller.enqueue(new Uint8Array(result.value));
+              } catch (error) {
+                controller.error(error);
+              }
+            },
+            async cancel() {
+              if (iterator.return) await iterator.return();
+            },
+          })
+        : this.data;
+      return new Response(streamed, {
         status: this.statusCode,
         headers: this.headers,
       });

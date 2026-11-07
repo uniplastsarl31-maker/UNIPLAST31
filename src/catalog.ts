@@ -5,6 +5,11 @@ import {
   defaultFamilyOptions,
 } from "./domain";
 export const defaultSettings: Settings = {
+  topbar_tagline: "La maîtrise de la plasturgie",
+  youtube_url: "",
+  videos_enabled: false,
+  videos_title: "UNIPLAST en vidéo",
+  videos: [],
   product_display: { ...defaultProductDisplay },
   custom_order: { ...defaultCustomOrder },
   family_options: { ...defaultFamilyOptions },

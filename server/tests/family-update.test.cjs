@@ -18,7 +18,7 @@ test("family migration preserves catalogue values, private history, credentials 
   );
   let db;
   try {
-    createLocalStore({ dataDir: directory }).close();
+    createLocalStore({ dataDir: directory, preserveExistingCatalog: false }).close();
     db = new DatabaseSync(path.join(directory, "store.sqlite"));
     db.prepare(
       "DELETE FROM documents WHERE kind='family' OR kind='family-backup'",
@@ -87,7 +87,7 @@ test("family migration preserves catalogue values, private history, credentials 
       "INSERT INTO codes VALUES('client','Client','0770000000','private-pin-hash',1,7,'2026-10-01')",
     ).run();
     db.close();
-    createLocalStore({ dataDir: directory }).close();
+    createLocalStore({ dataDir: directory, preserveExistingCatalog: false }).close();
     db = new DatabaseSync(path.join(directory, "store.sqlite"));
     const all = (kind) =>
       db
@@ -149,7 +149,7 @@ test("family migration preserves catalogue values, private history, credentials 
     };
     save("product", changed);
     db.close();
-    createLocalStore({ dataDir: directory }).close();
+    createLocalStore({ dataDir: directory, preserveExistingCatalog: false }).close();
     db = new DatabaseSync(path.join(directory, "store.sqlite"));
     assert.deepEqual(
       JSON.parse(

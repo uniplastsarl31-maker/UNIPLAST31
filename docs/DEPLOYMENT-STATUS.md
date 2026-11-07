@@ -1,3 +1,5 @@
+> Livraison du 7 novembre 2026 : poids sélectifs PDF/Excel, transfert XLSX protégé, signature et vidéos, PDF/vidéo20MiB par parties. Mise à jour préparée localement ; aucun push GitHub ni déploiement Netlify n’a été effectué. Les tests actuels couvrent la conservation des photos/données, les conflits et un PDF20MiB complet. Les résultats des anciennes versions ci-dessous sont conservés pour traçabilité.
+
 > Complément du 3 novembre 2026 : cadres photo, cercle au premier plan, aperçu direct et transitions. 20 tests domaine/fichiers et 29 tests locaux/Netlify passent. Ce complément est préparé localement, sans publication. Les contrôles de la livraison précédente sont conservés ci-dessous pour traçabilité.
 
 # État de livraison — 2 novembre 2026

@@ -13,7 +13,7 @@ test("existing store migrates once, renames by stable reference, and preserves o
   );
   const dbPath = path.join(dataDir, "store.sqlite");
   try {
-    createLocalStore({ dataDir }).close();
+    createLocalStore({ dataDir, preserveExistingCatalog: false }).close();
     let db = new DatabaseSync(dbPath);
     const change = update.products[0],
       other = update.products[1];
@@ -74,7 +74,7 @@ test("existing store migrates once, renames by stable reference, and preserves o
     );
     db.prepare("DELETE FROM documents WHERE kind='catalog-backup'").run();
     db.close();
-    createLocalStore({ dataDir }).close();
+    createLocalStore({ dataDir, preserveExistingCatalog: false }).close();
     db = new DatabaseSync(dbPath);
     const current = JSON.parse(
       db
@@ -128,7 +128,7 @@ test("existing store migrates once, renames by stable reference, and preserves o
       current.id,
     );
     db.close();
-    createLocalStore({ dataDir }).close();
+    createLocalStore({ dataDir, preserveExistingCatalog: false }).close();
     db = new DatabaseSync(dbPath);
     assert.equal(
       JSON.parse(
