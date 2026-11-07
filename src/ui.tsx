@@ -167,9 +167,7 @@ export function Badges({ product: p, now }: { product: Product; now: number }) {
           <span className="badge unavailable">Indisponible pour le moment</span>
         ) : p.upcoming ? (
           <span className="badge upcoming">Bientôt disponible</span>
-        ) : (
-          <span className="badge available">Disponible</span>
-        ))}
+        ) : null)}
       {discount && (
         <span className="badge sale">−{discountPercent(p, now)} %</span>
       )}

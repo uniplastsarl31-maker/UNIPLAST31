@@ -1,0 +1,163 @@
+/* Home only: preserve the saved artwork composition and give it the first row. */
+@media (min-width: 761px) {
+  .home-page .brand-slider:not(.family-slider):not(.slider-poster) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .home-page
+    .brand-slider:not(.family-slider):not(.slider-poster)
+    .slider-copy {
+    padding: 36px 32px 76px;
+  }
+
+  .home-page
+    .brand-slider:not(.family-slider):not(.slider-poster)
+    .slider-copy
+    h1,
+  .home-page .brand-slider:not(.family-slider) .slider-reserve-title {
+    font-size: clamp(32px, 3.8vw, 54px);
+    margin: 17px 0;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-copy p {
+    margin-bottom: 20px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-caption {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 760px) {
+  .home-page .brand-slider:not(.family-slider) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "artwork" "controls" "caption";
+    grid-template-rows: auto auto auto;
+    height: auto;
+    min-height: 0;
+    margin-top: 14px;
+    border-radius: 18px;
+    background: #f4f7fb;
+  }
+
+  .home-page .brand-slider:not(.family-slider) > .slider-visual {
+    grid-area: artwork;
+    position: relative;
+    inset: auto;
+    justify-self: center;
+    align-self: start;
+    width: min(100%, calc(var(--slider-height) * 0.8));
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    aspect-ratio: 4 / 5;
+    padding: 0;
+    --art-frame-limit: calc(var(--slider-height) - 70px);
+  }
+
+  .home-page .brand-slider:not(.family-slider) > .slider-copy-slot {
+    grid-area: caption;
+    position: relative;
+    inset: auto;
+    pointer-events: auto;
+    background: #fff;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-copy {
+    position: relative;
+    inset: auto;
+    align-self: stretch;
+    padding: 16px 18px 18px;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-copy .eyebrow,
+  .home-page .brand-slider:not(.family-slider) .slider-caption {
+    display: none;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-copy h1,
+  .home-page .brand-slider:not(.family-slider) .slider-reserve-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-height: 2.3em;
+    max-height: 2.3em;
+    margin: 0 0 9px;
+    font-size: clamp(23px, 6vw, 29px);
+    line-height: 1.15;
+    letter-spacing: -0.6px;
+    white-space: normal;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-copy p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-height: 3em;
+    max-height: 3em;
+    max-width: none;
+    margin: 0 0 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-copy .btn {
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .home-page .brand-slider:not(.family-slider) > .slider-controls {
+    grid-area: controls;
+    position: relative;
+    inset: auto;
+    align-self: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 7px 8px;
+    border-radius: 0;
+    border-block: 1px solid #dde5ef;
+    background: #f8faff;
+    gap: 5px;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-controls > .icon-btn {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    min-height: 34px;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-counter {
+    gap: 5px;
+    margin-right: 2px;
+    font-size: 10px;
+  }
+
+  .home-page .brand-slider:not(.family-slider) .slider-dots {
+    gap: 5px;
+  }
+
+  /* Poster text is already part of the image; its button has its own row. */
+  .home-page .brand-slider.slider-poster .art-poster .slider-artboard {
+    inset: 0;
+  }
+
+  .home-page .brand-slider.slider-poster .slider-copy h1,
+  .home-page .brand-slider.slider-poster .slider-copy p,
+  .home-page .brand-slider.slider-poster .slider-copy-reserve {
+    display: none;
+  }
+
+  .home-page .brand-slider.slider-poster .slider-copy {
+    padding: 12px 18px;
+  }
+}

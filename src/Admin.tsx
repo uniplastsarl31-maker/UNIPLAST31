@@ -67,6 +67,7 @@ import { AdvancedSettings, CustomerAccessManager } from "./CustomerFeatures";
 import { FeatureSettings, FamilyExtrasEditor } from "./FeatureControls";
 import { matchesFamily } from "./domain";
 import { CatalogTransfer } from "./CatalogTransfer";
+import { ThemeSettings } from "./ThemeSettings";
 import {
   completenessCounts,
   completenessFilters,
@@ -845,7 +846,10 @@ function ProductEditor({
   const [p, setP] = useState<Product>(product),
     [busy, setBusy] = useState(false),
     [uploading, setUploading] = useState(false),
-    [imageIndex, setImageIndex] = useState(0);
+    [imageIndex, setImageIndex] = useState(0),
+    [photoPreview, setPhotoPreview] = useState<"catalogue" | "home">(
+      "catalogue",
+    );
   if (!catalog) return null;
   const zone = catalog.settings.timezone,
     im = p.images[imageIndex];
@@ -1105,7 +1109,37 @@ function ProductEditor({
           </div>
           <div>
             <h3>Photos du produit</h3>
-            <div className="editor-image-preview">
+            <p className="muted-copy image-framing-help">
+              Choisissez Catalogue ou Accueil pour vérifier le cadrage dans
+              chaque présentation, sur téléphone et ordinateur. Le zoom et la
+              position restent propres à chaque photo. L’original est conservé.
+            </p>
+            <div
+              className="photo-preview-formats"
+              role="group"
+              aria-label="Présentation de l’aperçu photo"
+            >
+              <button
+                type="button"
+                aria-pressed={photoPreview === "catalogue"}
+                onClick={() => setPhotoPreview("catalogue")}
+              >
+                Catalogue
+              </button>
+              <button
+                type="button"
+                aria-pressed={photoPreview === "home"}
+                onClick={() => setPhotoPreview("home")}
+              >
+                Accueil · portrait
+              </button>
+            </div>
+            <div
+              className={
+                "editor-image-preview" +
+                (photoPreview === "home" ? " home-portrait-preview" : "")
+              }
+            >
               <ProductPhoto image={im} name={p.name || "Aperçu"} />
               {imageIndex === 0 && im && (
                 <span className="badge available">Image principale</span>
@@ -1131,7 +1165,12 @@ function ProductEditor({
             </small>
             {p.images.length > 0 && (
               <>
-                <div className="editor-thumbnails">
+                <div
+                  className={
+                    "editor-thumbnails" +
+                    (photoPreview === "home" ? " home-portrait-preview" : "")
+                  }
+                >
                   {p.images.map((i, index) => (
                     <button
                       key={i.url + index}
@@ -1140,7 +1179,11 @@ function ProductEditor({
                       onClick={() => setImageIndex(index)}
                       aria-label={`Sélectionner l’image ${index + 1}`}
                     >
-                      <img src={i.url} alt={`Vue ${index + 1}`} />
+                      <ProductPhoto
+                        image={i}
+                        name={`Vue ${index + 1}`}
+                        className="framed-thumbnail"
+                      />
                       <span>{index === 0 ? "Principale" : index + 1}</span>
                     </button>
                   ))}
@@ -2226,6 +2269,7 @@ function SettingsManager() {
         className="settings-form"
         autoComplete="off"
       >
+        <ThemeSettings settings={s} onChange={setS} />
         <AdvancedSettings s={s} onChange={setS} />
         <FeatureSettings s={s} onChange={setS} />
         <section className="panel">

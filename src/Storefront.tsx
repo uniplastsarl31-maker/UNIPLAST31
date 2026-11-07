@@ -24,6 +24,7 @@ import {
   ShoppingBag,
   SlidersHorizontal,
   Star,
+  UserRound,
   X,
 } from "lucide-react";
 import type { Family, Product } from "./types";
@@ -45,6 +46,7 @@ import { Badges, Empty, Modal, ProductPhoto, Quantity, buyLabel } from "./ui";
 import { previewMode } from "./api";
 import { FamilyLanding } from "./FeatureControls";
 import { VideoSection } from "./VideoFeatures";
+import { NewProductsShowcase } from "./NewProductsShowcase";
 import { DEFAULT_TAGLINE, youtubeChannelUrl } from "./media";
 import "./favorites-ui.css";
 import {
@@ -69,24 +71,58 @@ export function Header({
     [menu, setMenu] = useState(false),
     [families, setFamilies] = useState(false);
   const clicks = useRef<number[]>([]);
+  const menuToggle = useRef<HTMLButtonElement>(null);
+  const familyToggle = useRef<HTMLButtonElement>(null);
+  const closeMenus = () => {
+    setMenu(false);
+    setFamilies(false);
+  };
+  const selectSection = (path: string) => {
+    closeMenus();
+    navigate(path);
+    window.requestAnimationFrame(() => {
+      document.getElementById("main-content")?.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: "auto" });
+    });
+  };
+  useEffect(() => {
+    const closeOnRoute = () => {
+      setMenu(false);
+      setFamilies(false);
+    };
+    window.addEventListener("hashchange", closeOnRoute);
+    return () => window.removeEventListener("hashchange", closeOnRoute);
+  }, []);
+  useEffect(() => {
+    if (!menu && !families) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setMenu(false);
+      setFamilies(false);
+      (menu ? menuToggle : familyToggle).current?.focus();
+    };
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [menu, families]);
   const brandClick = () => {
     const now = Date.now();
     clicks.current = clicks.current.filter((t) => now - t < 2200);
     clicks.current.push(now);
     if (clicks.current.length >= 5) {
       clicks.current = [];
+      closeMenus();
       openLogin();
-    } else navigate("/");
+    } else selectSection("/");
   };
   if (!catalog) return null;
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    navigate("/catalogue?q=" + encodeURIComponent(search));
-    setMenu(false);
+    selectSection("/catalogue?q=" + encodeURIComponent(search));
   };
   return (
     <>
-      <div className="topbar">
+      <div className="topbar brand-tagline-bar">
         <div className="container topbar-inner">
           <span>
             UNIPLAST <i /> HOME DESIGN
@@ -105,11 +141,18 @@ export function Header({
       <header className="main-header">
         <div className="container header-inner">
           <button
+            ref={menuToggle}
+            type="button"
             className="mobile-menu icon-btn"
-            aria-label="Ouvrir le menu"
-            onClick={() => setMenu(!menu)}
+            aria-label={menu ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={menu}
+            aria-controls="primary-navigation"
+            onClick={() => {
+              setMenu(!menu);
+              setFamilies(false);
+            }}
           >
-            <Menu />
+            {menu ? <X /> : <Menu />}
           </button>
           <button
             className="brand"
@@ -117,19 +160,6 @@ export function Header({
             onClick={brandClick}
           >
             <img src={catalog.settings.logo_url} alt="UNIPLAST Home Design" />
-          </button>
-          <button
-            type="button"
-            className={
-              "header-client-button " + (clientApproved ? "is-connected" : "")
-            }
-            aria-label={clientApproved ? "Mon espace client" : "Accès client"}
-            onClick={() =>
-              clientApproved ? navigate("/client-agree") : openClientLogin()
-            }
-          >
-            <ShieldCheck size={19} />
-            <span>{clientApproved ? "Mon espace" : "Accès client"}</span>
           </button>
           <form className="search-box" onSubmit={submit}>
             <Search size={20} />
@@ -143,7 +173,10 @@ export function Header({
               type="button"
               className="scan-btn"
               aria-label="Scanner un code-barres"
-              onClick={openScanner}
+              onClick={() => {
+                closeMenus();
+                openScanner();
+              }}
             >
               <ScanLine size={21} />
             </button>
@@ -154,7 +187,7 @@ export function Header({
           {customOrderOptions(catalog.settings).enabled && (
             <button
               className="header-contact"
-              onClick={() => navigate("/sur-mesure")}
+              onClick={() => selectSection("/sur-mesure")}
             >
               <Headphones size={23} />
               <span>
@@ -162,7 +195,33 @@ export function Header({
               </span>
             </button>
           )}
-          <button className="cart-button" onClick={() => navigate("/panier")}>
+          <button
+            type="button"
+            className={
+              "header-client-button " + (clientApproved ? "is-connected" : "")
+            }
+            aria-label={clientApproved ? "Mon espace client" : "Accès client"}
+            title={
+              clientApproved ? "Mon espace client · connecté" : "Accès client"
+            }
+            onClick={() => {
+              if (clientApproved) selectSection("/client-agree");
+              else {
+                closeMenus();
+                openClientLogin();
+              }
+            }}
+          >
+            <UserRound size={22} aria-hidden="true" />
+            <span className="header-client-caption" aria-hidden="true">
+              {clientApproved ? "Espace" : "Client"}
+            </span>
+          </button>
+          <button
+            className="cart-button"
+            aria-label="Mon panier"
+            onClick={() => selectSection("/panier")}
+          >
             <span className="cart-icon">
               <ShoppingBag size={24} />
               <b>{cart.length}</b>
@@ -170,11 +229,36 @@ export function Header({
             <span>Mon panier</span>
           </button>
         </div>
-        <div className={`navigation ${menu ? "mobile-open" : ""}`}>
+        <div
+          id="primary-navigation"
+          role="navigation"
+          aria-label="Navigation principale"
+          className={`navigation ${menu ? "mobile-open" : ""}`}
+          onClick={(event) => {
+            if (
+              event.ctrlKey ||
+              event.metaKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return;
+            const link =
+              event.target instanceof Element
+                ? event.target.closest<HTMLAnchorElement>('a[href^="#/"]')
+                : null;
+            if (!link || !event.currentTarget.contains(link)) return;
+            event.preventDefault();
+            selectSection(link.hash.slice(1));
+          }}
+        >
           <div className="container nav-inner">
             <div className="family-menu-wrap">
               <button
+                ref={familyToggle}
+                type="button"
                 className={`family-nav ${families ? "is-open" : ""}`}
+                aria-expanded={families}
+                aria-controls="collections-navigation"
                 onClick={() => setFamilies(!families)}
               >
                 <Grid2X2 size={17} /> Nos collections <ChevronDown size={15} />
@@ -186,16 +270,14 @@ export function Header({
                     aria-label="Fermer les collections"
                     onClick={() => setFamilies(false)}
                   />
-                  <div className="family-dropdown">
+                  <div className="family-dropdown" id="collections-navigation">
                     {catalog.families
                       .filter((f) => f.visible)
                       .map((f) => (
                         <button
                           key={f.id}
                           onClick={() => {
-                            navigate("/catalogue?famille=" + f.id);
-                            setFamilies(false);
-                            setMenu(false);
+                            selectSection("/catalogue?famille=" + f.id);
                           }}
                         >
                           {f.name}
@@ -399,16 +481,6 @@ export function ProductCard({ product: p }: { product: Product }) {
     <article
       className={`product-card ${discounted ? "discounted" : ""} ${p.availability_confirmed && !p.available ? "sold-out" : ""}`}
     >
-      <button
-        type="button"
-        className="favorite-toggle"
-        aria-label={favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-        aria-pressed={favorite}
-        title={`${favorite ? "Retirer des favoris" : "Ajouter aux favoris"} : ${p.name}`}
-        onClick={() => toggleFavorite(p.id)}
-      >
-        <Star size={18} fill={favorite ? "currentColor" : "none"} />
-      </button>
       <a
         href={"#/produit/" + p.id}
         className="card-image-link"
@@ -461,28 +533,42 @@ export function ProductCard({ product: p }: { product: Product }) {
             {p.dimensions || "Dimensions à renseigner"}
           </p>
         )}
-        <div className="product-pricing">
-          {p.price_hidden ? (
-            <a className="price-locked" href="#/client-agree">
-              <ShieldCheck size={15} /> Voir les prix
-            </a>
-          ) : p.price_on_request ? (
-            <strong className="on-request">Prix sur demande</strong>
-          ) : (
-            <>
-              <div>
-                <strong>{money(priceOf(p, now), s.currency)}</strong>
-                <span> / unité</span>
-                {discounted && (
-                  <del>{money(p.unit_price_cents, s.currency)}</del>
-                )}
-              </div>
-              <small>
-                {money(priceOf(p, now) * p.pack_size, s.currency)} /{" "}
-                {p.pack_label}
-              </small>
-            </>
-          )}
+        <div className="card-price-row">
+          <div className="product-pricing">
+            {p.price_hidden ? (
+              <a className="price-locked" href="#/client-agree">
+                <ShieldCheck size={15} /> Voir les prix
+              </a>
+            ) : p.price_on_request ? (
+              <strong className="on-request">Prix sur demande</strong>
+            ) : (
+              <>
+                <div>
+                  <strong>{money(priceOf(p, now), s.currency)}</strong>
+                  <span> / unité</span>
+                  {discounted && (
+                    <del>{money(p.unit_price_cents, s.currency)}</del>
+                  )}
+                </div>
+                <small>
+                  {money(priceOf(p, now) * p.pack_size, s.currency)} /{" "}
+                  {p.pack_label}
+                </small>
+              </>
+            )}
+          </div>
+          <button
+            type="button"
+            className="favorite-toggle"
+            aria-label={
+              favorite ? "Retirer des favoris" : "Ajouter aux favoris"
+            }
+            aria-pressed={favorite}
+            title={`${favorite ? "Retirer des favoris" : "Ajouter aux favoris"} : ${p.name}`}
+            onClick={() => toggleFavorite(p.id)}
+          >
+            <Star size={18} fill={favorite ? "currentColor" : "none"} />
+          </button>
         </div>
         <div className="card-actions">
           <a
@@ -609,9 +695,12 @@ export function Home() {
     news = ranked.filter((p) => isNewProduct(p, now)),
     upcoming = ranked.filter((p) => p.upcoming),
     popular = ranked.filter((p) => (sales[p.id] || 0) > 0);
+  const populatedFamilies = visibleFamilies.filter((f) =>
+    ranked.some((p) => matchesFamily(p, f, now)),
+  );
   return (
     <>
-      <main>
+      <main className="home-page">
         <div className="container">
           <Slider
             slides={s.heroes}
@@ -648,6 +737,12 @@ export function Home() {
               </span>
             </div>
           </section>
+          <NewProductsShowcase
+            products={(news.length ? news : featured).slice(0, 8)}
+            title={news.length ? "Les nouveautés" : "Notre sélection"}
+            href={news.length ? "#/catalogue?filtre=nouveautes" : "#/catalogue"}
+            renderProduct={(product) => <ProductCard product={product} />}
+          />
           <section className="collections-section">
             <div className="section-heading">
               <div>
@@ -660,7 +755,7 @@ export function Home() {
               </a>
             </div>
             <div className="collection-grid">
-              {visibleFamilies.slice(0, 6).map((f, i) => (
+              {populatedFamilies.slice(0, 6).map((f, i) => (
                 <a
                   className={"collection-tile tile-" + i}
                   key={f.id}
@@ -711,14 +806,6 @@ export function Home() {
               </div>
             ) : null;
           })}
-          {featured.length > 0 && (
-            <ProductRail
-              eyebrow="À DÉCOUVRIR"
-              title="Les essentiels UNIPLAST"
-              products={featured}
-              href="#/catalogue"
-            />
-          )}
           <div className="section-tabs">
             <a href="#/catalogue?filtre=promotions">
               <span className="mini-badge">%</span>Promotions{" "}
@@ -743,13 +830,6 @@ export function Home() {
               title="À saisir, tout simplement."
               products={offers.slice(0, 8)}
               href="#/catalogue?filtre=promotions"
-            />
-          )}
-          {news.length > 0 && (
-            <ProductRail
-              title="Les dernières nouveautés"
-              products={news.slice(0, 8)}
-              href="#/catalogue?filtre=nouveautes"
             />
           )}
           {popular.length > 0 && (
@@ -784,8 +864,8 @@ export function Home() {
             <span className="eyebrow">LE CATALOGUE, PAR COLLECTION</span>
             <h2>Explorez à votre façon.</h2>
           </div>
-          {visibleFamilies
-            .slice(0, showAll ? visibleFamilies.length : 3)
+          {populatedFamilies
+            .slice(0, showAll ? populatedFamilies.length : 3)
             .map((f) => (
               <ProductRail
                 key={f.id}
@@ -794,13 +874,13 @@ export function Home() {
                 href={"#/catalogue?famille=" + f.id}
               />
             ))}
-          {!showAll && visibleFamilies.length > 3 && (
+          {!showAll && populatedFamilies.length > 3 && (
             <div className="show-more">
               <button
                 className="btn btn-outline"
                 onClick={() => setShowAll(true)}
               >
-                Explorer les {visibleFamilies.length - 3} autres collections{" "}
+                Explorer les {populatedFamilies.length - 3} autres collections{" "}
                 <ArrowDown size={17} />
               </button>
             </div>
@@ -1368,7 +1448,11 @@ export function ProductDetails({
                   aria-pressed={image === i}
                   aria-label={`Afficher la photo ${i + 1}`}
                 >
-                  <img src={im.url} alt={`Vue ${i + 1}`} />
+                  <ProductPhoto
+                    image={im}
+                    name={`Vue ${i + 1}`}
+                    className="framed-thumbnail"
+                  />
                 </button>
               ))}
             </div>

@@ -6,4 +6,6 @@ import "./catalogue-update.css";
 import "./family-experience.css";
 import "./slider-composition.css";
 import "./media.css";
+import "./product-frame.css";
+import "./home-hero.css";
 createRoot(document.getElementById("root")!).render(<App />);

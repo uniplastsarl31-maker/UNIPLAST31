@@ -1,0 +1,266 @@
+html[data-storefront-theme="ramadan-night"] {
+  --seasonal-ink: #233858;
+  --seasonal-accent: #8c6224;
+  --seasonal-line: #d9be83;
+  --seasonal-page: #f4f6fa;
+  --seasonal-panel: #192e4b;
+  --seasonal-panel-ink: #fff0cc;
+  --seasonal-bar: linear-gradient(100deg, #12213b, #294263, #14243e);
+  --seasonal-bar-ink: #fff0cc;
+  --seasonal-decoration: #b38b43;
+}
+html[data-storefront-theme="ramadan-ivory"] {
+  --seasonal-ink: #55432c;
+  --seasonal-accent: #876429;
+  --seasonal-line: #dac598;
+  --seasonal-page: #fcfaf4;
+  --seasonal-panel: #fbf2df;
+  --seasonal-panel-ink: #554126;
+  --seasonal-bar: linear-gradient(100deg, #5c4730, #7b6038, #5c4730);
+  --seasonal-bar-ink: #fff6df;
+  --seasonal-decoration: #a6813d;
+}
+html[data-storefront-theme="newyear-snow"] {
+  --seasonal-ink: #23445c;
+  --seasonal-accent: #2f6686;
+  --seasonal-line: #bdd8e7;
+  --seasonal-page: #f3f9fc;
+  --seasonal-panel: #e7f3fa;
+  --seasonal-panel-ink: #23445c;
+  --seasonal-bar: linear-gradient(100deg, #23496a, #346a8b, #23496a);
+  --seasonal-bar-ink: #f4fbff;
+  --seasonal-decoration: #86b6d1;
+}
+html[data-storefront-theme="newyear-midnight"] {
+  --seasonal-ink: #263f62;
+  --seasonal-accent: #3c608a;
+  --seasonal-line: #acc0dd;
+  --seasonal-page: #f2f5fa;
+  --seasonal-panel: #142b4b;
+  --seasonal-panel-ink: #edf4ff;
+  --seasonal-bar: linear-gradient(100deg, #10223e, #263c60, #10223e);
+  --seasonal-bar-ink: #edf4ff;
+  --seasonal-decoration: #91a8cb;
+}
+
+/* Theme accents remain separate from the owner's saved brand colours. */
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .topbar.brand-tagline-bar {
+  background: var(--seasonal-bar);
+  color: var(--seasonal-bar-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .topbar.brand-tagline-bar
+  .topbar-tagline,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .topbar.brand-tagline-bar
+  .topbar-lang {
+  color: var(--seasonal-bar-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"]) .home-page {
+  background: linear-gradient(var(--seasonal-page), #fff 760px);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .brand-slider {
+  border-color: var(--seasonal-line);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--seasonal-ink) 5%, transparent);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .section-heading
+  h2 {
+  color: var(--seasonal-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .section-heading
+  .eyebrow,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .section-heading
+  .text-link {
+  color: var(--seasonal-accent);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .new-products-showcase {
+  background: var(--seasonal-panel);
+  border-color: var(--seasonal-line);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .new-products-showcase__heading
+  h2,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .new-products-showcase__all {
+  color: var(--seasonal-panel-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .home-page
+  .new-products-showcase__arrows
+  button {
+  color: var(--seasonal-ink);
+  border-color: var(--seasonal-line);
+}
+
+.seasonal-decor {
+  --seasonal-edge-width: 40px;
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--seasonal-decoration);
+  contain: strict;
+}
+.seasonal-decor * {
+  pointer-events: none;
+}
+.seasonal-top-edge {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--seasonal-line),
+    transparent
+  );
+  opacity: 0.75;
+}
+.seasonal-edge {
+  position: absolute;
+  top: 96px;
+  bottom: 0;
+  width: var(--seasonal-edge-width);
+  overflow: hidden;
+}
+.seasonal-edge--left {
+  left: 0;
+}
+.seasonal-edge--right {
+  right: 0;
+}
+.seasonal-edge svg {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.seasonal-crescent {
+  top: 3%;
+  opacity: 0.34;
+}
+.seasonal-edge--right .seasonal-crescent {
+  top: 62%;
+  transform: scaleX(-1);
+  opacity: 0.22;
+}
+.seasonal-lantern {
+  top: 11%;
+  opacity: 0.42;
+}
+.seasonal-edge--right .seasonal-lantern {
+  top: 1%;
+}
+.seasonal-edge .seasonal-star {
+  width: 36%;
+  left: 32%;
+  opacity: 0.3;
+}
+.seasonal-star--0 {
+  top: 43%;
+}
+.seasonal-star--1 {
+  top: 72%;
+  transform: scale(0.6);
+}
+.seasonal-star--2 {
+  top: 89%;
+  transform: scale(0.8);
+}
+.seasonal-edge--right .seasonal-star--0 {
+  top: 35%;
+}
+.seasonal-edge--right .seasonal-star--1 {
+  top: 55%;
+}
+.seasonal-edge .seasonal-flake {
+  width: 80%;
+  left: 10%;
+  opacity: 0.38;
+}
+.seasonal-flake--0 {
+  top: 7%;
+}
+.seasonal-flake--1 {
+  top: 32%;
+  transform: scale(0.6) rotate(15deg);
+}
+.seasonal-flake--2 {
+  top: 59%;
+  transform: scale(0.85) rotate(30deg);
+}
+.seasonal-flake--3 {
+  top: 86%;
+  transform: scale(0.5);
+}
+.seasonal-edge--right .seasonal-flake--0 {
+  top: 18%;
+}
+.seasonal-edge--right .seasonal-flake--1 {
+  top: 44%;
+}
+.seasonal-edge--right .seasonal-flake--2 {
+  top: 73%;
+}
+.seasonal-decor--newyear-snow .seasonal-top-edge,
+.seasonal-decor--newyear-midnight .seasonal-top-edge {
+  height: 4px;
+  opacity: 0.95;
+  background:
+    radial-gradient(ellipse at 15% 0, #fff 0 42%, transparent 46%) 0 0 / 47px
+      8px repeat-x,
+    linear-gradient(#fff, #e2eff8);
+}
+.seasonal-decor--ramadan-ivory .seasonal-lantern {
+  opacity: 0.5;
+}
+.seasonal-decor--newyear-midnight .seasonal-flake {
+  opacity: 0.45;
+}
+@media (max-width: 760px) {
+  .seasonal-decor {
+    --seasonal-edge-width: 14px;
+  }
+  .seasonal-edge {
+    top: 96px;
+  }
+  .seasonal-crescent {
+    opacity: 0.4;
+  }
+  .seasonal-lantern {
+    opacity: 0.55;
+  }
+  .seasonal-edge .seasonal-flake {
+    width: 100%;
+    left: 0;
+    opacity: 0.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .seasonal-decor,
+  .seasonal-decor * {
+    animation: none;
+    transition: none;
+  }
+}
+@media print {
+  .seasonal-decor {
+    display: none;
+  }
+}

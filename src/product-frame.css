@@ -1,5 +1,8 @@
-/* One coordinate system for saved scale/x/y. The inner photo has no fixed pixel margins. */
-:root { --catalog-photo-ratio: 33 / 20; }
+/* Saved scale/x/y use one proportional canvas in the editor and storefront. */
+:root {
+  --catalog-photo-ratio: 33 / 20;
+}
+
 .editor-image-preview,
 .product-card .card-image-link,
 .product-grid .product-card .card-image-link,
@@ -15,6 +18,7 @@
   border: 0;
   overflow: hidden;
 }
+
 .editor-image-preview > .product-photo,
 .product-card .card-image-link > .product-photo,
 .detail-gallery .detail-image > .product-photo {
@@ -24,9 +28,12 @@
   height: 100%;
   overflow: hidden;
 }
+
 .editor-image-preview > .product-photo > img,
 .product-card .card-image-link > .product-photo > img,
-.detail-gallery .detail-image > .product-photo > img {
+.detail-gallery .detail-image > .product-photo > img,
+.editor-thumbnails .product-photo.framed-thumbnail > img,
+.gallery-thumbs .product-photo.framed-thumbnail > img {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
@@ -34,4 +41,69 @@
   object-fit: contain;
   object-position: center;
   transform-origin: center;
+}
+
+/* A visitor may still request an additional, temporary enlargement. */
+.detail-gallery .detail-image.photo-enlarged {
+  overflow: auto;
+}
+
+.editor-thumbnails .product-photo.framed-thumbnail,
+.gallery-thumbs .product-photo.framed-thumbnail {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: var(--catalog-photo-ratio);
+  overflow: hidden;
+}
+
+.editor-thumbnails .product-photo.framed-thumbnail > img,
+.gallery-thumbs .product-photo.framed-thumbnail > img {
+  position: absolute;
+  inset: 0;
+}
+
+.detail-gallery .gallery-thumbs > button {
+  height: auto;
+  min-height: 0;
+  padding: 3px;
+  align-self: start;
+}
+
+.product-editor .image-framing-help {
+  margin: -8px 0 12px;
+  color: #52647f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.photo-preview-formats {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.photo-preview-formats button {
+  padding: 9px 13px;
+  min-height: 38px;
+  border: 1px solid #cdd7e6;
+  border-radius: 9px;
+  background: #fff;
+  color: #49617f;
+  font-size: 13px;
+  font-weight: 700;
+}
+.photo-preview-formats button[aria-pressed="true"] {
+  background: #254496;
+  border-color: #254496;
+  color: white;
+}
+.editor-image-preview.home-portrait-preview {
+  --catalog-photo-ratio: 4 / 5;
+  max-width: 420px;
+  margin-inline: auto;
+}
+.editor-thumbnails.home-portrait-preview .product-photo.framed-thumbnail {
+  --catalog-photo-ratio: 4 / 5;
 }

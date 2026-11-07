@@ -9,6 +9,7 @@ for (const [src, name] of [
   ["catalog", "defaults"],
   ["slider", "slider"],
   ["media", "media"],
+  ["seasonalTheme", "seasonalTheme"],
 ]) {
   const source = fs.readFileSync(path.join(root, "src", src + ".ts"), "utf8");
   const result = ts.transpileModule(source, {

@@ -8,6 +8,7 @@ const scrypt = promisify(crypto.scrypt);
 const { defaultSettings } = require("./generated/defaults.cjs");
 const { validateSlideComposition } = require("./generated/slider.cjs");
 const { validateMediaSettings } = require("./generated/media.cjs");
+const { validateStorefrontTheme } = require("./generated/seasonalTheme.cjs");
 const { createLargeUploads } = require("./large-uploads.cjs");
 const { applyWeightFill } = require("./weight-fill.cjs");
 const { createCatalogTransfer } = require("./catalog-transfer.cjs");
@@ -783,6 +784,10 @@ function createLocalStore({
           break;
         case "settings-save": {
           admin(s);
+          if (p.storefront_theme === undefined)
+            p.storefront_theme = settings().storefront_theme;
+          const themeError = validateStorefrontTheme(p.storefront_theme);
+          assert(!themeError, themeError);
           for (const key of [
             "topbar_tagline",
             "youtube_url",

@@ -16,6 +16,7 @@ import type {
 import { defaultSettings } from "./catalog";
 import { watchCatalogActivity } from "./catalogSync";
 import { validateSlideComposition } from "./slider";
+import { validateStorefrontTheme } from "./seasonalTheme";
 import {
   localMode,
   localCall,
@@ -557,6 +558,8 @@ export async function reorderFamilies(ids: string[]) {
   if (error) fail(error);
 }
 export async function saveSettings(settings: Settings) {
+  const themeError = validateStorefrontTheme(settings.storefront_theme);
+  if (themeError) throw new Error(themeError);
   for (const h of settings.heroes) {
     const problem = validateSlideComposition(h);
     if (problem) throw new Error(problem);
@@ -609,7 +612,12 @@ export async function saveSettings(settings: Settings) {
     throw new Error("La couleur doit être un code hexadécimal valide.");
   if (previewMode) {
     if (!previewAdmin) throw new Error("Accès non autorisé.");
-    memory.settings = structuredClone(settings);
+    memory.settings = structuredClone({
+      ...settings,
+      ...(settings.storefront_theme === undefined
+        ? { storefront_theme: memory.settings.storefront_theme }
+        : {}),
+    });
     return;
   }
   const { error } = await supabase!.from("store_settings").upsert(settings);

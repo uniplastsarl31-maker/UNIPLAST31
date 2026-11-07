@@ -93,7 +93,14 @@ export interface SlideComposition {
   transition: "fade" | "slide" | "none";
   duration_ms: number;
 }
+export type StorefrontTheme =
+  | "classic"
+  | "ramadan-night"
+  | "ramadan-ivory"
+  | "newyear-snow"
+  | "newyear-midnight";
 export interface Settings {
+  storefront_theme?: StorefrontTheme;
   topbar_tagline?: string;
   youtube_url?: string;
   videos_enabled?: boolean;

@@ -22,6 +22,7 @@ import {
 import { Empty, Modal, Spinner } from "./ui";
 import { CustomerAccount } from "./CustomerFeatures";
 import { CustomerLoginDialog } from "./ClientAccess";
+import { SeasonalDecor } from "./SeasonalDecor";
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -162,6 +163,7 @@ function Router() {
         openScanner={() => setScanner(true)}
         openClientLogin={() => setClientLogin(true)}
       />
+      <SeasonalDecor active={!path.startsWith("/admin")} />
       {error && (
         <div className="catalog-update-error">
           La dernière mise à jour a échoué. Les données affichées peuvent avoir
