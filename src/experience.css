@@ -969,6 +969,15 @@ footer {
 .footer-bottom {
   font-size: 12px;
 }
+.footer-refresh-note {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  color: #526789;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.7;
+  text-align: center;
+}
 .initial-loading p {
   font-size: 16px;
 }

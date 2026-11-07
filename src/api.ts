@@ -14,6 +14,7 @@ import type {
   CustomerAccess,
 } from "./types";
 import { defaultSettings } from "./catalog";
+import { watchCatalogActivity } from "./catalogSync";
 import { validateSlideComposition } from "./slider";
 import {
   localMode,
@@ -140,6 +141,50 @@ async function ensureCustomer() {
     );
   return result.data.user!.id;
 }
+export interface CatalogUpdate {
+  revision?: string;
+  unchanged: boolean;
+  catalog?: Catalog;
+  client_approved: boolean;
+  admin?: boolean;
+}
+export async function loadCatalogUpdate(
+  revision?: string,
+): Promise<CatalogUpdate> {
+  if (localMode) {
+    const result = await localCall<CatalogUpdate | Catalog>(
+      "catalog?sync=1" +
+        (revision ? "&revision=" + encodeURIComponent(revision) : ""),
+    );
+    // Also works while an earlier deployment still serves an open browser tab.
+    if ("products" in result) {
+      const session = await customerSession();
+      return {
+        unchanged: false,
+        catalog: result,
+        client_approved: !!(
+          session.personal &&
+          session.access?.status === "approved" &&
+          session.access.phone
+        ),
+      };
+    }
+    return result;
+  }
+  const [catalog, session] = await Promise.all([
+    loadCatalog(),
+    customerSession(),
+  ]);
+  return {
+    unchanged: false,
+    catalog,
+    client_approved: !!(
+      session.personal &&
+      session.access?.status === "approved" &&
+      session.access.phone
+    ),
+  };
+}
 export async function loadCatalog(): Promise<Catalog> {
   if (localMode) return localCall<Catalog>("catalog");
   if (previewMode) {
@@ -190,12 +235,9 @@ async function readCatalogProducts(): Promise<Product[]> {
     if (data.length < 500) return products;
   }
 }
-export function watchCatalog(callback: () => void): () => void {
-  if (localMode) {
-    const timer = window.setInterval(callback, 30000);
-    return () => window.clearInterval(timer);
-  }
-  if (!supabase) return () => {};
+export function watchCatalog(callback: () => void | Promise<void>): () => void {
+  const stopActivity = watchCatalogActivity(callback);
+  if (localMode || !supabase) return stopActivity;
   const c = supabase
     .channel("catalog-updates")
     .on(
@@ -214,10 +256,9 @@ export function watchCatalog(callback: () => void): () => void {
       callback,
     )
     .subscribe();
-  const timer = window.setInterval(callback, 30000); // Reliable fallback if Realtime is not enabled.
   return () => {
     void supabase.removeChannel(c);
-    window.clearInterval(timer);
+    stopActivity();
   };
 }
 export async function isAdmin(): Promise<boolean> {

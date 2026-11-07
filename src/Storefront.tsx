@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   SlidersHorizontal,
+  Star,
   X,
 } from "lucide-react";
 import type { Family, Product } from "./types";
@@ -45,6 +46,7 @@ import { previewMode } from "./api";
 import { FamilyLanding } from "./FeatureControls";
 import { VideoSection } from "./VideoFeatures";
 import { DEFAULT_TAGLINE, youtubeChannelUrl } from "./media";
+import "./favorites-ui.css";
 import {
   isNewProduct,
   matchesFamily,
@@ -56,11 +58,13 @@ import {
 export function Header({
   openLogin,
   openScanner,
+  openClientLogin,
 }: {
   openLogin: () => void;
   openScanner: () => void;
+  openClientLogin: () => void;
 }) {
-  const { catalog, cart } = useStore();
+  const { catalog, cart, clientApproved } = useStore();
   const [search, setSearch] = useState(""),
     [menu, setMenu] = useState(false),
     [families, setFamilies] = useState(false);
@@ -113,6 +117,19 @@ export function Header({
             onClick={brandClick}
           >
             <img src={catalog.settings.logo_url} alt="UNIPLAST Home Design" />
+          </button>
+          <button
+            type="button"
+            className={
+              "header-client-button " + (clientApproved ? "is-connected" : "")
+            }
+            aria-label={clientApproved ? "Mon espace client" : "Accès client"}
+            onClick={() =>
+              clientApproved ? navigate("/client-agree") : openClientLogin()
+            }
+          >
+            <ShieldCheck size={19} />
+            <span>{clientApproved ? "Mon espace" : "Accès client"}</span>
           </button>
           <form className="search-box" onSubmit={submit}>
             <Search size={20} />
@@ -354,6 +371,9 @@ export function Footer({
           )}
         </div>
       </div>
+      <p className="container footer-refresh-note">
+        Pour actualiser les informations, fermez le site puis rouvrez-le.
+      </p>
       <div className="container footer-bottom">
         <span>
           © {new Date().getFullYear()} UNIPLAST. Tous droits réservés.
@@ -364,13 +384,31 @@ export function Footer({
   );
 }
 export function ProductCard({ product: p }: { product: Product }) {
-  const { catalog, now, openQuantity, openProduct } = useStore();
+  const {
+    catalog,
+    now,
+    openQuantity,
+    openProduct,
+    isFavorite,
+    toggleFavorite,
+  } = useStore();
   const discounted = activeDiscount(p, now),
-    s = catalog!.settings;
+    s = catalog!.settings,
+    favorite = isFavorite(p.id);
   return (
     <article
       className={`product-card ${discounted ? "discounted" : ""} ${p.availability_confirmed && !p.available ? "sold-out" : ""}`}
     >
+      <button
+        type="button"
+        className="favorite-toggle"
+        aria-label={favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+        aria-pressed={favorite}
+        title={`${favorite ? "Retirer des favoris" : "Ajouter aux favoris"} : ${p.name}`}
+        onClick={() => toggleFavorite(p.id)}
+      >
+        <Star size={18} fill={favorite ? "currentColor" : "none"} />
+      </button>
       <a
         href={"#/produit/" + p.id}
         className="card-image-link"
@@ -818,12 +856,21 @@ export function Collections() {
     </main>
   );
 }
+function customerCatalogueFilter(value: string | null) {
+  return value &&
+    ["disponibles", "promotions", "nouveautes", "bientot"].includes(value)
+    ? value
+    : "";
+}
 export function Catalogue({ params }: { params: URLSearchParams }) {
-  const { catalog, now, clientApproved } = useStore();
+  const { catalog, now, clientApproved, isFavorite } = useStore();
   const [maximum, setMaximum] = useState("");
   const [q, setQ] = useState(params.get("q") || ""),
     [family, setFamily] = useState(params.get("famille") || ""),
-    [filter, setFilter] = useState(params.get("filtre") || ""),
+    [filter, setFilter] = useState(
+      customerCatalogueFilter(params.get("filtre")),
+    ),
+    [favoritesOnly, setFavoritesOnly] = useState(params.get("favoris") === "1"),
     [sort, setSort] = useState(params.get("tri") || "nom"),
     [page, setPage] = useState(1),
     [mobileFilters, setMobileFilters] = useState(false);
@@ -831,7 +878,8 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
   useEffect(() => {
     setQ(params.get("q") || "");
     setFamily(params.get("famille") || "");
-    setFilter(params.get("filtre") || "");
+    setFilter(customerCatalogueFilter(params.get("filtre")));
+    setFavoritesOnly(params.get("favoris") === "1");
     setSort(params.get("tri") || "nom");
     setPage(1);
   }, [queryString]);
@@ -840,12 +888,16 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     selectedFamily = families.find(
       (f) => f.id === family || f.aliases?.includes(family),
     ),
-    familyName = selectedFamily?.name;
+    familyName = selectedFamily?.name,
+    favoriteCount = catalog.products.filter(
+      (p) => isFavorite(p.id) && families.some((f) => f.id === p.family_id),
+    ).length;
   let products = rankProducts(catalog.products, catalog.sales, now).filter(
     (p) =>
       families.some((f) => f.id === p.family_id) &&
       (!family || (!!selectedFamily && matchesFamily(p, selectedFamily, now))),
   );
+  if (favoritesOnly) products = products.filter((p) => isFavorite(p.id));
   const seasonId = params.get("saison"),
     season = activeSeasons(
       catalog.settings.seasons,
@@ -889,12 +941,6 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
   if (filter === "nouveautes")
     products = products.filter((p) => isNewProduct(p, now));
   if (filter === "bientot") products = products.filter((p) => p.upcoming);
-  if (filter === "sur-demande")
-    products = products.filter((p) => p.price_on_request);
-  if (filter === "sans-photo")
-    products = products.filter((p) => !p.images.length);
-  if (filter === "sans-prix")
-    products = products.filter((p) => p.price_on_request);
   if (clientApproved && maximum)
     products = products.filter((p) =>
       belowPrice(p, Math.round(Number(maximum) * 100), clientApproved, now),
@@ -920,13 +966,34 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     products.sort(
       (a, b) => (catalog.sales[b.id] || 0) - (catalog.sales[a.id] || 0),
     );
+  const pageCount = Math.max(1, Math.ceil(products.length / 24)),
+    displayPage = Math.min(page, pageCount);
+  const selectFavorites = (value: boolean) => {
+    const next = new URLSearchParams(params);
+    for (const [key, current] of [
+      ["q", q],
+      ["famille", family],
+      ["filtre", filter],
+      ["tri", sort],
+    ]) {
+      if (current) next.set(key, current);
+      else next.delete(key);
+    }
+    if (value) next.set("favoris", "1");
+    else next.delete("favoris");
+    setFavoritesOnly(value);
+    setPage(1);
+    navigate("/catalogue" + (next.size ? "?" + next.toString() : ""));
+  };
   const reset = () => {
     setQ("");
     setFamily("");
     setFilter("");
     setSort("nom");
     setMaximum("");
+    setFavoritesOnly(false);
     setPage(1);
+    navigate("/catalogue");
   };
   return (
     <main className="container page catalogue-page">
@@ -1016,8 +1083,6 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             ["promotions", "En promotion"],
             ["nouveautes", "Nouveautés"],
             ["bientot", "Bientôt disponibles"],
-            ["sans-photo", "Sans photo"],
-            ["sans-prix", "Sans prix"],
           ].map(([v, label]) => (
             <label className="radio-filter" key={v}>
               <input
@@ -1115,44 +1180,57 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             <span>
               {products.length} résultat{products.length > 1 ? "s" : ""}
             </span>
-            {(q || family || filter || (clientApproved && maximum)) && (
-              <button onClick={reset}>
-                Effacer la sélection <X size={12} />
+            <button
+              type="button"
+              className="favorites-filter"
+              aria-pressed={favoritesOnly}
+              onClick={() => selectFavorites(!favoritesOnly)}
+            >
+              <Star size={14} fill={favoritesOnly ? "currentColor" : "none"} />
+              Mes favoris <b>{favoriteCount}</b>
+            </button>
+            {(q ||
+              family ||
+              filter ||
+              favoritesOnly ||
+              (clientApproved && maximum)) && (
+              <button onClick={reset} aria-label="Effacer la sélection">
+                Effacer <X size={12} />
               </button>
             )}
           </div>
           {products.length ? (
             <>
               <div className="product-grid">
-                {products.slice((page - 1) * 24, page * 24).map((p) => (
-                  <ProductCard product={p} key={p.id} />
-                ))}
+                {products
+                  .slice((displayPage - 1) * 24, displayPage * 24)
+                  .map((p) => (
+                    <ProductCard product={p} key={p.id} />
+                  ))}
               </div>
               {products.length > 24 && (
                 <div className="pagination">
                   <button
                     className="btn btn-outline"
                     onClick={() => {
-                      setPage(Math.max(1, page - 1));
+                      setPage(Math.max(1, displayPage - 1));
                       window.scrollTo({ top: 300, behavior: "smooth" });
                     }}
-                    disabled={page === 1}
+                    disabled={displayPage === 1}
                   >
                     <ArrowLeft size={16} />
                     Précédent
                   </button>
                   <span>
-                    Page {page} sur {Math.ceil(products.length / 24)}
+                    Page {displayPage} sur {pageCount}
                   </span>
                   <button
                     className="btn btn-outline"
                     onClick={() => {
-                      setPage(
-                        Math.min(Math.ceil(products.length / 24), page + 1),
-                      );
+                      setPage(Math.min(pageCount, displayPage + 1));
                       window.scrollTo({ top: 300, behavior: "smooth" });
                     }}
-                    disabled={page >= Math.ceil(products.length / 24)}
+                    disabled={displayPage >= pageCount}
                   >
                     Suivant
                     <ArrowRight size={16} />
@@ -1162,15 +1240,28 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             </>
           ) : (
             <Empty
-              title="Aucun produit pour cette sélection"
+              title={
+                favoritesOnly
+                  ? favoriteCount
+                    ? "Aucun favori dans cette sélection"
+                    : "Aucun favori pour le moment"
+                  : "Aucun produit pour cette sélection"
+              }
               body={
-                filter === "promotions"
-                  ? "Aucune promotion active pour le moment. Retrouvez les tarifs du catalogue."
-                  : "Essayez une autre référence ou élargissez vos filtres."
+                favoritesOnly && !favoriteCount
+                  ? "Touchez l’étoile à côté d’un produit pour le retrouver ici. Vos favoris restent mémorisés sur cet appareil."
+                  : filter === "promotions"
+                    ? "Aucune promotion active pour le moment. Retrouvez les tarifs du catalogue."
+                    : "Essayez une autre référence ou élargissez vos filtres."
               }
             >
-              <button className="btn btn-primary" onClick={reset}>
-                Voir tous les produits
+              <button
+                className="btn btn-primary"
+                onClick={favoritesOnly ? () => selectFavorites(false) : reset}
+              >
+                {favoritesOnly
+                  ? "Quitter les favoris"
+                  : "Voir tous les produits"}
               </button>
             </Empty>
           )}
@@ -1206,7 +1297,7 @@ export function ProductDetails({
   id: string;
   onClose?: () => void;
 }) {
-  const { catalog, now, addCart } = useStore();
+  const { catalog, now, addCart, isFavorite, toggleFavorite } = useStore();
   const Wrapper = onClose ? "div" : "main";
   const [zoom, setZoom] = useState(false);
   const [image, setImage] = useState(0),
@@ -1285,7 +1376,23 @@ export function ProductDetails({
         </div>
         <div className="detail-content">
           <span className="eyebrow">{family?.name}</span>
-          <h1>{p.name}</h1>
+          <div className="detail-title-with-favorite">
+            <h1>{p.name}</h1>
+            <button
+              type="button"
+              className="favorite-toggle"
+              aria-label={
+                isFavorite(p.id) ? "Retirer des favoris" : "Ajouter aux favoris"
+              }
+              aria-pressed={isFavorite(p.id)}
+              onClick={() => toggleFavorite(p.id)}
+            >
+              <Star
+                size={21}
+                fill={isFavorite(p.id) ? "currentColor" : "none"}
+              />
+            </button>
+          </div>
           <span className="detail-ref">Référence {p.code}</span>
           {p.availability_confirmed &&
             (!p.available || p.stock_cartons === 0) && (

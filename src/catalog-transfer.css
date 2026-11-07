@@ -215,6 +215,20 @@
   color: #245f3b !important;
   background: #eff8f1;
 }
+.transfer-weight-summary {
+  margin: 20px 0;
+  overflow-wrap: anywhere;
+}
+.transfer-weight-summary strong {
+  display: block;
+}
+.transfer-weight-summary p {
+  margin: 8px 0;
+}
+.transfer-weight-summary small {
+  display: block;
+  line-height: 1.6;
+}
 @media (max-width: 760px) {
   .transfer-steps {
     grid-template-columns: 1fr;

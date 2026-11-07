@@ -14,6 +14,9 @@ const json = (status, value, extra = {}) =>
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
+      "CDN-Cache-Control": "no-store",
+      "Netlify-CDN-Cache-Control": "no-store",
+      Vary: "Cookie",
       "X-Content-Type-Options": "nosniff",
       ...extra,
     },

@@ -35,6 +35,13 @@ const codeOf = (c) =>
   String(c || "")
     .trim()
     .toUpperCase();
+const sourceWeightsByCode = new Map(
+  weights.source_rows.map((source) => [codeOf(source.code), source]),
+);
+const selectedSourceWeight = (source) =>
+  source?.pdf_weight_grams > 0
+    ? source.pdf_weight_grams
+    : source?.excel_weight_grams;
 
 function createCatalogTransfer({
   all,
@@ -61,6 +68,46 @@ function createCatalogTransfer({
   };
   const requireCode = (s) =>
     assert(unlocked(s), "Saisissez de nouveau le code de mise à jour.", 403);
+  function weightSummary() {
+    const products = all("product");
+    const codeCounts = new Map();
+    for (const product of products) {
+      const code = codeOf(product.code);
+      codeCounts.set(code, (codeCounts.get(code) || 0) + 1);
+    }
+    const summary = {
+      total: products.length,
+      empty: 0,
+      ready: 0,
+      unchanged: 0,
+      not_in_document: 0,
+      missing_in_document: 0,
+    };
+    let ambiguous = 0;
+    for (const product of products) {
+      if (product.weight_grams == null || product.weight_grams === "")
+        summary.empty++;
+      const code = codeOf(product.code),
+        source = sourceWeightsByCode.get(code);
+      if (!source) {
+        summary.not_in_document++;
+        continue;
+      }
+      // The import preview skips duplicate live references as well.
+      if (codeCounts.get(code) !== 1) {
+        ambiguous++;
+        continue;
+      }
+      const weight = selectedSourceWeight(source);
+      if (!(weight > 0 && Number.isFinite(weight))) {
+        summary.missing_in_document++;
+        continue;
+      }
+      if (equal(product.weight_grams, weight)) summary.unchanged++;
+      else summary.ready++;
+    }
+    return ambiguous ? { ...summary, ambiguous } : summary;
+  }
   function snapshot(s) {
     for (const old of all("transfer-export"))
       if (Date.parse(old.created_at) < Date.now() - 7 * 86400000)
@@ -100,8 +147,20 @@ function createCatalogTransfer({
           }
         : p;
       if (change) {
-        for (const field of ["name","description","dimensions","capacity","material","pack_label","offer_title"]) assert(typeof next[field] === "string", "Texte invalide : " + field);
-        assert(next.barcode == null || typeof next.barcode === "string", "Code-barres invalide.");
+        for (const field of [
+          "name",
+          "description",
+          "dimensions",
+          "capacity",
+          "material",
+          "pack_label",
+          "offer_title",
+        ])
+          assert(typeof next[field] === "string", "Texte invalide : " + field);
+        assert(
+          next.barcode == null || typeof next.barcode === "string",
+          "Code-barres invalide.",
+        );
         const error = validateProduct(next);
         assert(!error, error);
         assert(
@@ -247,6 +306,7 @@ function createCatalogTransfer({
         result: {
           configured: !!meta("transfer-code-hash"),
           unlocked: unlocked(s),
+          weight_summary: weightSummary(),
         },
       };
     if (name === "transfer-code" || name === "transfer-unlock") {
@@ -290,19 +350,6 @@ function createCatalogTransfer({
       return { handled: true, result: { configured: true, unlocked: true } };
     }
     requireCode(s);
-    if (name === "transfer-price-review") {
-      const reference = new Map(require("./catalog-update.json").products.map(p => [p.id, p]));
-      const rows = all("product").map(p => {
-        const ref = reference.get(p.id);
-        const matched = ref && ref.code === p.code;
-        const status = !matched ? "Sans référence tarifaire" :
-          p.unit_price_cents === ref.unit_price_cents && p.price_on_request === ref.price_on_request
-            ? "Identique" : "À vérifier";
-        return {code:p.code, name:p.name, current:p.price_on_request ? null : p.unit_price_cents,
-          expected:matched && !ref.price_on_request ? ref.unit_price_cents : null, status};
-      });
-      return {handled:true, result:rows};
-    }
     if (name === "transfer-export") {
       const x = snapshot(s);
       return {
@@ -348,10 +395,7 @@ function createCatalogTransfer({
           skipped.push({ code: source.code, reason: "Référence ambiguë." });
           continue;
         }
-        const weight =
-          source.pdf_weight_grams > 0
-            ? source.pdf_weight_grams
-            : source.excel_weight_grams;
+        const weight = selectedSourceWeight(source);
         if (!(weight > 0 && Number.isFinite(weight))) {
           skipped.push({
             code: source.code,

@@ -21,6 +21,7 @@ import {
 } from "./Dialogs";
 import { Empty, Modal, Spinner } from "./ui";
 import { CustomerAccount } from "./CustomerFeatures";
+import { CustomerLoginDialog } from "./ClientAccess";
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -54,6 +55,7 @@ function Router() {
   const route = useRoute(),
     { catalog, loading, error, refresh, toast } = useStore();
   const [login, setLogin] = useState(false),
+    [clientLogin, setClientLogin] = useState(false),
     [scanner, setScanner] = useState(false),
     [policy, setPolicy] = useState<"privacy" | "terms" | null>(null);
   const [path, query = ""] = route.split("?"),
@@ -158,6 +160,7 @@ function Router() {
       <Header
         openLogin={() => setLogin(true)}
         openScanner={() => setScanner(true)}
+        openClientLogin={() => setClientLogin(true)}
       />
       {error && (
         <div className="catalog-update-error">
@@ -171,6 +174,9 @@ function Router() {
       <Footer openPolicy={setPolicy} />
       <ProductQuickView />
       {login && <LoginDialog onClose={() => setLogin(false)} />}
+      {clientLogin && (
+        <CustomerLoginDialog onClose={() => setClientLogin(false)} />
+      )}
       {scanner && <ScannerDialog onClose={() => setScanner(false)} />}
       {policy && (
         <Modal

@@ -23,6 +23,14 @@ import {
 interface Status {
   configured: boolean;
   unlocked: boolean;
+  weight_summary?: {
+    total: number;
+    empty: number;
+    ready: number;
+    unchanged: number;
+    not_in_document: number;
+    missing_in_document: number;
+  };
 }
 interface Plan {
   plan_id: string;
@@ -148,6 +156,7 @@ export function CatalogTransfer() {
         `${result.updated} produit(s) mis à jour. Les photos et les autres données ont été conservées.`,
       );
       await refresh();
+      await syncStatus();
       notify("Mise à jour appliquée et sauvegarde conservée.");
     });
   const backupFile = () =>
@@ -173,6 +182,7 @@ export function CatalogTransfer() {
       setBackup("");
       setPlan(null);
       await refresh();
+      await syncStatus();
       notify("Restauration terminée.");
     });
   const lines =
@@ -201,6 +211,30 @@ export function CatalogTransfer() {
         </p>
       ) : (
         <>
+          {status.weight_summary && (
+            <div
+              className={
+                "notice transfer-weight-summary " +
+                (status.weight_summary.ready ? "amber" : "")
+              }
+            >
+              <strong>
+                {status.weight_summary.empty} produit(s) sans poids sur{" "}
+                {status.weight_summary.total}.
+              </strong>
+              <p>
+                {status.weight_summary.ready
+                  ? `${status.weight_summary.ready} poids du document peuvent être appliqués. Déverrouillez les mises à jour, préparez les poids PDF / Excel, puis cliquez sur Appliquer après vérification.`
+                  : "Les poids disponibles du document sont à jour. Les références sans poids dans le document restent inchangées."}
+              </p>
+              <small>
+                Le correctif complète une seule fois les poids manquants du
+                magasin existant. Les imports ci-dessous restent soumis à votre
+                validation. Les photos et les autres informations sont
+                conservées.
+              </small>
+            </div>
+          )}
           <div className="transfer-protection">
             <ShieldCheck size={21} />
             <span>
@@ -382,24 +416,9 @@ export function CatalogTransfer() {
                 </label>
               </div>
               <div className="transfer-weights">
-                <h3>Contrôle des prix</h3>
-                <p>Comparer les prix actuels au tarif du 28/10/2026, sans modifier les fiches.</p>
-                <button type="button" className="btn btn-outline" disabled={busy}
-                  onClick={() => void action(async () => {
-                    type Row = {code:string; name:string; current:number|null; expected:number|null; status:string};
-                    const rows = await localCall<Row[]>("transfer-price-review", {});
-                    const money = (n:number|null) => n === null ? "Sur demande" : (n/100).toFixed(2).replace(".", ",");
-                    const quote = (v:string) => '"' + (/^[=+@\-\t\r]/.test(v) ? "'" : "") + v.replaceAll('"', '""') + '"';
-                    const lines = [["Référence","Produit","Prix actuel (DA)","Tarif de référence (DA)","Résultat"],
-                      ...rows.map(r => [r.code,r.name,money(r.current),r.status === "Sans référence tarifaire" ? "" : money(r.expected),r.status])];
-                    download("\ufeff"+lines.map(line => line.map(quote).join(";")).join("\r\n"),"UNIPLAST-controle-prix.csv","text/csv;charset=utf-8");
-                    notify(rows.filter(r => r.status === "À vérifier").length+" écart(s) de prix. Rapport téléchargé.");
-                  })}>Télécharger le contrôle des prix</button>
-              </div>
-              <div className="transfer-weights">
                 <h3>Poids du document fourni</h3>
                 <p>
-                  Pour renseigner les poids, préparez la comparaison puis cliquez sur « Appliquer ces modifications ». Le fichier JSON « avant mise à jour » est une sauvegarde. Le poids PDF est prioritaire. Le poids Excel est utilisé s’il
+                  Le poids PDF est prioritaire. Le poids Excel est utilisé s’il
                   manque. Les références inconnues et les poids absents sont
                   ignorés.
                 </p>

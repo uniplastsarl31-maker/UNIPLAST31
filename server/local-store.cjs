@@ -9,6 +9,7 @@ const { defaultSettings } = require("./generated/defaults.cjs");
 const { validateSlideComposition } = require("./generated/slider.cjs");
 const { validateMediaSettings } = require("./generated/media.cjs");
 const { createLargeUploads } = require("./large-uploads.cjs");
+const { applyWeightFill } = require("./weight-fill.cjs");
 const { createCatalogTransfer } = require("./catalog-transfer.cjs");
 const {
   validateProduct,
@@ -156,6 +157,7 @@ function createLocalStore({
         db.prepare("DELETE FROM documents WHERE kind=? AND id=?").run(kind, id),
     });
   }
+  applyWeightFill({ existingCatalog, meta, setMeta, all, put, transaction });
   const settings = () => ({ ...defaultSettings, ...get("settings", "true") });
   const setupToken = crypto.randomBytes(32).toString("hex");
   const cookieName = hosting ? "__Host-uniplast_session" : "uniplast_session";
@@ -268,6 +270,9 @@ function createLocalStore({
     res.writeHead(status, {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
+      "CDN-Cache-Control": "no-store",
+      "Netlify-CDN-Cache-Control": "no-store",
+      Vary: "Cookie",
       "X-Content-Type-Options": "nosniff",
     });
     res.end(payload);
@@ -389,10 +394,26 @@ function createLocalStore({
         ))
           for (const i of o.items)
             sales[i.product_id] = (sales[i.product_id] || 0) + i.cartons;
-        return (
-          reply(res, { products, families, settings: settings(), sales }),
-          true
-        );
+        const catalog = { products, families, settings: settings(), sales };
+        if (address.searchParams.get("sync") === "1") {
+          const client_approved = s?.role === "client",
+            admin = isAdmin;
+          // Hash only the view this caller may receive. Private price changes
+          // must not leak into a visitor's revision, even as a change signal.
+          const revision = crypto
+            .createHash("sha256")
+            .update(JSON.stringify({ catalog, client_approved, admin }))
+            .digest("hex");
+          const unchanged = address.searchParams.get("revision") === revision;
+          reply(res, {
+            revision,
+            unchanged,
+            client_approved,
+            admin,
+            ...(unchanged ? {} : { catalog }),
+          });
+        } else reply(res, catalog);
+        return true;
       }
       if (req.method === "GET" && name === "catalog-update") {
         admin(s);

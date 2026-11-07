@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import * as api from "./api";
 import { useStore } from "./store";
-import { Field, Spinner } from "./ui";
+import { Field, Modal, Spinner } from "./ui";
+import "./client-access.css";
 import type { CustomerAccess } from "./types";
 
 const numeric = (s: string) =>
@@ -23,7 +24,15 @@ function randomPin() {
   } while (a[0] >= 4294000000);
   return String(a[0] % 1000000).padStart(6, "0");
 }
-export function CustomerAccount() {
+function CustomerAccessContent({
+  onConnected,
+  onClose,
+  compact = false,
+}: {
+  onConnected?: () => void;
+  onClose?: () => void;
+  compact?: boolean;
+}) {
   const { catalog, refresh, checkAdmin } = useStore();
   const [session, setSession] = useState<Awaited<
     ReturnType<typeof api.customerSession>
@@ -48,12 +57,129 @@ export function CustomerAccount() {
       setSession(await api.customerSession());
       await checkAdmin();
       await refresh();
+      if (login) onConnected?.();
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setBusy(false);
     }
   }
+  return (
+    <div className="customer-access-content">
+      <ShieldCheck size={38} />
+      <h2 className={compact ? "client-dialog-heading" : ""}>
+        {session?.personal
+          ? "Bienvenue, " + session.access?.name
+          : "Accès client"}
+      </h2>
+      {error && (
+        <p className="error-message" role="alert">
+          {error}
+        </p>
+      )}
+      {session?.personal ? (
+        <>
+          <p className="notice success">Votre accès aux tarifs est actif.</p>
+          <p>{session.access?.phone}</p>
+          {onClose ? (
+            <button
+              type="button"
+              className="btn btn-primary full-width"
+              onClick={onClose}
+            >
+              Continuer mes achats
+            </button>
+          ) : (
+            <a className="btn btn-primary full-width" href="#/catalogue">
+              Voir le catalogue et les prix
+            </a>
+          )}
+          <a className="text-link" href="#/mes-commandes" onClick={onClose}>
+            Mes commandes et mes documents →
+          </a>
+          <button
+            className="btn btn-outline full-width"
+            disabled={busy}
+            onClick={() => void action(false)}
+          >
+            Me déconnecter
+          </button>
+        </>
+      ) : (
+        <form
+          className="feature-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void action(true);
+          }}
+        >
+          <p>
+            Aucune inscription. Utilisez les coordonnées et le code reçus
+            d’UNIPLAST.
+          </p>
+          <Field label="Numéro de téléphone">
+            <div className="access-input">
+              <Phone size={20} />
+              <input
+                required
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="0550 00 00 00"
+                maxLength={25}
+                value={phone}
+                onChange={(e) => setPhone(numeric(e.target.value))}
+              />
+            </div>
+          </Field>
+          <Field label="Code d’accès à 6 chiffres">
+            <div className="access-input">
+              <KeyRound size={20} />
+              <input
+                required
+                className="pin-input"
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                minLength={6}
+                maxLength={6}
+                autoComplete="current-password"
+                placeholder="••••••"
+                value={pin}
+                onChange={(e) =>
+                  setPin(numeric(e.target.value).replace(/\D/g, "").slice(0, 6))
+                }
+              />
+            </div>
+          </Field>
+          <button className="btn btn-primary full-width" disabled={busy}>
+            {busy ? <Spinner /> : <KeyRound size={18} />}Afficher les prix
+          </button>
+          <p className="muted-copy">
+            Code oublié ? Contactez UNIPLAST pour recevoir un nouveau code.
+          </p>
+          {catalog?.settings.phone && (
+            <a className="text-link" href={"tel:" + catalog.settings.phone}>
+              Appeler UNIPLAST · {catalog.settings.phone}
+            </a>
+          )}
+        </form>
+      )}
+    </div>
+  );
+}
+export function CustomerLoginDialog({ onClose }: { onClose: () => void }) {
+  return (
+    <Modal
+      title="Accès client"
+      onClose={onClose}
+      className="customer-login-dialog"
+    >
+      <CustomerAccessContent compact onConnected={onClose} onClose={onClose} />
+    </Modal>
+  );
+}
+export function CustomerAccount() {
   return (
     <main className="container page access-page">
       <div className="access-layout">
@@ -87,98 +213,7 @@ export function CustomerAccount() {
           </div>
         </section>
         <section className="panel access-card">
-          <ShieldCheck size={38} />
-          <h2>
-            {session?.personal
-              ? "Bienvenue, " + session.access?.name
-              : "Accès client"}
-          </h2>
-          {error && (
-            <p className="error-message" role="alert">
-              {error}
-            </p>
-          )}
-          {session?.personal ? (
-            <>
-              <p className="notice success">
-                Votre accès aux tarifs est actif.
-              </p>
-              <p>{session.access?.phone}</p>
-              <a className="btn btn-primary full-width" href="#/catalogue">
-                Voir le catalogue et les prix
-              </a>
-              <a className="text-link" href="#/mes-commandes">
-                Mes commandes et mes documents →
-              </a>
-              <button
-                className="btn btn-outline full-width"
-                disabled={busy}
-                onClick={() => void action(false)}
-              >
-                Me déconnecter
-              </button>
-            </>
-          ) : (
-            <form
-              className="feature-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void action(true);
-              }}
-            >
-              <p>
-                Aucune inscription. Utilisez les coordonnées et le code reçus
-                d’UNIPLAST.
-              </p>
-              <Field label="Numéro de téléphone">
-                <div className="access-input">
-                  <Phone size={20} />
-                  <input
-                    required
-                    type="tel"
-                    autoComplete="tel"
-                    placeholder="0550 00 00 00"
-                    maxLength={25}
-                    value={phone}
-                    onChange={(e) => setPhone(numeric(e.target.value))}
-                  />
-                </div>
-              </Field>
-              <Field label="Code d’accès à 6 chiffres">
-                <div className="access-input">
-                  <KeyRound size={20} />
-                  <input
-                    required
-                    className="pin-input"
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]{6}"
-                    minLength={6}
-                    maxLength={6}
-                    autoComplete="current-password"
-                    placeholder="••••••"
-                    value={pin}
-                    onChange={(e) =>
-                      setPin(
-                        numeric(e.target.value).replace(/\D/g, "").slice(0, 6),
-                      )
-                    }
-                  />
-                </div>
-              </Field>
-              <button className="btn btn-primary full-width" disabled={busy}>
-                {busy ? <Spinner /> : <KeyRound size={18} />}Afficher les prix
-              </button>
-              <p className="muted-copy">
-                Code oublié ? Contactez UNIPLAST pour recevoir un nouveau code.
-              </p>
-              {catalog?.settings.phone && (
-                <a className="text-link" href={"tel:" + catalog.settings.phone}>
-                  Appeler UNIPLAST · {catalog.settings.phone}
-                </a>
-              )}
-            </form>
-          )}
+          <CustomerAccessContent />
         </section>
       </div>
     </main>

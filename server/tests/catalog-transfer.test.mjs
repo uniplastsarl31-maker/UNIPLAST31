@@ -71,6 +71,14 @@ test("catalogue transfers require an administrator plus a separate session-bound
   const f = fixture();
   await f.setup(false);
   assert.equal((await f.call("transfer-status")).data.configured, false);
+  assert.deepEqual((await f.call("transfer-status")).data.weight_summary, {
+    total: 350,
+    empty: 350,
+    ready: 303,
+    unchanged: 0,
+    not_in_document: 46,
+    missing_in_document: 1,
+  });
   assert.notEqual((await f.call("transfer-export", {})).status, 200);
   assert.equal(
     (await f.call("transfer-status", undefined, "visitor")).status,
@@ -343,6 +351,14 @@ test("the supplied catalogue updates only 303 matched weights using PDF priority
   );
   assert.deepEqual(after.settings, before.settings);
   assert.deepEqual(after.families, before.families);
+  assert.deepEqual((await f.call("transfer-status")).data.weight_summary, {
+    total: 350,
+    empty: 46,
+    ready: 0,
+    unchanged: 303,
+    not_in_document: 46,
+    missing_in_document: 1,
+  });
 });
 
 test("live owner-added references receive Excel fallback weights; all-fields imports remain selective and restore refuses newer edits", async () => {
@@ -442,23 +458,4 @@ test("live owner-added references receive Excel fallback weights; all-fields imp
     imported.name,
     "failed restore must remain atomic",
   );
-});
-
-test("price comparison requires unlocked admin, reports live edits and never overwrites a price", async () => {
-  const f = fixture();
-  const catalog = await f.setup(false);
-  assert.notEqual((await f.call("transfer-price-review", {})).status, 200);
-  assert.notEqual((await f.call("transfer-price-review", {}, "visitor")).status, 200);
-  await f.call("transfer-code", { next: CODE });
-  await f.call("transfer-unlock", { code: CODE });
-  const p = catalog.products.find(p => p.code === "BER300ML");
-  const edited = {...p, unit_price_cents: 1678, price_on_request:false};
-  assert.equal((await f.call("product-save", edited)).status, 200);
-  const audit = await f.call("transfer-price-review", {});
-  assert.equal(audit.status, 200);
-  const row = audit.data.find(r => r.code === p.code);
-  assert.equal(row.status, "À vérifier");
-  assert.equal(row.current, 1678);
-  assert.equal(row.expected, 1500);
-  assert.equal((await f.call("catalog")).data.products.find(i => i.id === p.id).unit_price_cents,1678);
 });

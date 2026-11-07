@@ -10,6 +10,15 @@ import {
 import type { CartItem, Catalog, Product, Order } from "./types";
 import { assertQuantity, canBuy } from "./domain";
 import * as api from "./api";
+import { FAVORITES_KEY, parseFavoriteIds, toggleFavoriteId } from "./favorites";
+
+function readFavorites() {
+  try {
+    return parseFavoriteIds(localStorage.getItem(FAVORITES_KEY));
+  } catch {
+    return [];
+  }
+}
 
 const CART_KEY = "uniplast.cart.v1";
 function readCart(): { items: CartItem[]; key: string } {
@@ -47,6 +56,9 @@ interface Store {
   repeatOrder: (order: Order) => void;
   admin: boolean;
   clientApproved: boolean;
+  favoriteIds: string[];
+  toggleFavorite: (id: string) => void;
+  isFavorite: (id: string) => boolean;
   quickProductId: string | null;
   openProduct: (id: string) => void;
   closeProduct: () => void;
@@ -87,8 +99,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [added, setAdded] = useState<Product | null>(null),
     toastTimer = useRef<number | undefined>(undefined);
   const [clientApproved, setClientApproved] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(readFavorites);
+  const toggleFavorite = useCallback((id: string) => {
+    setFavoriteIds((ids) => toggleFavoriteId(ids, id));
+  }, []);
+  const isFavorite = useCallback(
+    (id: string) => favoriteIds.includes(id),
+    [favoriteIds],
+  );
   const [quickProductId, setQuickProductId] = useState<string | null>(null);
   const loadSequence = useRef(0);
+  const catalogRevision = useRef<string | undefined>(undefined);
   const notify = useCallback((message: string, error = false) => {
     setToast({ message, error });
     window.clearTimeout(toastTimer.current);
@@ -97,20 +118,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     const sequence = ++loadSequence.current;
     try {
-      const [c, session] = await Promise.all([
-        api.loadCatalog(),
-        api.customerSession(),
-      ]);
+      const update = await api.loadCatalogUpdate(catalogRevision.current);
       if (sequence !== loadSequence.current) return;
-      setCatalog(c);
-      setClientApproved(
-        !!(
-          session.personal &&
-          session.access?.status === "approved" &&
-          session.access.phone
-        ),
-      );
-      if (c.products.some((p) => p.price_hidden)) {
+      if (update.catalog) setCatalog(update.catalog);
+      catalogRevision.current = update.revision;
+      setClientApproved(update.client_approved);
+      if (update.admin !== undefined) setAdmin(update.admin);
+      if (update.catalog?.products.some((p) => p.price_hidden)) {
         setQuantityProduct(null);
         setAdded(null);
       }
@@ -128,9 +142,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void refresh();
     void checkAdmin();
-    const stop = api.watchCatalog(() => {
-      void refresh();
-    });
+    const stop = api.watchCatalog(refresh);
     const t = window.setInterval(() => setNow(Date.now()), 1000);
     const { data: auth } = api.supabase?.auth.onAuthStateChange(
       (event, session) => {
@@ -176,6 +188,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       );
     }
   }, [basket, notify]);
+  useEffect(() => {
+    try {
+      // Only product identifiers are saved: prices and catalogue details stay live.
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteIds));
+    } catch {
+      notify(
+        "Les favoris restent disponibles pour cette visite. Le navigateur empêche leur sauvegarde sur cet appareil.",
+        true,
+      );
+    }
+  }, [favoriteIds, notify]);
+  useEffect(() => {
+    const changed = (event: StorageEvent) => {
+      if (event.key === FAVORITES_KEY)
+        setFavoriteIds(parseFavoriteIds(event.newValue));
+    };
+    window.addEventListener("storage", changed);
+    return () => window.removeEventListener("storage", changed);
+  }, []);
   useEffect(() => {
     if (catalog) {
       document.documentElement.style.setProperty(
@@ -270,16 +301,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         },
         admin,
         clientApproved,
+        favoriteIds,
+        toggleFavorite,
+        isFavorite,
         quickProductId,
         openProduct: setQuickProductId,
         closeProduct: () => setQuickProductId(null),
         checkAdmin,
         toast,
         notify,
-        quantityProduct,
+        quantityProduct: quantityProduct
+          ? (catalog?.products.find((p) => p.id === quantityProduct.id) ?? null)
+          : null,
         openQuantity: setQuantityProduct,
         closeQuantity: () => setQuantityProduct(null),
-        added,
+        added: added
+          ? (catalog?.products.find((p) => p.id === added.id) ?? null)
+          : null,
         dismissAdded: () => setAdded(null),
       }}
     >

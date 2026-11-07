@@ -67,6 +67,12 @@ import { AdvancedSettings, CustomerAccessManager } from "./CustomerFeatures";
 import { FeatureSettings, FamilyExtrasEditor } from "./FeatureControls";
 import { matchesFamily } from "./domain";
 import { CatalogTransfer } from "./CatalogTransfer";
+import {
+  completenessCounts,
+  completenessFilters,
+  matchesCompletenessFilter,
+  type CompletenessFilter,
+} from "./catalogCompleteness";
 import "./catalog-transfer.css";
 
 const tabs = [
@@ -530,13 +536,15 @@ function ProductManager() {
   };
   const [q, setQ] = useState(""),
     [family, setFamily] = useState(""),
-    [filter, setFilter] = useState(""),
+    [filter, setFilter] = useState<CompletenessFilter | "unknown" | "offers">(
+      "",
+    ),
     [page, setPage] = useState(1),
     [edit, setEdit] = useState<Product | null>(null),
     [deleteTarget, setDeleteTarget] = useState<Product | null>(null),
     [busy, setBusy] = useState(false);
   if (!catalog) return null;
-  let products = catalog.products.filter(
+  const scopedProducts = catalog.products.filter(
     (p) =>
       (!family ||
         catalog.families.some((f) => f.id === family && matchesFamily(p, f))) &&
@@ -544,16 +552,17 @@ function ProductManager() {
         normalizeSearch(q),
       ),
   );
-  if (filter === "unknown")
-    products = products.filter((p) => !p.availability_confirmed);
-  if (filter === "price") products = products.filter((p) => p.price_on_request);
-  if (filter === "photo") products = products.filter((p) => !p.images.length);
+  const reviewCounts = completenessCounts(scopedProducts);
+  let products = scopedProducts.filter((p) =>
+    filter === "unknown"
+      ? !p.availability_confirmed
+      : filter === "offers"
+        ? p.discount_price_cents !== null
+        : matchesCompletenessFilter(p, filter),
+  );
   products.sort((a, b) =>
     a.name.localeCompare(b.name, "fr", { sensitivity: "base", numeric: true }),
   );
-  if (filter === "barcode") products = products.filter((p) => !p.barcode);
-  if (filter === "offers")
-    products = products.filter((p) => p.discount_price_cents !== null);
   const availability = async (p: Product, checked: boolean) => {
     setBusy(true);
     try {
@@ -664,18 +673,23 @@ function ProductManager() {
             aria-label="Diagnostic des produits"
             value={filter}
             onChange={(e) => {
-              setFilter(e.target.value);
+              setFilter(e.target.value as typeof filter);
               setPage(1);
             }}
           >
-            <option value="">Tous les états</option>
+            {completenessFilters.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label} ({reviewCounts[item.value]})
+              </option>
+            ))}
             <option value="unknown">Disponibilité à confirmer</option>
-            <option value="price">Sans prix</option>
-            <option value="photo">Sans photo</option>
-            <option value="barcode">Code-barres à vérifier</option>
             <option value="offers">Avec un réglage de remise</option>
           </select>
         </div>
+        <p className="muted-copy">
+          Les nombres suivent votre recherche et votre collection. Un produit
+          peut avoir plusieurs informations à compléter.
+        </p>
         <div className="table-scroll">
           <table className="data-table product-admin-table">
             <thead>
@@ -1091,7 +1105,6 @@ function ProductEditor({
           </div>
           <div>
             <h3>Photos du produit</h3>
-            <p>Aperçu du catalogue : le zoom et la position sont propres à cette photo de ce produit, sur mobile et ordinateur.</p>
             <div className="editor-image-preview">
               <ProductPhoto image={im} name={p.name || "Aperçu"} />
               {imageIndex === 0 && im && (
