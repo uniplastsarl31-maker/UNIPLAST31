@@ -6,11 +6,19 @@ const { DatabaseSync } = require("node:sqlite");
 const { promisify } = require("node:util");
 const scrypt = promisify(crypto.scrypt);
 const { defaultSettings } = require("./generated/defaults.cjs");
+const { validateSlideComposition } = require("./generated/slider.cjs");
+const { validateMediaSettings } = require("./generated/media.cjs");
+const { createLargeUploads } = require("./large-uploads.cjs");
+const { applyWeightFill } = require("./weight-fill.cjs");
+const { createCatalogTransfer } = require("./catalog-transfer.cjs");
 const {
   validateProduct,
   canBuy,
   cartTotals,
   discountPercent,
+  validateFeatureSettings,
+  customOrderOptions,
+  validateCustomItems,
 } = require("./generated/domain.cjs");
 const digits = (value) =>
   String(value || "")
@@ -55,10 +63,24 @@ const cleanText = (v, max, min = 0) => {
   return v.trim();
 };
 
+const {
+  applyCatalogUpdate,
+  catalogUpdateVersion,
+} = require("./catalog-update.cjs");
+const {
+  applyFamilyUpdate,
+  familyUpdateVersion,
+  familyIds,
+} = require("./family-update.cjs");
+
 function createLocalStore({
   dataDir = path.join(__dirname, "..", ".uniplast-data"),
-  seedPath = path.join(__dirname, "generated/seed.json"),
+  seedPath,
+  seedData,
   allowSetup = true,
+  hosting = null,
+  preserveExistingCatalog = true,
+  readUpload = (id) => fs.readFileSync(path.join(dataDir, "uploads", id)),
 } = {}) {
   fs.mkdirSync(dataDir, { recursive: true });
   const db = new DatabaseSync(path.join(dataDir, "store.sqlite"));
@@ -106,20 +128,50 @@ function createLocalStore({
       throw e;
     }
   };
-  if (!meta("seeded"))
+  const existingCatalog = !!meta("seeded");
+  if (!existingCatalog)
     transaction(() => {
-      const seed = JSON.parse(fs.readFileSync(seedPath, "utf8"));
+      const seed =
+        seedData ||
+        JSON.parse(
+          fs.readFileSync(
+            seedPath || path.join(__dirname, "generated/seed.json"),
+            "utf8",
+          ),
+        );
       seed.products.forEach((p) => put("product", p));
       seed.families.forEach((f) => put("family", f));
       put("settings", defaultSettings);
       setMeta("seeded", "1");
     });
+  if (!existingCatalog || !preserveExistingCatalog) {
+    applyCatalogUpdate({ meta, setMeta, all, get, put, transaction });
+    applyFamilyUpdate({
+      meta,
+      setMeta,
+      all,
+      get,
+      put,
+      transaction,
+      remove: (kind, id) =>
+        db.prepare("DELETE FROM documents WHERE kind=? AND id=?").run(kind, id),
+    });
+  }
+  applyWeightFill({ existingCatalog, meta, setMeta, all, put, transaction });
   const settings = () => ({ ...defaultSettings, ...get("settings", "true") });
   const setupToken = crypto.randomBytes(32).toString("hex");
+  const cookieName = hosting ? "__Host-uniplast_session" : "uniplast_session";
+  const cookieFlags = `HttpOnly; SameSite=Strict; Path=/${hosting ? "; Secure" : ""}`;
+  const setupAvailable =
+    allowSetup &&
+    (!hosting ||
+      (typeof hosting.setupKey === "string" &&
+        hosting.setupKey.length >= 24 &&
+        hosting.setupKey.length <= 256));
   const role = (req) => {
-    const cookie = /(?:^|;\s*)uniplast_session=([a-f0-9]{64})(?:;|$)/.exec(
-      req.headers.cookie || "",
-    )?.[1];
+    const cookie = new RegExp(
+      `(?:^|;\\s*)${cookieName}=([a-f0-9]{64})(?:;|$)`,
+    ).exec(req.headers.cookie || "")?.[1];
     if (!cookie) return null;
     const s = db
       .prepare("SELECT * FROM sessions WHERE token=? AND expires>?")
@@ -147,7 +199,7 @@ function createLocalStore({
     );
     res.setHeader(
       "Set-Cookie",
-      `uniplast_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${age}`,
+      `${cookieName}=${token}; ${cookieFlags}; Max-Age=${age}`,
     );
   }
   function limit(keys, max = 5, window = 900000) {
@@ -218,22 +270,65 @@ function createLocalStore({
     res.writeHead(status, {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
+      "CDN-Cache-Control": "no-store",
+      "Netlify-CDN-Cache-Control": "no-store",
+      Vary: "Cookie",
       "X-Content-Type-Options": "nosniff",
     });
     res.end(payload);
   };
+  const largeUploads = createLargeUploads({
+    get,
+    put,
+    all,
+    db,
+    dataDir,
+    readUpload,
+    body,
+    reply,
+    assert,
+    admin,
+    uid,
+    nowISO,
+  });
+  const catalogTransfer = createCatalogTransfer({
+    all,
+    get,
+    put,
+    meta,
+    setMeta,
+    remove: (kind, id) =>
+      db.prepare("DELETE FROM documents WHERE kind=? AND id=?").run(kind, id),
+    transaction,
+    admin,
+    assert,
+    cleanText,
+    hashSecret,
+    verify,
+    limit,
+    uid,
+    nowISO,
+  });
   async function handle(req, res) {
     const address = new URL(req.url || "/", "http://127.0.0.1");
     if (!address.pathname.startsWith("/api/local/")) return false;
     try {
       assert(
-        /^127\.0\.0\.1:\d+$/.test(req.headers.host || ""),
+        hosting
+          ? hosting.origins.some((o) => new URL(o).host === req.headers.host)
+          : /^127\.0\.0\.1:\d+$/.test(req.headers.host || ""),
         "Hôte refusé.",
         403,
       );
       const origin = "http://" + req.headers.host;
       if (req.headers.origin)
-        assert(req.headers.origin === origin, "Origine refusée.", 403);
+        assert(
+          hosting
+            ? hosting.origins.includes(req.headers.origin)
+            : req.headers.origin === origin,
+          "Origine refusée.",
+          403,
+        );
       assert(
         !req.headers["sec-fetch-site"] ||
           ["same-origin", "none"].includes(req.headers["sec-fetch-site"]),
@@ -242,14 +337,27 @@ function createLocalStore({
       );
       const name = address.pathname.slice(11),
         s = role(req),
-        ip = req.socket.remoteAddress || "local";
+        ip = hosting?.clientIp || req.socket.remoteAddress || "local";
+      if (await largeUploads.handle(req, address, s, res)) return true;
+      if (req.method === "GET" && name.startsWith("transfer-")) {
+        assert(
+          ["transfer-status", "transfer-backup"].includes(name),
+          "Méthode non autorisée.",
+          405,
+        );
+        const result = await catalogTransfer(name, undefined, s, address);
+        reply(res, result.result);
+        return true;
+      }
       if (req.method === "GET" && name === "status") {
         if (!s) session(res, "guest", uid());
         return (
           reply(res, {
             admin: s?.role === "admin",
             setup_required: !meta("admin"),
-            setup_token: !meta("admin") ? setupToken : undefined,
+            setup_token: !hosting && !meta("admin") ? setupToken : undefined,
+            setup_key_required: !!hosting && !meta("admin"),
+            setup_available: setupAvailable,
             session: {
               email: "",
               personal: s?.role === "client",
@@ -286,10 +394,44 @@ function createLocalStore({
         ))
           for (const i of o.items)
             sales[i.product_id] = (sales[i.product_id] || 0) + i.cartons;
-        return (
-          reply(res, { products, families, settings: settings(), sales }),
-          true
+        const catalog = { products, families, settings: settings(), sales };
+        if (address.searchParams.get("sync") === "1") {
+          const client_approved = s?.role === "client",
+            admin = isAdmin;
+          // Hash only the view this caller may receive. Private price changes
+          // must not leak into a visitor's revision, even as a change signal.
+          const revision = crypto
+            .createHash("sha256")
+            .update(JSON.stringify({ catalog, client_approved, admin }))
+            .digest("hex");
+          const unchanged = address.searchParams.get("revision") === revision;
+          reply(res, {
+            revision,
+            unchanged,
+            client_approved,
+            admin,
+            ...(unchanged ? {} : { catalog }),
+          });
+        } else reply(res, catalog);
+        return true;
+      }
+      if (req.method === "GET" && name === "catalog-update") {
+        admin(s);
+        reply(
+          res,
+          JSON.parse(meta("catalog-update:" + catalogUpdateVersion) || "null"),
         );
+        return true;
+      }
+      if (req.method === "GET" && name === "catalog-backup") {
+        admin(s);
+        reply(res, get("catalog-backup", catalogUpdateVersion));
+        return true;
+      }
+      if (req.method === "GET" && name === "family-backup") {
+        admin(s);
+        reply(res, get("family-backup", familyUpdateVersion));
+        return true;
       }
       if (req.method === "GET" && name === "file") {
         const id = address.searchParams.get("id"),
@@ -300,7 +442,10 @@ function createLocalStore({
           "Fichier inaccessible.",
           404,
         );
-        const content = fs.readFileSync(path.join(dataDir, "uploads", file.id));
+        if (await largeUploads.readFile(file, req.headers.range, res))
+          return true;
+        const content = await readUpload(file.id);
+        assert(content, "Fichier inaccessible.", 404);
         res.writeHead(200, {
           "Content-Type": file.mime,
           "Content-Length": content.length,
@@ -318,15 +463,21 @@ function createLocalStore({
       }
       assert(req.method === "POST", "Méthode non autorisée.", 405);
       if (name === "upload") {
-        const type = String(req.headers["content-type"] || "").split(";")[0],
+        const type = String(req.headers["content-type"] || "")
+            .split(";")[0]
+            .trim()
+            .toLowerCase()
+            .replace("image/x-png", "image/png"),
           isPublic = address.searchParams.get("public") === "1";
         if (isPublic) admin(s);
         else assert(s, "Connectez-vous avant de joindre un fichier.", 403);
         const bytes = await body(
           req,
-          isPublic && type === "application/pdf"
-            ? 15 * 1024 * 1024
-            : 5 * 1024 * 1024,
+          hosting
+            ? 4 * 1024 * 1024
+            : isPublic && type === "application/pdf"
+              ? 15 * 1024 * 1024
+              : 5 * 1024 * 1024,
         );
         const valid =
           (type === "application/pdf" &&
@@ -374,13 +525,34 @@ function createLocalStore({
         throw new Error("Requête JSON invalide.");
       }
       let result = null;
+      const transfer = await catalogTransfer(name, p, s, address);
+      if (transfer.handled) {
+        reply(res, transfer.result);
+        return true;
+      }
       switch (name) {
         case "setup": {
           assert(
-            allowSetup && !meta("admin") && p.token === setupToken,
+            setupAvailable && !meta("admin"),
             "Initialisation indisponible.",
             403,
           );
+          if (hosting) {
+            const l = limit(["setup:" + ip]);
+            l.fail();
+            assert(
+              typeof p.setup_key === "string" &&
+                p.setup_key.length <= 256 &&
+                crypto.timingSafeEqual(
+                  Buffer.from(fingerprint(p.setup_key), "hex"),
+                  Buffer.from(fingerprint(hosting.setupKey), "hex"),
+                ),
+              "Clé d’installation incorrecte.",
+              403,
+            );
+            l.clear();
+          } else
+            assert(p.token === setupToken, "Initialisation indisponible.", 403);
           assert(
             typeof p.password === "string" &&
               p.password.length >= 12 &&
@@ -460,7 +632,7 @@ function createLocalStore({
           db.prepare("DELETE FROM sessions WHERE token=?").run(s?.token || "");
           res.setHeader(
             "Set-Cookie",
-            "uniplast_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0",
+            `${cookieName}=; ${cookieFlags}; Max-Age=0`,
           );
           break;
         case "codes-list":
@@ -518,7 +690,11 @@ function createLocalStore({
           admin(s);
           const e = validateProduct(p);
           assert(!e, e);
-          assert(get("family", p.family_id), "Collection introuvable.");
+          assert(
+            get("family", p.family_id) &&
+              get("family", p.family_id).kind !== "new",
+            "Choisissez la famille principale du produit. Les nouveautés sont regroupées automatiquement.",
+          );
           assert(
             !all("product").some(
               (x) =>
@@ -544,15 +720,41 @@ function createLocalStore({
           admin(s);
           cleanText(p.name, 150, 1);
           validateSlides(p.slides || [], p.slider_height || 380);
+          validateSlides(p.promotions || [], 380);
+          cleanText(p.introduction || "", 1500);
+          assert(
+            (p.kind === undefined || ["standard", "new"].includes(p.kind)) &&
+              (p.kind !== "new" || p.id === familyIds.news) &&
+              (p.id !== familyIds.news || p.kind === "new"),
+            "Type de collection invalide.",
+          );
+          for (const key of ["slider_enabled", "slider_autoplay"])
+            assert(
+              p[key] === undefined || typeof p[key] === "boolean",
+              "Option de diaporama invalide.",
+            );
+          assert(
+            p.slider_interval === undefined ||
+              (Number.isInteger(p.slider_interval) &&
+                p.slider_interval >= 3 &&
+                p.slider_interval <= 20),
+            "Intervalle de 3 à 20 secondes.",
+          );
           put("family", p);
           break;
         case "family-delete":
           admin(s);
+          assert(
+            p.id !== familyIds.news,
+            "Masquez la collection automatique depuis son bouton de visibilité.",
+          );
           transaction(() => {
             const products = all("product").filter((x) => x.family_id === p.id);
             assert(
               !products.length ||
-                (p.target !== p.id && get("family", p.target)),
+                (p.target !== p.id &&
+                  get("family", p.target) &&
+                  get("family", p.target).kind !== "new"),
               "Choisissez une collection de destination.",
             );
             products.forEach((x) =>
@@ -581,6 +783,41 @@ function createLocalStore({
           break;
         case "settings-save": {
           admin(s);
+          for (const key of [
+            "topbar_tagline",
+            "youtube_url",
+            "videos_enabled",
+            "videos_title",
+            "videos",
+          ])
+            if (p[key] === undefined) p[key] = settings()[key];
+          const mediaError = validateMediaSettings(p);
+          assert(!mediaError, mediaError);
+          for (const video of p.videos || [])
+            if (
+              video.source === "upload" &&
+              video.url?.startsWith("/api/local/file?")
+            ) {
+              const id = new URL(
+                video.url,
+                "http://127.0.0.1",
+              ).searchParams.get("id");
+              const uploaded = db
+                .prepare("SELECT mime,public FROM uploads WHERE id=?")
+                .get(id);
+              assert(
+                uploaded?.public && uploaded.mime.startsWith("video/"),
+                "Le fichier choisi n’est pas une vidéo publique du magasin.",
+              );
+            }
+          for (const key of [
+            "product_display",
+            "custom_order",
+            "family_options",
+          ])
+            p[key] = { ...settings()[key], ...p[key] };
+          const featureError = validateFeatureSettings(p);
+          assert(!featureError, featureError);
           assert(
             ["public", "approved"].includes(p.price_visibility),
             "Visibilité invalide.",
@@ -766,7 +1003,10 @@ function createLocalStore({
           break;
         case "request-create": {
           assert(s, "Connectez-vous pour envoyer votre projet.", 403);
-          const l = limit(["request:" + s.owner], 5, 60000);
+          assert(
+            typeof p.key === "string" && /^[a-f0-9-]{36}$/i.test(p.key),
+            "Clé invalide.",
+          );
           const old = all("request").find(
             (r) => r.user_id === s.owner && r.idempotency_key === p.key,
           );
@@ -774,14 +1014,22 @@ function createLocalStore({
             result = old;
             break;
           }
+          const l = limit(["request:" + s.owner], 5, 60000);
           l.fail();
           const r = p.request;
           assert(
-            ["preorder", "custom"].includes(r.kind),
+            r && ["preorder", "custom"].includes(r.kind),
             "Type de demande invalide.",
           );
           r.customer = customer(r.customer, r.kind === "preorder");
           if (r.kind === "preorder") {
+            assert(
+              r.details && typeof r.details === "object",
+              "Détails manquants.",
+            );
+            delete r.details.items;
+            delete r.details.conditions_snapshot;
+            delete r.details.terms_accepted;
             const product = get("product", r.product_id);
             assert(
               product?.upcoming &&
@@ -804,8 +1052,27 @@ function createLocalStore({
           } else {
             r.cartons = 0;
             r.product_id = null;
-            cleanText(r.details?.description, 5000, 10);
-            cleanText(r.details?.quantity, 100, 1);
+            const options = customOrderOptions(settings());
+            cleanText(r.details?.description || "", 5000);
+            const problem = validateCustomItems(
+              r.details?.items,
+              options,
+              r.details?.terms_accepted,
+            );
+            assert(!problem, problem);
+            r.details.items = r.details.items.map((i) => ({
+              name: i.name.trim(),
+              quantity_units: i.quantity_units,
+              images: [...new Set(i.images)],
+            }));
+            r.details.quantity =
+              r.details.items.reduce((n, i) => n + i.quantity_units, 0) +
+              " pièces";
+            r.details.conditions_snapshot = {
+              terms: options.terms,
+              min_units: options.min_units,
+              minimum_scope: options.minimum_scope,
+            };
           }
           assert(
             r.details && Buffer.byteLength(JSON.stringify(r.details)) <= 30000,
@@ -816,16 +1083,25 @@ function createLocalStore({
               r.details.attachments.length <= 4,
             "Quatre pièces jointes au maximum.",
           );
-          for (const ref of r.details.attachments) {
-            const id = new URL(ref, "http://127.0.0.1").searchParams.get("id");
+          const itemPhotos = (r.details.items || []).flatMap((i) => i.images);
+          for (const ref of [...r.details.attachments, ...itemPhotos]) {
             assert(
-              db
-                .prepare(
-                  "SELECT id FROM uploads WHERE id=? AND owner=? AND public=0",
-                )
-                .get(id, s.owner),
-              "Pièce jointe inaccessible.",
+              typeof ref === "string" &&
+                /^\/api\/local\/file\?id=[a-f0-9-]{36}$/.test(ref),
+              "Lien de pièce jointe invalide.",
             );
+            const id = new URL(ref, "http://127.0.0.1").searchParams.get("id");
+            const upload = db
+              .prepare(
+                "SELECT id,mime FROM uploads WHERE id=? AND owner=? AND public=0",
+              )
+              .get(id, s.owner);
+            assert(upload, "Pièce jointe inaccessible.");
+            if (itemPhotos.includes(ref))
+              assert(
+                upload.mime.startsWith("image/"),
+                "Une photo d’article doit être une image JPG, PNG ou WebP.",
+              );
           }
           result = {
             ...r,
@@ -895,7 +1171,9 @@ function createLocalStore({
         {
           error:
             e.status === 500
-              ? "Erreur du stockage local."
+              ? hosting
+                ? "Erreur du stockage en ligne."
+                : "Erreur du stockage local."
               : e.message || "Opération impossible.",
         },
         e.status || 400,
@@ -903,7 +1181,15 @@ function createLocalStore({
       return true;
     }
   }
-  return { handle, close: () => db.close(), dataDir };
+  return {
+    handle,
+    hasChanges: () => db.prepare("SELECT total_changes() AS n").get().n > 0,
+    close: () => {
+      db.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+      db.close();
+    },
+    dataDir,
+  };
 }
 function safeUrl(value) {
   if (/^\/api\/local\/file\?id=[a-f0-9-]{36}$/.test(value)) return true;
@@ -924,6 +1210,18 @@ function validateSlides(slides, height) {
     "Le diaporama accepte 12 images et une hauteur de 260 à 760 px.",
   );
   for (const h of slides) {
+    assert(
+      h &&
+        typeof h.id === "string" &&
+        typeof h.visible === "boolean" &&
+        (h.layout === undefined || ["split", "poster"].includes(h.layout)) &&
+        (h.product_id === undefined ||
+          h.product_id === "" ||
+          /^[a-f0-9-]{36}$/i.test(h.product_id)),
+      "Diapositive invalide.",
+    );
+    const compositionError = validateSlideComposition(h);
+    assert(!compositionError, compositionError);
     cleanText(h.title, 200, 1);
     cleanText(h.body || "", 1500);
     assert(

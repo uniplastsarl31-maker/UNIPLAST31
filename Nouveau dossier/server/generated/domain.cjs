@@ -1,7 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.canBuy = exports.discountPercent = exports.priceOf = exports.REQUEST_LABELS = exports.ORDER_LABELS = void 0;
+exports.canBuy = exports.discountPercent = exports.priceOf = exports.compareProductNames = exports.REQUEST_LABELS = exports.ORDER_LABELS = exports.matchesFamily = exports.isNewProduct = exports.familyOptions = exports.customOrderOptions = exports.productDisplay = exports.defaultFamilyOptions = exports.defaultCustomOrder = exports.defaultProductDisplay = void 0;
+exports.productSpecifications = productSpecifications;
+exports.validateFeatureSettings = validateFeatureSettings;
+exports.validateCustomItems = validateCustomItems;
 exports.normalizeSearch = normalizeSearch;
+exports.belowPrice = belowPrice;
+exports.normalizeBarcode = normalizeBarcode;
+exports.findBarcodeProduct = findBarcodeProduct;
 exports.activeDiscount = activeDiscount;
 exports.assertQuantity = assertQuantity;
 exports.orderLine = orderLine;
@@ -13,6 +19,133 @@ exports.timeRemaining = timeRemaining;
 exports.validateProduct = validateProduct;
 exports.salesStats = salesStats;
 exports.rankProducts = rankProducts;
+exports.defaultProductDisplay = {
+    weight: true,
+    material: true,
+    dimensions: true,
+    capacity: true,
+    barcode: true,
+    pack: true,
+    availability: true,
+    description: true,
+    new_badge: true,
+    related_products: true,
+    hide_empty: true,
+};
+exports.defaultCustomOrder = {
+    enabled: true,
+    terms: "",
+    min_units: 0,
+    minimum_scope: "per_item",
+    require_photo: false,
+    require_acceptance: true,
+    max_items: 10,
+};
+exports.defaultFamilyOptions = {
+    slider: true,
+    introduction: true,
+    promotions: true,
+    quick_navigation: true,
+    custom_link: true,
+};
+const productDisplay = (s) => ({
+    ...exports.defaultProductDisplay,
+    ...s.product_display,
+});
+exports.productDisplay = productDisplay;
+const customOrderOptions = (s) => ({
+    ...exports.defaultCustomOrder,
+    ...s.custom_order,
+});
+exports.customOrderOptions = customOrderOptions;
+const familyOptions = (s) => ({
+    ...exports.defaultFamilyOptions,
+    ...s.family_options,
+});
+exports.familyOptions = familyOptions;
+const isNewProduct = (p, now = Date.now()) => p.is_new && (!p.new_until || Date.parse(p.new_until) > now);
+exports.isNewProduct = isNewProduct;
+const matchesFamily = (p, f, now = Date.now()) => f.kind === "new" ? (0, exports.isNewProduct)(p, now) : p.family_id === f.id;
+exports.matchesFamily = matchesFamily;
+function productSpecifications(p, settings) {
+    const d = (0, exports.productDisplay)(settings);
+    const rows = [
+        [d.pack, "Colisage", `${p.pack_size} unités / ${p.pack_label}`],
+        [d.dimensions, "Dimensions", p.dimensions],
+        [d.capacity, "Capacité", p.capacity],
+        [
+            d.weight,
+            "Poids unitaire",
+            p.weight_grams == null
+                ? ""
+                : `${new Intl.NumberFormat("fr-DZ").format(p.weight_grams)} g`,
+        ],
+        [d.material, "Matière", p.material],
+        [d.barcode, "Code-barres", p.barcode],
+    ];
+    return rows
+        .filter(([visible, , value]) => visible && (!d.hide_empty || !!value))
+        .map(([, label, value]) => [label, value || "Non renseigné"]);
+}
+function validateFeatureSettings(s) {
+    for (const [value, defaults] of [
+        [s.product_display, exports.defaultProductDisplay],
+        [s.family_options, exports.defaultFamilyOptions],
+    ]) {
+        if (value != null &&
+            (typeof value !== "object" ||
+                Array.isArray(value) ||
+                Object.entries(value).some(([k, v]) => !(k in defaults) || typeof v !== "boolean")))
+            return "Option d’affichage invalide.";
+    }
+    const c = (0, exports.customOrderOptions)(s);
+    if (s.custom_order != null &&
+        (typeof s.custom_order !== "object" ||
+            Array.isArray(s.custom_order) ||
+            Object.keys(s.custom_order).some((k) => !(k in exports.defaultCustomOrder))))
+        return "Réglages sur mesure invalides.";
+    if ([c.enabled, c.require_photo, c.require_acceptance].some((v) => typeof v !== "boolean") ||
+        typeof c.terms !== "string" ||
+        c.terms.length > 10000 ||
+        !Number.isSafeInteger(c.min_units) ||
+        c.min_units < 0 ||
+        c.min_units > 10000000 ||
+        !["per_item", "total"].includes(c.minimum_scope) ||
+        !Number.isInteger(c.max_items) ||
+        c.max_items < 1 ||
+        c.max_items > 10)
+        return "Vérifiez les conditions, le minimum (0 à 10 000 000 pièces) et le nombre d’articles (1 à 10).";
+    return null;
+}
+function validateCustomItems(items, options, accepted = false) {
+    if (!options.enabled)
+        return "Les demandes sur mesure sont momentanément fermées.";
+    if (!Array.isArray(items) ||
+        !items.length ||
+        items.length > options.max_items)
+        return `Ajoutez de 1 à ${options.max_items} articles à votre demande.`;
+    if (items.some((i) => !i ||
+        typeof i.name !== "string" ||
+        !i.name.trim() ||
+        i.name.length > 150 ||
+        !Number.isSafeInteger(i.quantity_units) ||
+        i.quantity_units < 1 ||
+        i.quantity_units > 10000000 ||
+        !Array.isArray(i.images) ||
+        i.images.length > 2 ||
+        i.images.some((x) => typeof x !== "string" || x.length > 500)))
+        return "Chaque article doit avoir un nom, une quantité entière et au maximum 2 photos.";
+    if (options.require_photo && items.some((i) => !i.images.length))
+        return "Ajoutez une photo pour chaque article.";
+    if (options.min_units > 0 &&
+        (options.minimum_scope === "per_item"
+            ? items.some((i) => i.quantity_units < options.min_units)
+            : items.reduce((n, i) => n + i.quantity_units, 0) < options.min_units))
+        return `Minimum : ${options.min_units.toLocaleString("fr-FR")} pièces ${options.minimum_scope === "per_item" ? "par article" : "au total"}.`;
+    if (options.terms.trim() && options.require_acceptance && accepted !== true)
+        return "Veuillez accepter les conditions de fabrication.";
+    return null;
+}
 exports.ORDER_LABELS = {
     new: "Nouvelle",
     confirmed: "Confirmée",
@@ -37,6 +170,35 @@ function normalizeSearch(value) {
         .replace(/[۰-۹]/g, (s) => String(s.charCodeAt(0) - 1776))
         .toLowerCase()
         .trim();
+}
+const compareProductNames = (a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base", numeric: true }) ||
+    a.code.localeCompare(b.code, "fr", { numeric: true });
+exports.compareProductNames = compareProductNames;
+function belowPrice(p, maximumCents, authenticatedByPhone, now = Date.now()) {
+    return (authenticatedByPhone &&
+        !p.price_hidden &&
+        !p.price_on_request &&
+        Number.isSafeInteger(maximumCents) &&
+        maximumCents > 0 &&
+        (0, exports.priceOf)(p, now) < maximumCents);
+}
+function normalizeBarcode(value) {
+    return normalizeSearch(value)
+        .replace(/^\][a-z]\d/i, "")
+        .replace(/\s/g, "");
+}
+function findBarcodeProduct(products, value) {
+    const code = normalizeBarcode(value);
+    const same = (barcode) => {
+        if (!barcode || !code)
+            return false;
+        const stored = normalizeBarcode(barcode);
+        return (stored === code ||
+            (/^\d{12,13}$/.test(stored) &&
+                /^\d{12,13}$/.test(code) &&
+                stored.padStart(13, "0") === code.padStart(13, "0")));
+    };
+    return products.find((p) => same(p.barcode));
 }
 function activeDiscount(product, now = Date.now()) {
     if (product.price_hidden)
@@ -187,8 +349,18 @@ function validateProduct(p) {
             Date.parse(p.discount_start) >= Date.parse(p.discount_end))
             return "Définissez une période de promotion valide.";
     }
+    if (p.weight_grams != null &&
+        (!Number.isFinite(p.weight_grams) ||
+            p.weight_grams <= 0 ||
+            p.weight_grams > 10000000))
+        return "Le poids doit être un nombre positif, en grammes.";
     if (p.images.length > 10)
         return "10 images maximum par produit.";
+    if (typeof p.is_new !== "boolean" ||
+        (p.new_until != null &&
+            (typeof p.new_until !== "string" ||
+                !Number.isFinite(Date.parse(p.new_until)))))
+        return "Choisissez un état et une date de fin valides pour la nouveauté.";
     return null;
 }
 function salesStats(orders, since = 0) {

@@ -1,0 +1,153 @@
+.header-client-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-shrink: 0;
+  min-height: 43px;
+  padding: 10px 14px;
+  border: 1px solid #1d3e87;
+  border-radius: 11px;
+  background: #254496;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px #25449615;
+}
+.header-client-button > svg {
+  flex-shrink: 0;
+}
+.header-client-button.is-connected {
+  border-color: #bfd2c5;
+  background: #eff8f1;
+  color: #235f3c;
+}
+.header-client-button:focus-visible {
+  outline: 3px solid #ead33b;
+  outline-offset: 3px;
+}
+.customer-access-content > .lucide {
+  background: #eef2f8;
+  color: #254496;
+  border-radius: 16px;
+  padding: 13px;
+  box-sizing: content-box;
+  margin-bottom: 18px;
+}
+.customer-access-content > .text-link {
+  display: block;
+  margin: 20px 0;
+}
+.modal.customer-login-dialog {
+  max-width: 510px;
+  padding: 25px;
+}
+.customer-login-dialog .modal-title {
+  margin-bottom: 18px;
+}
+.customer-login-dialog .modal-title h2 {
+  font-size: 23px;
+}
+.customer-login-dialog .customer-access-content > .lucide {
+  width: 24px;
+  height: 24px;
+  padding: 11px;
+  margin-bottom: 6px;
+}
+.customer-login-dialog .client-dialog-heading {
+  font-size: 21px;
+  color: #254496;
+  margin: 9px 0 15px;
+  line-height: 1.25;
+}
+.customer-login-dialog .customer-access-content p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.customer-login-dialog .feature-form {
+  margin-top: 0;
+}
+.customer-login-dialog .access-input {
+  min-height: 49px;
+}
+.customer-login-dialog .access-input .pin-input {
+  font-size: 23px;
+  letter-spacing: 9px;
+}
+.customer-login-dialog .customer-access-content > .btn {
+  margin: 10px 0;
+}
+@media (max-width: 1100px) {
+  .header-client-button {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
+@media (max-width: 640px) {
+  .main-header > .header-inner {
+    display: grid;
+    grid-template-columns: 28px minmax(62px, 1fr) auto 28px;
+    grid-template-areas: "menu brand client cart" "search search search search";
+    gap: 10px 8px;
+    align-items: center;
+  }
+  .header-inner .mobile-menu {
+    grid-area: menu;
+    width: 28px;
+    min-width: 28px;
+    padding: 0;
+    margin: 0;
+  }
+  .header-inner .brand {
+    grid-area: brand;
+    min-width: 0;
+    margin: 0;
+    width: 100%;
+  }
+  .main-header .brand img {
+    width: min(100%, 117px);
+    height: 55px;
+  }
+  .header-client-button {
+    grid-area: client;
+    min-height: 39px;
+    padding: 9px 8px;
+    gap: 5px;
+    font-size: 11px;
+    border-radius: 10px;
+  }
+  .header-client-button > svg {
+    width: 16px;
+    height: 16px;
+  }
+  .header-inner .cart-button {
+    grid-area: cart;
+    min-width: 28px;
+    width: 28px;
+    padding: 0;
+    margin: 0;
+  }
+  .header-inner .search-box {
+    grid-area: search;
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+  }
+  .modal.customer-login-dialog {
+    width: min(510px, calc(100vw - 28px));
+    padding: 21px;
+  }
+}
+@media (max-width: 360px) {
+  .header-client-button {
+    font-size: 10px;
+    padding: 9px 7px;
+    gap: 4px;
+  }
+  .header-client-button > svg {
+    width: 15px;
+    height: 15px;
+  }
+}
