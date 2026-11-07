@@ -1091,6 +1091,7 @@ function ProductEditor({
           </div>
           <div>
             <h3>Photos du produit</h3>
+            <p>Aperçu du catalogue : le zoom et la position sont propres à cette photo de ce produit, sur mobile et ordinateur.</p>
             <div className="editor-image-preview">
               <ProductPhoto image={im} name={p.name || "Aperçu"} />
               {imageIndex === 0 && im && (

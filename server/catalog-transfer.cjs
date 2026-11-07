@@ -290,6 +290,19 @@ function createCatalogTransfer({
       return { handled: true, result: { configured: true, unlocked: true } };
     }
     requireCode(s);
+    if (name === "transfer-price-review") {
+      const reference = new Map(require("./catalog-update.json").products.map(p => [p.id, p]));
+      const rows = all("product").map(p => {
+        const ref = reference.get(p.id);
+        const matched = ref && ref.code === p.code;
+        const status = !matched ? "Sans référence tarifaire" :
+          p.unit_price_cents === ref.unit_price_cents && p.price_on_request === ref.price_on_request
+            ? "Identique" : "À vérifier";
+        return {code:p.code, name:p.name, current:p.price_on_request ? null : p.unit_price_cents,
+          expected:matched && !ref.price_on_request ? ref.unit_price_cents : null, status};
+      });
+      return {handled:true, result:rows};
+    }
     if (name === "transfer-export") {
       const x = snapshot(s);
       return {

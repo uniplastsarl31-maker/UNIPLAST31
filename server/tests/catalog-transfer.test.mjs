@@ -443,3 +443,22 @@ test("live owner-added references receive Excel fallback weights; all-fields imp
     "failed restore must remain atomic",
   );
 });
+
+test("price comparison requires unlocked admin, reports live edits and never overwrites a price", async () => {
+  const f = fixture();
+  const catalog = await f.setup(false);
+  assert.notEqual((await f.call("transfer-price-review", {})).status, 200);
+  assert.notEqual((await f.call("transfer-price-review", {}, "visitor")).status, 200);
+  await f.call("transfer-code", { next: CODE });
+  await f.call("transfer-unlock", { code: CODE });
+  const p = catalog.products.find(p => p.code === "BER300ML");
+  const edited = {...p, unit_price_cents: 1678, price_on_request:false};
+  assert.equal((await f.call("product-save", edited)).status, 200);
+  const audit = await f.call("transfer-price-review", {});
+  assert.equal(audit.status, 200);
+  const row = audit.data.find(r => r.code === p.code);
+  assert.equal(row.status, "À vérifier");
+  assert.equal(row.current, 1678);
+  assert.equal(row.expected, 1500);
+  assert.equal((await f.call("catalog")).data.products.find(i => i.id === p.id).unit_price_cents,1678);
+});

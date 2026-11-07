@@ -382,9 +382,24 @@ export function CatalogTransfer() {
                 </label>
               </div>
               <div className="transfer-weights">
+                <h3>Contrôle des prix</h3>
+                <p>Comparer les prix actuels au tarif du 28/10/2026, sans modifier les fiches.</p>
+                <button type="button" className="btn btn-outline" disabled={busy}
+                  onClick={() => void action(async () => {
+                    type Row = {code:string; name:string; current:number|null; expected:number|null; status:string};
+                    const rows = await localCall<Row[]>("transfer-price-review", {});
+                    const money = (n:number|null) => n === null ? "Sur demande" : (n/100).toFixed(2).replace(".", ",");
+                    const quote = (v:string) => '"' + (/^[=+@\-\t\r]/.test(v) ? "'" : "") + v.replaceAll('"', '""') + '"';
+                    const lines = [["Référence","Produit","Prix actuel (DA)","Tarif de référence (DA)","Résultat"],
+                      ...rows.map(r => [r.code,r.name,money(r.current),r.status === "Sans référence tarifaire" ? "" : money(r.expected),r.status])];
+                    download("\ufeff"+lines.map(line => line.map(quote).join(";")).join("\r\n"),"UNIPLAST-controle-prix.csv","text/csv;charset=utf-8");
+                    notify(rows.filter(r => r.status === "À vérifier").length+" écart(s) de prix. Rapport téléchargé.");
+                  })}>Télécharger le contrôle des prix</button>
+              </div>
+              <div className="transfer-weights">
                 <h3>Poids du document fourni</h3>
                 <p>
-                  Le poids PDF est prioritaire. Le poids Excel est utilisé s’il
+                  Pour renseigner les poids, préparez la comparaison puis cliquez sur « Appliquer ces modifications ». Le fichier JSON « avant mise à jour » est une sauvegarde. Le poids PDF est prioritaire. Le poids Excel est utilisé s’il
                   manque. Les références inconnues et les poids absents sont
                   ignorés.
                 </p>
