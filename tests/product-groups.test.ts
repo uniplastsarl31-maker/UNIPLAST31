@@ -1,7 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import seed from "../src/data/catalog.json" with { type: "json" };
-import { productGroup } from "../src/productGroups.ts";
+import {
+  compareCatalogueProducts,
+  productGroup,
+} from "../src/productGroups.ts";
+import updates from "../server/catalog-update.json" with { type: "json" };
+import type { Product } from "../src/types.ts";
 
 const group = (name: string, name_fr = "") => productGroup({ name, name_fr });
 
@@ -72,4 +77,108 @@ test("catalogue grouping is total, deterministic and leaves catalogue order and 
   assert.equal(keys.filter((g) => g.label === "Bassines").length, 8);
   assert.equal(keys.filter((g) => g.label === "Boîtes à céréales").length, 4);
   assert.equal(keys.filter((g) => g.label === "Boîtes Crystal").length, 28);
+});
+
+const example = (code: string, name: string) =>
+  ({ ...seed.products[0], code, name, name_fr: name }) as Product;
+
+test("default catalogue order prioritizes references over capacity and package count", () => {
+  const list = [
+    example("R4", "BOITE EMBALLAGE CARRE MINI 1000ML REF 04"),
+    example("R2", "BOITE EMBALLAGE CARRE MINI 450ML REF 02"),
+    example("R10", "BOITE EMBALLAGE CARRE MINI S/2 (100ML) REF 10"),
+    example("R3", "BOITE EMBALLAGE CARRE MINI S/4 (650ML) REF 03"),
+    example("R1", "BOITE EMBALLAGE CARRE MINI S/4 (300ML) REF 01"),
+  ];
+  const before = JSON.stringify(list);
+  assert.deepEqual(
+    [...list].sort(compareCatalogueProducts).map((p) => p.code),
+    ["R1", "R2", "R3", "R4", "R10"],
+  );
+  assert.equal(JSON.stringify(list), before);
+});
+
+test("all actual packaging shapes default to reference 1 before 2, 3 and 4", () => {
+  const renamed = seed.products.map((p) => {
+    const update = updates.products.find((u) => u.code === p.code);
+    return { ...p, name: update?.name ?? p.name } as Product;
+  });
+  for (const shape of ["CARRE", "RECTANGLE", "RONDE"]) {
+    const products = renamed.filter((p) =>
+      p.name.startsWith("BOITE EMBALLAGE " + shape),
+    );
+    assert.ok(products.length > 4);
+    const refs = products
+      .sort(compareCatalogueProducts)
+      .map((p) => Number(p.name.match(/\bREF\s*(\d+)/)?.[1]));
+    assert.equal(refs[0], 1);
+    assert.ok(
+      refs.every((n, i) => Number.isFinite(n) && (!i || n >= refs[i - 1])),
+      shape,
+    );
+  }
+});
+
+test("Crystal model number outranks its secondary REF and series sets follow individual models", () => {
+  const list = [
+    example("BCR10D", "BOITE CRYSTAL RC 10 MAXI REF 02 DECOREE"),
+    example("BCRX3M", "BOITE CRYSTAL SERIE 03 MINI REF RC 4+6+9"),
+    example("BCR03", "BOITE CRYSTAL RC03 250MLx2"),
+    example("BCR01", "BOITE CRYSTAL RC01 MINI"),
+    example("BCR22", "BOITE CRYSTAL RC22 80 L REF 09"),
+    example("BCR02", "BOITE CRYSTAL RC02 MAXI"),
+  ];
+  assert.deepEqual(
+    list.sort(compareCatalogueProducts).map((p) => p.code),
+    ["BCR01", "BCR02", "BCR03", "BCR10D", "BCR22", "BCRX3M"],
+  );
+});
+
+test("reference spelling variants and decimal sizes receive consistent numeric positions", () => {
+  assert.deepEqual(
+    [
+      example("R10", "BOITE TEST 100ML RÉF. N°10"),
+      example("R2", "BOITE TEST 900ML REFERENCE 02"),
+      example("R1", "BOITE TEST 800ML REF01"),
+    ]
+      .sort(compareCatalogueProducts)
+      .map((p) => p.code),
+    ["R1", "R2", "R10"],
+  );
+  assert.deepEqual(
+    [
+      example("BC4L", "BOITE CEREALES 4L"),
+      example("BC18L", "BOITE CEREALES 1,8 L"),
+      example("BC12L", "BOITE CEREALES 1.2L"),
+    ]
+      .sort(compareCatalogueProducts)
+      .map((p) => p.code),
+    ["BC12L", "BC18L", "BC4L"],
+  );
+});
+
+test("default catalogue ordering keeps each type contiguous and is independent of input order", () => {
+  const products = seed.products as Product[];
+  const before = JSON.stringify(products);
+  const forward = [...products].sort(compareCatalogueProducts);
+  const reversed = [...products].reverse().sort(compareCatalogueProducts);
+  assert.deepEqual(
+    forward.map((p) => p.code),
+    reversed.map((p) => p.code),
+  );
+  const seen = new Set<string>();
+  let previous = "";
+  for (const product of forward) {
+    const key = productGroup(product).key;
+    if (key !== previous) {
+      assert.equal(
+        seen.has(key),
+        false,
+        key + " appeared in two separated blocks",
+      );
+      seen.add(key);
+      previous = key;
+    }
+  }
+  assert.equal(JSON.stringify(products), before);
 });

@@ -1,4 +1,5 @@
 import type { Product } from "./types.ts";
+import { compareProductNames } from "./domain.ts";
 
 export interface ProductGroup {
   key: string;
@@ -17,7 +18,7 @@ function normalized(value: string) {
     .replace(/\s+/g, " ");
 }
 
-// Names and headings only: no product records or ordering are changed.
+// Derive headings and sorting keys without changing any product record.
 // Series aliases cover both original and subsequently renamed catalogue names.
 const groups: readonly [RegExp, string][] = [
   [/^BASSINES?\b/, "Bassines"],
@@ -122,4 +123,36 @@ export function productGroup(
   const lower = (phrase || "PRODUITS").toLocaleLowerCase("fr-FR");
   const label = lower.charAt(0).toLocaleUpperCase("fr-FR") + lower.slice(1);
   return { key: keyOf(label), label };
+}
+
+function cataloguePosition(product: Product): [number, number] {
+  const name = normalized(product.name?.trim() || product.name_fr || "");
+  // Sets follow individual products; their piece count is not a model number.
+  const set = /\bSERIE\b/.test(name) ? 1 : 0;
+  // RC10 REF 02 is model 10, not model 2. Otherwise an explicit REF takes
+  // precedence over capacity, dimensions and S/4 package quantities.
+  const beforeReference = name.split(/\bREF(?:ERENCE)?(?=\b|\d)/)[0];
+  const model = beforeReference.match(/\b(?:RC|R)\s*(\d+)\b/);
+  const reference = name.match(/\bREF(?:ERENCE)?\s*(?:N(?:O)?\s*)?(\d+)\b/);
+  const size = (product.name?.trim() || product.name_fr || "").match(
+    /\d+(?:[.,]\d+)?/,
+  );
+  const number = model?.[1] ?? reference?.[1] ?? size?.[0];
+  return [set, number == null ? Infinity : Number(number.replace(",", "."))];
+}
+
+/** Default catalogue order: alphabetical types, then ascending model/reference. */
+export function compareCatalogueProducts(a: Product, b: Product): number {
+  const groupOrder = productGroup(a).key.localeCompare(
+    productGroup(b).key,
+    "fr",
+    {
+      sensitivity: "base",
+      numeric: true,
+    },
+  );
+  if (groupOrder) return groupOrder;
+  const left = cataloguePosition(a),
+    right = cataloguePosition(b);
+  return left[0] - right[0] || left[1] - right[1] || compareProductNames(a, b);
 }

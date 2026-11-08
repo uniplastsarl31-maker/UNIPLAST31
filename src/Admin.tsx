@@ -53,7 +53,6 @@ import type {
 } from "./types";
 import {
   activeDiscount,
-  compareProductNames,
   money,
   normalizeSearch,
   ORDER_LABELS,
@@ -67,6 +66,7 @@ import { InvoiceActions, InvoicePaper } from "./Commerce";
 import { AdvancedSettings, CustomerAccessManager } from "./CustomerFeatures";
 import { FeatureSettings, FamilyExtrasEditor } from "./FeatureControls";
 import { matchesFamily } from "./domain";
+import { compareCatalogueProducts } from "./productGroups";
 import { CatalogTransfer } from "./CatalogTransfer";
 import { ThemeSettings } from "./ThemeSettings";
 import {
@@ -563,7 +563,7 @@ function ProductManager() {
         ? p.discount_price_cents !== null
         : matchesCompletenessFilter(p, filter),
   );
-  products.sort(compareProductNames);
+  products.sort(compareCatalogueProducts);
   const availability = async (p: Product, checked: boolean) => {
     setBusy(true);
     try {
