@@ -1,0 +1,103 @@
+.product-card .card-image-link .card-detail-arrow,
+.product-grid .product-card.discounted .card-detail-arrow {
+  width: 20px;
+  height: 20px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px solid #dce4ee;
+  background: #ffffffed;
+  box-shadow: none;
+  pointer-events: none;
+}
+.product-card .card-image-link .card-detail-arrow > svg {
+  width: 12px;
+  height: 12px;
+}
+.collection-grid > .collection-tile {
+  position: relative;
+}
+.collection-grid > .collection-tile > div {
+  display: block;
+}
+.collection-grid > .collection-tile .circle-arrow,
+.collection-page-grid > .collection-page-tile > svg:last-child {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  bottom: auto;
+  width: 22px;
+  height: 22px;
+}
+.collection-grid > .collection-tile .circle-arrow > svg {
+  width: 13px;
+  height: 13px;
+}
+.collection-grid > .collection-tile > .collection-count {
+  max-width: calc(100% - 26px);
+}
+.collection-page-grid > .collection-page-tile {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr);
+}
+.collection-page-grid > .collection-page-tile > svg:last-child {
+  grid-column: auto;
+  grid-row: auto;
+  padding: 3px;
+}
+.brand-slider .slider-controls {
+  left: auto;
+  right: 12px;
+  bottom: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  gap: 5px;
+}
+.brand-slider .slider-controls > .icon-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  background: #ffffffed;
+  box-shadow: 0 1px 5px #152e5412;
+}
+.brand-slider .slider-controls > .icon-btn > svg {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 760px) {
+  .home-page .brand-slider:not(.family-slider) {
+    grid-template-areas: "artwork" "caption";
+    grid-template-rows: auto auto;
+  }
+  .home-page .brand-slider:not(.family-slider) > .slider-controls {
+    grid-area: artwork;
+    position: relative;
+    inset: auto;
+    align-self: end;
+    justify-self: end;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    width: auto;
+    padding: 0;
+    margin: 0 10px 10px 0;
+    margin-inline-end: max(
+      10px,
+      calc((100% - var(--slider-height) * 0.8) / 2 + 10px)
+    );
+    border: 0;
+    background: transparent;
+    gap: 5px;
+  }
+  .home-page .brand-slider:not(.family-slider) .slider-controls > .icon-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+  .brand-slider .slider-controls .slider-counter,
+  .brand-slider .slider-controls .slider-dots {
+    display: none;
+  }
+}

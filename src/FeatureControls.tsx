@@ -138,12 +138,12 @@ export function FeatureSettings({
         </div>
       </section>
       <section className="panel feature-settings">
-        <h2>Fabrication sur mesure</h2>
+        <h2>Produits hors catalogue</h2>
         <Toggle
           checked={c.enabled}
           onChange={(v) => custom("enabled", v)}
-          label="Ouvrir les demandes sur mesure"
-          help="Affiche le formulaire et ses liens dans le magasin. Vous pouvez préparer les conditions avant l’ouverture."
+          label="Ouvrir les demandes de produits hors catalogue"
+          help="Permet de demander la fabrication ou la fourniture d’un modèle absent du catalogue. Vous pouvez préparer les conditions avant l’ouverture."
         />
         <Field label="Conditions présentées au client">
           <textarea
@@ -234,11 +234,6 @@ export function FeatureSettings({
               "quick_navigation",
               "Navigation entre les familles",
               "Ajoute une barre de raccourcis pour parcourir les collections sur téléphone.",
-            ],
-            [
-              "custom_link",
-              "Invitation à un projet sur mesure",
-              "Affiche un lien vers le formulaire lorsque les demandes sont ouvertes.",
             ],
           ] as [keyof FamilyOptions, string, string][]
         ).map(([key, label, help]) => (
@@ -411,15 +406,6 @@ export function FamilyLanding({ family: f }: { family: Family }) {
             </article>
           ))}
         </div>
-      )}
-      {options.custom_link && customOrderOptions(catalog.settings).enabled && (
-        <a className="family-custom-link" href="#/sur-mesure">
-          <span>
-            Un format ou une idée particulière ?{" "}
-            <b>Présentez votre projet sur mesure.</b>
-          </span>
-          <ArrowRight size={21} />
-        </a>
       )}
     </div>
   );

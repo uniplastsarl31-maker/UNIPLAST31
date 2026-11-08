@@ -1,5 +1,5 @@
 import { Slider, AboutSection, SuggestionBanner } from "./Experience";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowDown,
   ArrowLeft,
@@ -15,6 +15,7 @@ import {
   Factory,
   Grid2X2,
   Headphones,
+  House,
   Layers,
   Menu,
   Package,
@@ -46,8 +47,8 @@ import { Badges, Empty, Modal, ProductPhoto, Quantity, buyLabel } from "./ui";
 import { previewMode } from "./api";
 import { FamilyLanding } from "./FeatureControls";
 import { VideoSection } from "./VideoFeatures";
-import { NewProductsShowcase } from "./NewProductsShowcase";
 import { SeasonalNavigation } from "./SeasonalNavigation";
+import { productGroup } from "./productGroups";
 import { DEFAULT_TAGLINE, youtubeChannelUrl } from "./media";
 import "./favorites-ui.css";
 import {
@@ -157,11 +158,19 @@ export function Header({
             {menu ? <X /> : <Menu />}
           </button>
           <button
-            className="brand"
+            className="brand brand-compact"
             aria-label="Accueil UNIPLAST"
             onClick={brandClick}
           >
-            <img src={catalog.settings.logo_url} alt="UNIPLAST Home Design" />
+            <img
+              className="brand-corner-logo"
+              src={catalog.settings.logo_url}
+              alt="UNIPLAST"
+            />
+            <span className="brand-wordmark" aria-hidden="true">
+              <strong>UNIPLAST SARL</strong>
+              <small>HOME DESIGN</small>
+            </span>
           </button>
           <form className="search-box" onSubmit={submit}>
             <Search size={20} />
@@ -193,7 +202,7 @@ export function Header({
             >
               <Headphones size={23} />
               <span>
-                Un besoin particulier ?<b>Parlons de votre projet</b>
+                Un produit absent ?<b>Demandez sa fabrication</b>
               </span>
             </button>
           )}
@@ -297,7 +306,9 @@ export function Header({
                 </>
               )}
             </div>
-            <a href="#/">Accueil</a>
+            <a href="#/">
+              <House size={16} aria-hidden="true" /> Accueil
+            </a>
             <a href="#/catalogue">Tous les produits</a>
             <a href="#/catalogue?filtre=promotions">
               Promotions <span className="tiny-dot" />
@@ -305,7 +316,7 @@ export function Header({
             <a href="#/a-propos">Qui sommes-nous ?</a>
             {customOrderOptions(catalog.settings).enabled && (
               <a href="#/sur-mesure">
-                Fabrication sur mesure <ArrowUpRight size={14} />
+                Produit hors catalogue <ArrowUpRight size={14} />
               </a>
             )}
             <a href="#/client-agree" className="client-nav">
@@ -360,7 +371,7 @@ export function Footer({
           <a href="#/collections">Nos collections</a>
           <a href="#/catalogue?filtre=promotions">Promotions</a>
           {customOrderOptions(s).enabled && (
-            <a href="#/sur-mesure">Fabrication sur mesure</a>
+            <a href="#/sur-mesure">Demander un produit hors catalogue</a>
           )}
         </div>
         <div>
@@ -451,7 +462,7 @@ export function Footer({
           {s.address && <p>{s.address}</p>}
           {customOrderOptions(s).enabled && (
             <a className="footer-project" href="#/sur-mesure">
-              Nous contacter <ArrowUpRight size={16} />
+              Demander un produit absent <ArrowUpRight size={16} />
             </a>
           )}
         </div>
@@ -496,7 +507,7 @@ export function ProductCard({ product: p }: { product: Product }) {
       >
         <ProductPhoto image={p.images[0]} name={p.name} />
         <Badges product={p} now={now} />
-        <span className="card-detail-arrow">
+        <span className="card-detail-arrow" aria-hidden="true">
           <ArrowUpRight size={19} />
         </span>
       </a>
@@ -693,7 +704,6 @@ export function Home() {
     );
   if (s.recommendation_mode === "sales")
     ranked.sort((a, b) => (sales[b.id] || 0) - (sales[a.id] || 0));
-  const featured = ranked.filter((p) => p.images.length).slice(0, 8);
   const offers = ranked.filter((p) => p.show_offer && activeDiscount(p, now)),
     news = ranked.filter((p) => isNewProduct(p, now)),
     upcoming = ranked.filter((p) => p.upcoming),
@@ -709,42 +719,6 @@ export function Home() {
             slides={s.heroes}
             height={s.home_slider_height}
             interval={s.slider_interval}
-          />
-          <section className="benefits">
-            <div>
-              <Package />
-              <span>
-                <b>Commandez par carton</b>
-                {s.price_visibility === "approved"
-                  ? "Colisage clair · tarifs sur agrément"
-                  : "Colisage et prix toujours visibles"}
-              </span>
-            </div>
-            <div>
-              <ShieldCheck />
-              <span>
-                <b>Une commande transparente</b>Chaque quantité, chaque total
-              </span>
-            </div>
-            <div>
-              <Factory />
-              <span>
-                <b>À chaque besoin, sa solution</b>Maison, commerce et
-                professionnels
-              </span>
-            </div>
-            <div>
-              <Headphones />
-              <span>
-                <b>Un projet particulier ?</b>Adressez-nous votre demande
-              </span>
-            </div>
-          </section>
-          <NewProductsShowcase
-            products={(news.length ? news : featured).slice(0, 8)}
-            title={news.length ? "Les nouveautés" : "Notre sélection"}
-            href={news.length ? "#/catalogue?filtre=nouveautes" : "#/catalogue"}
-            renderProduct={(product) => <ProductCard product={product} />}
           />
           <section className="collections-section">
             <div className="section-heading">
@@ -785,6 +759,36 @@ export function Home() {
                   </div>
                 </a>
               ))}
+            </div>
+          </section>
+          <section className="benefits">
+            <div>
+              <Package />
+              <span>
+                <b>Commandez par carton</b>
+                {s.price_visibility === "approved"
+                  ? "Colisage clair · tarifs sur agrément"
+                  : "Colisage et prix toujours visibles"}
+              </span>
+            </div>
+            <div>
+              <ShieldCheck />
+              <span>
+                <b>Une commande transparente</b>Chaque quantité, chaque total
+              </span>
+            </div>
+            <div>
+              <Factory />
+              <span>
+                <b>À chaque besoin, sa solution</b>Maison, commerce et
+                professionnels
+              </span>
+            </div>
+            <div>
+              <Headphones />
+              <span>
+                <b>Un produit absent ?</b>Demandez sa fabrication
+              </span>
             </div>
           </section>
           {activeSeasons(s.seasons, s.timezone, now).map((season) => {
@@ -851,15 +855,15 @@ export function Home() {
                 <Factory size={48} strokeWidth={1} />
               </div>
               <div>
-                <span className="eyebrow">VOS IDÉES PRENNENT FORME</span>
-                <h2>Un besoin qui sort du cadre ?</h2>
+                <span className="eyebrow">PRODUITS HORS CATALOGUE</span>
+                <h2>Vous recherchez un produit que nous ne proposons pas ?</h2>
                 <p>
-                  Dimensions, couleurs, quantités… Parlez-nous de votre projet
-                  de fabrication.
+                  Envoyez son nom, une photo et la quantité souhaitée. Nous
+                  étudierons sa fabrication ou sa fourniture.
                 </p>
               </div>
               <a className="btn btn-yellow" href="#/sur-mesure">
-                Présenter mon projet <ArrowUpRight size={18} />
+                Demander ce produit <ArrowUpRight size={18} />
               </a>
             </section>
           )}
@@ -1252,7 +1256,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
               }}
             >
               <option value="nom">Nom : A à Z</option>
-              <option value="recommande">Notre sélection</option>
+              <option value="recommande">Pertinence</option>
               <option value="prix-croissant">Prix croissant</option>
               <option value="prix-decroissant">Prix décroissant</option>
               <option value="populaires">Les plus demandés</option>
@@ -1287,9 +1291,24 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
               <div className="product-grid">
                 {products
                   .slice((displayPage - 1) * 24, displayPage * 24)
-                  .map((p) => (
-                    <ProductCard product={p} key={p.id} />
-                  ))}
+                  .map((p, index, visibleProducts) => {
+                    const group = productGroup(p);
+                    const startsGroup =
+                      index === 0 ||
+                      productGroup(visibleProducts[index - 1]).key !==
+                        group.key;
+                    return (
+                      <Fragment key={p.id}>
+                        {startsGroup && (
+                          <div className="product-group-heading">
+                            <Layers size={19} aria-hidden="true" />
+                            <h2>{group.label}</h2>
+                          </div>
+                        )}
+                        <ProductCard product={p} />
+                      </Fragment>
+                    );
+                  })}
               </div>
               {products.length > 24 && (
                 <div className="pagination">
@@ -1576,11 +1595,6 @@ export function ProductDetails({
                     ? "Le prix doit être renseigné avant la commande."
                     : "Contactez-nous pour connaître les conditions de disponibilité."}
                 </p>
-                {customOrderOptions(catalog.settings).enabled && (
-                  <a href={"#/sur-mesure?produit=" + p.id}>
-                    Demander des informations <ArrowUpRight size={14} />
-                  </a>
-                )}
               </div>
             </div>
           )}

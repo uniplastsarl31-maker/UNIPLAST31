@@ -8,4 +8,8 @@ import "./slider-composition.css";
 import "./media.css";
 import "./product-frame.css";
 import "./home-hero.css";
+import "./header-refinement.css";
+import "./catalogue-layout-refinement.css";
+import "./image-controls-refinement.css";
+import "./product-groups.css";
 createRoot(document.getElementById("root")!).render(<App />);

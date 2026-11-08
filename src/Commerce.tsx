@@ -768,10 +768,6 @@ export function RequestForm({ product }: { product?: Product }) {
   const [customer, setCustomer] = useState<Customer>(blankCustomer),
     [email, setEmail] = useState(""),
     [description, setDescription] = useState(""),
-    [dimensions, setDimensions] = useState(""),
-    [capacity, setCapacity] = useState(""),
-    [color, setColor] = useState(""),
-    [material, setMaterial] = useState(""),
     [articles, setArticles] = useState<CustomArticleDraft[]>([blankArticle()]),
     [accepted, setAccepted] = useState(false),
     [cartons, setCartons] = useState(1),
@@ -781,18 +777,6 @@ export function RequestForm({ product }: { product?: Product }) {
   const requestKey = useRef(crypto.randomUUID()),
     lock = useRef(false);
   const options = customOrderOptions(catalog?.settings || {});
-  const queryProduct = new URLSearchParams(
-      window.location.hash.split("?")[1],
-    ).get("produit"),
-    requested = catalog?.products.find((p) => p.id === queryProduct);
-  useEffect(() => {
-    if (requested) {
-      setDescription(
-        `Demande de renseignements concernant ${requested.name}, référence ${requested.code}.`,
-      );
-      setArticles([{ ...blankArticle(), name: requested.name }]);
-    }
-  }, [requested?.id]);
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (lock.current) return;
@@ -836,10 +820,10 @@ export function RequestForm({ product }: { product?: Product }) {
           cartons: product ? cartons : 0,
           details: {
             description,
-            dimensions,
-            capacity,
-            color,
-            material,
+            dimensions: "",
+            capacity: "",
+            color: "",
+            material: "",
             quantity: product
               ? `${cartons} cartons`
               : items.reduce((n, i) => n + i.quantity_units, 0) + " pièces",
@@ -861,7 +845,7 @@ export function RequestForm({ product }: { product?: Product }) {
     return (
       <main className="container page">
         <Empty
-          title="Les demandes sur mesure sont momentanément fermées."
+          title="Les demandes de produits hors catalogue sont momentanément fermées."
           body="Vous pouvez continuer à consulter nos collections."
         >
           <a className="btn btn-primary" href="#/catalogue">
@@ -882,7 +866,9 @@ export function RequestForm({ product }: { product?: Product }) {
           body={
             api.previewMode
               ? `Référence ${reference}. Aucun envoi réel. Les données restent en mémoire jusqu’au rechargement.`
-              : `Référence ${reference}. Votre projet est en attente de revue. Aucun prix ni engagement de fabrication n’est confirmé.`
+              : product
+                ? `Référence ${reference}. Votre projet est en attente de revue. Aucun prix ni engagement de fabrication n’est confirmé.`
+                : `Référence ${reference}. Votre demande de produit hors catalogue est en attente d’étude. Nous vous contacterons sur les possibilités de fabrication ou de fourniture. Aucun prix ni engagement n’est confirmé.`
           }
         >
           <a className="btn btn-primary" href="#/catalogue">
@@ -897,14 +883,23 @@ export function RequestForm({ product }: { product?: Product }) {
         <span className="eyebrow">
           {product
             ? "PRENEZ UNE LONGUEUR D’AVANCE"
-            : "VOTRE PROJET COMMENCE ICI"}
+            : "VOUS RECHERCHEZ UN MODÈLE ABSENT DU CATALOGUE"}
         </span>
-        <h1>{product ? "Réserver un produit" : "Imaginons votre solution."}</h1>
+        <h1>
+          {product
+            ? "Réserver un produit"
+            : "Demander un produit hors catalogue"}
+        </h1>
         <p>
           {product
             ? product.name
-            : "Une forme, un usage, une idée particulière ? Présentez-nous votre besoin."}
+            : "Envoyez le nom du produit recherché, ses photos et la quantité souhaitée. UNIPLAST étudiera les possibilités de fabrication ou de fourniture de ce modèle."}
         </p>
+        {!product && (
+          <a className="text-link" href="#/catalogue">
+            Rechercher d’abord dans notre catalogue <ArrowRight size={16} />
+          </a>
+        )}
       </div>
       <div className="request-layout">
         <form className="panel request-form" onSubmit={(e) => void submit(e)}>
@@ -924,9 +919,7 @@ export function RequestForm({ product }: { product?: Product }) {
             />
           </Field>
           <div className="form-divider" />
-          <h2>
-            {product ? "Votre réservation" : "Les détails de votre projet"}
-          </h2>
+          <h2>{product ? "Votre réservation" : "Le produit recherché"}</h2>
           {product ? (
             <Field label="Nombre de cartons *">
               <Quantity value={cartons} onChange={setCartons} />
@@ -938,50 +931,18 @@ export function RequestForm({ product }: { product?: Product }) {
                 onChange={setArticles}
                 options={options}
               />
-              <Field label="Précisions sur votre projet (facultatif)">
+              <Field label="Précisions sur le produit recherché (facultatif)">
                 <textarea
                   maxLength={5000}
                   rows={4}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Décrivez l’usage, la forme et les caractéristiques recherchées…"
+                  placeholder="Décrivez le modèle recherché : usage, dimensions, caractéristiques ou lien de référence…"
                 />
               </Field>
-              <div className="form-grid">
-                <Field label="Dimensions souhaitées">
-                  <input
-                    value={dimensions}
-                    maxLength={200}
-                    onChange={(e) => setDimensions(e.target.value)}
-                    placeholder="Longueur × largeur × hauteur + unité"
-                  />
-                </Field>
-                <Field label="Capacité">
-                  <input
-                    value={capacity}
-                    maxLength={100}
-                    onChange={(e) => setCapacity(e.target.value)}
-                    placeholder="Ex. 2 L"
-                  />
-                </Field>
-                <Field label="Couleur">
-                  <input
-                    value={color}
-                    maxLength={100}
-                    onChange={(e) => setColor(e.target.value)}
-                  />
-                </Field>
-                <Field label="Matière">
-                  <input
-                    value={material}
-                    maxLength={100}
-                    onChange={(e) => setMaterial(e.target.value)}
-                  />
-                </Field>
-              </div>
               <label className="file-drop">
                 <Paperclip size={24} />
-                <b>Ajouter des références</b>
+                <b>Joindre un document sur ce produit (facultatif)</b>
                 <span>
                   JPG, PNG, WebP, PDF · {imageLimitMo} Mo maximum par fichier ·
                   4 fichiers
@@ -1024,7 +985,7 @@ export function RequestForm({ product }: { product?: Product }) {
           )}
           {!product && options.terms.trim() && (
             <section className="custom-conditions">
-              <h3>Conditions de fabrication</h3>
+              <h3>Conditions de la demande</h3>
               <p className="preserve-lines">{options.terms}</p>
               {options.require_acceptance && (
                 <label className="checkbox">
@@ -1072,24 +1033,43 @@ export function RequestForm({ product }: { product?: Product }) {
             <Package size={36} strokeWidth={1} />
           </span>
           <h2>
-            De votre idée
-            <br />à notre étude.
+            {product ? (
+              <>
+                De votre idée
+                <br />à notre étude.
+              </>
+            ) : (
+              <>
+                Un modèle recherché.
+                <br />
+                Une demande à étudier.
+              </>
+            )}
           </h2>
           <div>
             <span>01</span>
-            <p>Décrivez votre besoin et joignez vos références.</p>
+            <p>
+              {product
+                ? "Décrivez votre besoin et joignez vos références."
+                : "Indiquez le nom, la quantité et les photos du produit absent du catalogue."}
+            </p>
           </div>
           <div>
             <span>02</span>
-            <p>Notre équipe examine les possibilités de fabrication.</p>
+            <p>
+              {product
+                ? "Notre équipe examine les possibilités de fabrication."
+                : "Notre équipe étudie les possibilités de fabrication ou de fourniture."}
+            </p>
           </div>
           <div>
             <span>03</span>
             <p>Vous échangez avec UNIPLAST sur les suites possibles.</p>
           </div>
           <p className="request-aside-note">
-            L’envoi d’une demande ne confirme ni un prix ni la faisabilité de la
-            fabrication. Les réservations sont distinctes des ventes.
+            {product
+              ? "L’envoi d’une demande ne confirme ni un prix ni la faisabilité de la fabrication. Les réservations sont distinctes des ventes."
+              : "L’envoi de la demande ne confirme ni un prix, ni une disponibilité, ni un engagement de fabrication ou de fourniture."}
           </p>
         </aside>
       </div>

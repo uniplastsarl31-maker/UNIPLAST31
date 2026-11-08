@@ -198,11 +198,9 @@ export function Slider({
               }
               if (compact) {
                 e.preventDefault();
-                document
-                  .getElementById("collection-products")
-                  ?.scrollIntoView({
-                    behavior: reduced ? "instant" : "smooth",
-                  });
+                document.getElementById("collection-products")?.scrollIntoView({
+                  behavior: reduced ? "instant" : "smooth",
+                });
               }
             }}
           >
@@ -757,7 +755,7 @@ export function AboutSection({ full = false }: { full?: boolean }) {
           {customOrderOptions(s).enabled && (
             <span>
               <Factory size={22} />
-              Des projets sur mesure
+              Des produits hors catalogue
             </span>
           )}
         </div>
@@ -773,7 +771,7 @@ export function AboutSection({ full = false }: { full?: boolean }) {
         >
           {full
             ? customOrderOptions(s).enabled
-              ? "Parlons de votre projet"
+              ? "Demander un produit absent"
               : "Explorer le catalogue"
             : "Découvrir UNIPLAST"}
           <ArrowRight size={18} />

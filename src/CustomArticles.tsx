@@ -47,8 +47,8 @@ export function CustomArticles({
   return (
     <div className="custom-articles">
       <p className="muted-copy">
-        Indiquez le nom et le nombre de pièces de chaque article. Ajoutez des
-        photos pour présenter votre idée.
+        Indiquez le nom et le nombre de pièces du produit absent de notre
+        catalogue. Ajoutez des photos du modèle recherché.
       </p>
       {value.map((item, index) => (
         <section className="custom-article" key={item.id}>
@@ -71,7 +71,7 @@ export function CustomArticles({
               maxLength={150}
               value={item.name}
               onChange={(e) => update(item.id, { name: e.target.value })}
-              placeholder="Ex. Boîte avec couvercle"
+              placeholder="Ex. Boîte pour gâteau, modèle absent du catalogue"
             />
           </Field>
           <Field label="Quantité demandée (pièces) *">

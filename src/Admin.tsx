@@ -1971,7 +1971,7 @@ function RequestManager({
     <>
       <div className="manager-heading">
         <div>
-          <h2>Réservations & fabrication sur mesure</h2>
+          <h2>Réservations & produits hors catalogue</h2>
           <p>
             Ces demandes sont distinctes des ventes et n’augmentent pas le
             chiffre d’affaires.
