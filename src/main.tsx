@@ -16,4 +16,5 @@ import "./quick-access.css";
 import "./budget-search.css";
 import "./product-ordering.css";
 import "./classic-theme.css";
+import "./admin-workspace.css";
 createRoot(document.getElementById("root")!).render(<App />);

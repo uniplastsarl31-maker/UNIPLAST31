@@ -1002,6 +1002,14 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     [sort, setSort] = useState(params.get("tri") || "nom"),
     [page, setPage] = useState(1),
     [mobileFilters, setMobileFilters] = useState(false);
+  const productsTop = useRef<HTMLDivElement>(null);
+  const scrollToProducts = () =>
+    window.requestAnimationFrame(() =>
+      productsTop.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      }),
+    );
   const queryString = params.toString();
   useEffect(() => {
     const openFavorites = () => {
@@ -1394,7 +1402,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
           </div>
           {products.length ? (
             <>
-              <div className="product-grid">
+              <div className="product-grid" ref={productsTop}>
                 {products
                   .slice((displayPage - 1) * 24, displayPage * 24)
                   .map((p, index, visibleProducts) => {
@@ -1424,7 +1432,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
                     className="btn btn-outline"
                     onClick={() => {
                       setPage(Math.max(1, displayPage - 1));
-                      window.scrollTo({ top: 300, behavior: "smooth" });
+                      scrollToProducts();
                     }}
                     disabled={displayPage === 1}
                   >
@@ -1438,7 +1446,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
                     className="btn btn-outline"
                     onClick={() => {
                       setPage(Math.min(pageCount, displayPage + 1));
-                      window.scrollTo({ top: 300, behavior: "smooth" });
+                      scrollToProducts();
                     }}
                     disabled={displayPage >= pageCount}
                   >

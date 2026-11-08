@@ -1,5 +1,4 @@
-import { useState, type DragEvent } from "react";
-import { ArrowDown, ArrowUp, GripVertical, LockKeyhole } from "lucide-react";
+import { useState } from "react";
 import type { Product } from "./types";
 import { hasManualPosition } from "./productOrdering";
 import { Modal } from "./ui";
@@ -10,16 +9,12 @@ export function ProductOrderControls({
   total,
   disabled,
   onChange,
-  onDragStart,
-  onDragEnd,
 }: {
   product: Product;
   position: number;
   total: number;
   disabled: boolean;
   onChange: (position: number | null) => Promise<boolean>;
-  onDragStart: (event: DragEvent<HTMLButtonElement>) => void;
-  onDragEnd: () => void;
 }) {
   const [open, setOpen] = useState(false),
     [draft, setDraft] = useState(position);
@@ -29,28 +24,7 @@ export function ProductOrderControls({
       <div className="product-order-buttons">
         <button
           type="button"
-          className="icon-btn product-drag-handle"
-          draggable={!disabled}
-          disabled={disabled}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          aria-label={"Glisser pour déplacer " + product.name}
-          title="Glissez vers un produit de la même collection"
-        >
-          <GripVertical size={17} />
-        </button>
-        <button
-          type="button"
-          className="icon-btn"
-          disabled={disabled || position <= 1}
-          aria-label={"Monter " + product.name}
-          onClick={() => void onChange(position - 1)}
-        >
-          <ArrowUp size={15} />
-        </button>
-        <button
-          type="button"
-          className="product-position-button"
+          className={"product-position-button" + (fixed ? " is-fixed" : "")}
           disabled={disabled}
           aria-label={"Choisir la position de " + product.name}
           onClick={() => {
@@ -61,28 +35,21 @@ export function ProductOrderControls({
         >
           {position}
         </button>
-        <button
-          type="button"
-          className="icon-btn"
-          disabled={disabled || position >= total}
-          aria-label={"Descendre " + product.name}
-          onClick={() => void onChange(position + 1)}
-        >
-          <ArrowDown size={15} />
-        </button>
       </div>
-      <label className={"product-position-lock " + (fixed ? "is-fixed" : "")}>
+      <label
+        className={"product-position-lock " + (fixed ? "is-fixed" : "")}
+        title="Coché : tri automatique. Décoché : position fixée."
+      >
         <input
           type="checkbox"
-          checked={fixed}
+          checked={!fixed}
           disabled={disabled}
-          aria-label={"Exclure du tri automatique : " + product.name}
+          aria-label={"Tri automatique : " + product.name}
           onChange={(event) =>
-            void onChange(event.target.checked ? position : null)
+            void onChange(event.target.checked ? null : position)
           }
-        />
-        {fixed && <LockKeyhole size={11} />}{" "}
-        {fixed ? "Position fixée" : "Automatique"}
+        />{" "}
+        Auto
       </label>
       {open && (
         <Modal

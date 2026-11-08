@@ -44,9 +44,11 @@ function Toggle({
 export function FeatureSettings({
   s,
   onChange,
+  section,
 }: {
   s: Settings;
   onChange: (s: Settings) => void;
+  section?: "products" | "requests" | "families";
 }) {
   const d = productDisplay(s),
     c = customOrderOptions(s),
@@ -61,191 +63,198 @@ export function FeatureSettings({
     onChange({ ...s, family_options: { ...f, [key]: value } });
   return (
     <>
-      <section className="panel feature-settings">
-        <h2>Informations visibles sur les produits</h2>
-        <p className="muted-copy">
-          Choisissez les informations que les visiteurs peuvent voir. Les
-          valeurs saisies restent enregistrées lorsque vous les masquez.
-        </p>
-        <div className="feature-toggle-grid">
+      {(!section || section === "products") && (
+        <section className="panel feature-settings">
+          <h2>Informations visibles sur les produits</h2>
+          <p className="muted-copy">
+            Choisissez les informations que les visiteurs peuvent voir. Les
+            valeurs saisies restent enregistrées lorsque vous les masquez.
+          </p>
+          <div className="feature-toggle-grid">
+            {(
+              [
+                [
+                  "weight",
+                  "Poids en grammes",
+                  "Affiche le poids unitaire dans la fiche produit.",
+                ],
+                [
+                  "material",
+                  "Matière",
+                  "Affiche la matière que vous avez renseignée.",
+                ],
+                [
+                  "dimensions",
+                  "Dimensions",
+                  "Affiche longueur, largeur et hauteur.",
+                ],
+                [
+                  "capacity",
+                  "Capacité",
+                  "Affiche le volume, par exemple en litres.",
+                ],
+                [
+                  "barcode",
+                  "Code-barres",
+                  "Affiche le numéro dans la fiche ; la recherche par code reste disponible.",
+                ],
+                [
+                  "pack",
+                  "Colisage",
+                  "Affiche le détail du colisage. Les quantités du panier restent exprimées en cartons.",
+                ],
+                [
+                  "availability",
+                  "Badge de disponibilité",
+                  "Affiche le badge de stock. Un produit indisponible reste signalé et ne peut pas être commandé.",
+                ],
+                [
+                  "description",
+                  "Description",
+                  "Affiche votre texte de présentation du produit.",
+                ],
+                [
+                  "new_badge",
+                  "Badge NOUVEAU",
+                  "Met les nouveautés en évidence sur les photos. Leur collection reste accessible.",
+                ],
+                [
+                  "related_products",
+                  "Produits de la même famille",
+                  "Propose d’autres références sous la fiche complète.",
+                ],
+                [
+                  "hide_empty",
+                  "Masquer les champs vides",
+                  "Évite les lignes « Non renseigné » tant que les informations ne sont pas complétées.",
+                ],
+              ] as [keyof ProductDisplay, string, string][]
+            ).map(([key, label, help]) => (
+              <Toggle
+                key={key}
+                checked={d[key]}
+                onChange={(v) => display(key, v)}
+                label={label}
+                help={help}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+      {(!section || section === "requests") && (
+        <section className="panel feature-settings">
+          <h2>Produits hors catalogue</h2>
+          <Toggle
+            checked={c.enabled}
+            onChange={(v) => custom("enabled", v)}
+            label="Ouvrir les demandes de produits hors catalogue"
+            help="Permet de demander la fabrication ou la fourniture d’un modèle absent du catalogue. Vous pouvez préparer les conditions avant l’ouverture."
+          />
+          <Field label="Conditions présentées au client">
+            <textarea
+              rows={5}
+              maxLength={10000}
+              value={c.terms}
+              onChange={(e) => custom("terms", e.target.value)}
+              placeholder="Écrivez vos conditions, délais indicatifs et consignes pour les photos…"
+            />
+          </Field>
+          <div className="form-grid">
+            <Field label="Quantité minimum (pièces)">
+              <input
+                type="number"
+                min={0}
+                max={10000000}
+                step={1}
+                value={c.min_units}
+                onChange={(e) => custom("min_units", Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Application du minimum">
+              <select
+                value={c.minimum_scope}
+                onChange={(e) =>
+                  custom(
+                    "minimum_scope",
+                    e.target.value as CustomOrderOptions["minimum_scope"],
+                  )
+                }
+              >
+                <option value="per_item">Pour chaque article</option>
+                <option value="total">Pour l’ensemble de la demande</option>
+              </select>
+            </Field>
+            <Field label="Articles maximum par demande">
+              <input
+                type="number"
+                min={1}
+                max={10}
+                step={1}
+                value={c.max_items}
+                onChange={(e) => custom("max_items", Number(e.target.value))}
+              />
+            </Field>
+          </div>
+          <p className="muted-copy">
+            0 signifie aucun minimum imposé. Exemple : saisissez 1000 pour
+            exiger au moins 1 000 pièces. Ce minimum est vérifié lors de
+            l’envoi.
+          </p>
+          <Toggle
+            checked={c.require_photo}
+            onChange={(v) => custom("require_photo", v)}
+            label="Photo obligatoire pour chaque article"
+            help="Le client joint jusqu’à deux photos par article. Elles restent privées."
+          />
+          <Toggle
+            checked={c.require_acceptance}
+            onChange={(v) => custom("require_acceptance", v)}
+            label="Faire accepter les conditions"
+            help="Si des conditions sont écrites, le client doit les accepter. Leur version est conservée avec sa demande."
+          />
+        </section>
+      )}
+      {(!section || section === "families") && (
+        <section className="panel feature-settings">
+          <h2>Présentation des familles</h2>
+          <p className="muted-copy">
+            Les images et textes de chaque famille se préparent dans Collections
+            → Modifier.
+          </p>
           {(
             [
               [
-                "weight",
-                "Poids en grammes",
-                "Affiche le poids unitaire dans la fiche produit.",
+                "slider",
+                "Diaporamas des familles",
+                "Affiche les diapositives, avec vitesse et lecture automatique réglables par famille.",
               ],
               [
-                "material",
-                "Matière",
-                "Affiche la matière que vous avez renseignée.",
+                "introduction",
+                "Présentation de la famille",
+                "Affiche le texte de présentation sous le diaporama.",
               ],
               [
-                "dimensions",
-                "Dimensions",
-                "Affiche longueur, largeur et hauteur.",
+                "promotions",
+                "Visuels publicitaires",
+                "Affiche les encarts préparés pour chaque famille, avec un lien produit facultatif.",
               ],
               [
-                "capacity",
-                "Capacité",
-                "Affiche le volume, par exemple en litres.",
+                "quick_navigation",
+                "Navigation entre les familles",
+                "Ajoute une barre de raccourcis pour parcourir les collections sur téléphone.",
               ],
-              [
-                "barcode",
-                "Code-barres",
-                "Affiche le numéro dans la fiche ; la recherche par code reste disponible.",
-              ],
-              [
-                "pack",
-                "Colisage",
-                "Affiche le détail du colisage. Les quantités du panier restent exprimées en cartons.",
-              ],
-              [
-                "availability",
-                "Badge de disponibilité",
-                "Affiche le badge de stock. Un produit indisponible reste signalé et ne peut pas être commandé.",
-              ],
-              [
-                "description",
-                "Description",
-                "Affiche votre texte de présentation du produit.",
-              ],
-              [
-                "new_badge",
-                "Badge NOUVEAU",
-                "Met les nouveautés en évidence sur les photos. Leur collection reste accessible.",
-              ],
-              [
-                "related_products",
-                "Produits de la même famille",
-                "Propose d’autres références sous la fiche complète.",
-              ],
-              [
-                "hide_empty",
-                "Masquer les champs vides",
-                "Évite les lignes « Non renseigné » tant que les informations ne sont pas complétées.",
-              ],
-            ] as [keyof ProductDisplay, string, string][]
+            ] as [keyof FamilyOptions, string, string][]
           ).map(([key, label, help]) => (
             <Toggle
               key={key}
-              checked={d[key]}
-              onChange={(v) => display(key, v)}
+              checked={f[key]}
+              onChange={(v) => family(key, v)}
               label={label}
               help={help}
             />
           ))}
-        </div>
-      </section>
-      <section className="panel feature-settings">
-        <h2>Produits hors catalogue</h2>
-        <Toggle
-          checked={c.enabled}
-          onChange={(v) => custom("enabled", v)}
-          label="Ouvrir les demandes de produits hors catalogue"
-          help="Permet de demander la fabrication ou la fourniture d’un modèle absent du catalogue. Vous pouvez préparer les conditions avant l’ouverture."
-        />
-        <Field label="Conditions présentées au client">
-          <textarea
-            rows={5}
-            maxLength={10000}
-            value={c.terms}
-            onChange={(e) => custom("terms", e.target.value)}
-            placeholder="Écrivez vos conditions, délais indicatifs et consignes pour les photos…"
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="Quantité minimum (pièces)">
-            <input
-              type="number"
-              min={0}
-              max={10000000}
-              step={1}
-              value={c.min_units}
-              onChange={(e) => custom("min_units", Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Application du minimum">
-            <select
-              value={c.minimum_scope}
-              onChange={(e) =>
-                custom(
-                  "minimum_scope",
-                  e.target.value as CustomOrderOptions["minimum_scope"],
-                )
-              }
-            >
-              <option value="per_item">Pour chaque article</option>
-              <option value="total">Pour l’ensemble de la demande</option>
-            </select>
-          </Field>
-          <Field label="Articles maximum par demande">
-            <input
-              type="number"
-              min={1}
-              max={10}
-              step={1}
-              value={c.max_items}
-              onChange={(e) => custom("max_items", Number(e.target.value))}
-            />
-          </Field>
-        </div>
-        <p className="muted-copy">
-          0 signifie aucun minimum imposé. Exemple : saisissez 1000 pour exiger
-          au moins 1 000 pièces. Ce minimum est vérifié lors de l’envoi.
-        </p>
-        <Toggle
-          checked={c.require_photo}
-          onChange={(v) => custom("require_photo", v)}
-          label="Photo obligatoire pour chaque article"
-          help="Le client joint jusqu’à deux photos par article. Elles restent privées."
-        />
-        <Toggle
-          checked={c.require_acceptance}
-          onChange={(v) => custom("require_acceptance", v)}
-          label="Faire accepter les conditions"
-          help="Si des conditions sont écrites, le client doit les accepter. Leur version est conservée avec sa demande."
-        />
-      </section>
-      <section className="panel feature-settings">
-        <h2>Présentation des familles</h2>
-        <p className="muted-copy">
-          Les images et textes de chaque famille se préparent dans Collections →
-          Modifier.
-        </p>
-        {(
-          [
-            [
-              "slider",
-              "Diaporamas des familles",
-              "Affiche les diapositives, avec vitesse et lecture automatique réglables par famille.",
-            ],
-            [
-              "introduction",
-              "Présentation de la famille",
-              "Affiche le texte de présentation sous le diaporama.",
-            ],
-            [
-              "promotions",
-              "Visuels publicitaires",
-              "Affiche les encarts préparés pour chaque famille, avec un lien produit facultatif.",
-            ],
-            [
-              "quick_navigation",
-              "Navigation entre les familles",
-              "Ajoute une barre de raccourcis pour parcourir les collections sur téléphone.",
-            ],
-          ] as [keyof FamilyOptions, string, string][]
-        ).map(([key, label, help]) => (
-          <Toggle
-            key={key}
-            checked={f[key]}
-            onChange={(v) => family(key, v)}
-            label={label}
-            help={help}
-          />
-        ))}
-      </section>
+        </section>
+      )}
     </>
   );
 }

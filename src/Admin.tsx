@@ -1,12 +1,7 @@
-import {
-  VisualSettings,
-  FeedbackManager,
-  SlideEditor,
-  familySlides,
-} from "./Experience";
-import { AdminPasswordSettings } from "./ClientAccess";
+import { FeedbackManager, SlideEditor, familySlides } from "./Experience";
+import { SettingsManager } from "./SettingsManager";
 import { imageLimitMo } from "./localApi";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowDown,
   ArrowLeft,
@@ -26,7 +21,6 @@ import {
   Factory,
   FileText,
   Grid2X2,
-  GripVertical,
   ImagePlus,
   Info,
   LayoutDashboard,
@@ -50,7 +44,6 @@ import type {
   Product,
   ProductImage,
   RequestRecord,
-  Settings,
 } from "./types";
 import {
   activeDiscount,
@@ -64,16 +57,14 @@ import { navigate, useStore } from "./store";
 import { Empty, Field, Modal, ProductPhoto, Spinner } from "./ui";
 import * as api from "./api";
 import { InvoiceActions, InvoicePaper } from "./Commerce";
-import { AdvancedSettings, CustomerAccessManager } from "./CustomerFeatures";
-import { FeatureSettings, FamilyExtrasEditor } from "./FeatureControls";
+import { CustomerAccessManager } from "./CustomerFeatures";
+import { FamilyExtrasEditor } from "./FeatureControls";
 import { matchesFamily } from "./domain";
 import {
   orderedCatalogueProducts,
   planProductPosition,
 } from "./productOrdering";
 import { ProductOrderControls } from "./ProductOrderControls";
-import { CatalogTransfer } from "./CatalogTransfer";
-import { ThemeSettings } from "./ThemeSettings";
 import {
   completenessCounts,
   completenessFilters,
@@ -243,7 +234,10 @@ export function Admin({ openLogin }: { openLogin: () => void }) {
             <button
               key={id}
               className={tab === id ? "active" : ""}
-              onClick={() => setTab(id)}
+              onClick={() => {
+                setTab(id);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             >
               <Icon size={18} />
               {label}
@@ -550,9 +544,19 @@ function ProductManager() {
     [page, setPage] = useState(1),
     [edit, setEdit] = useState<Product | null>(null),
     [deleteTarget, setDeleteTarget] = useState<Product | null>(null),
-    [draggedId, setDraggedId] = useState<string | null>(null),
-    [dragOverId, setDragOverId] = useState<string | null>(null),
+    [photoEdit, setPhotoEdit] = useState<Product | null>(null),
     [busy, setBusy] = useState(false);
+  const productTable = useRef<HTMLTableElement>(null);
+  const goToPage = (next: number) => {
+    setPage(next);
+    window.requestAnimationFrame(() => {
+      productTable.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      productTable.current?.focus({ preventScroll: true });
+    });
+  };
   if (!catalog) return null;
   const scopedProducts = catalog.products.filter(
     (p) =>
@@ -619,8 +623,6 @@ function ProductManager() {
       return false;
     } finally {
       setBusy(false);
-      setDraggedId(null);
-      setDragOverId(null);
     }
   };
   const availability = async (p: Product, checked: boolean) => {
@@ -767,18 +769,19 @@ function ProductManager() {
           peut avoir plusieurs informations à compléter.
         </p>
         <div className="product-order-help">
-          <GripVertical size={21} />
+          <Info size={18} />
           <p>
-            Glissez un produit vers un autre de la même collection, utilisez les
-            flèches ou cliquez sur son numéro pour choisir sa position. Le
-            déplacement coche « Position fixée » : les règles REF et S/3–S/4 ne
-            le replacent plus. Décochez cette case pour retrouver le tri
-            automatique. Le numéro reste celui de la collection entière, même
-            pendant une recherche.
+            Cliquez sur le numéro pour déplacer un produit dans sa collection. «
+            Auto » cochée : tri automatique. « Auto » décochée : position fixée.
+            Cliquez sur la photo pour ajouter ou modifier les images.
           </p>
         </div>
         <div className="table-scroll">
-          <table className="data-table product-admin-table">
+          <table
+            ref={productTable}
+            tabIndex={-1}
+            className="data-table product-admin-table"
+          >
             <thead>
               <tr>
                 <th>Ordre</th>
@@ -794,40 +797,7 @@ function ProductManager() {
             </thead>
             <tbody>
               {products.slice((page - 1) * 25, page * 25).map((p) => (
-                <tr
-                  key={p.id}
-                  className={dragOverId === p.id ? "product-drop-target" : ""}
-                  onDragOver={(event) => {
-                    const dragged = catalog.products.find(
-                      (item) => item.id === draggedId,
-                    );
-                    if (
-                      !busy &&
-                      dragged &&
-                      dragged.id !== p.id &&
-                      dragged.family_id === p.family_id
-                    ) {
-                      event.preventDefault();
-                      event.dataTransfer.dropEffect = "move";
-                      setDragOverId(p.id);
-                    }
-                  }}
-                  onDragLeave={() => {
-                    if (dragOverId === p.id) setDragOverId(null);
-                  }}
-                  onDrop={(event) => {
-                    event.preventDefault();
-                    const dragged = catalog.products.find(
-                      (item) => item.id === draggedId,
-                    );
-                    if (!busy && dragged && dragged.family_id === p.family_id)
-                      void setPosition(dragged, familyPositions.get(p.id)!);
-                    else {
-                      setDraggedId(null);
-                      setDragOverId(null);
-                    }
-                  }}
-                >
+                <tr key={p.id}>
                   <td>
                     <ProductOrderControls
                       product={p}
@@ -835,20 +805,20 @@ function ProductManager() {
                       total={familyCounts.get(p.family_id)!}
                       disabled={busy}
                       onChange={(position) => setPosition(p, position)}
-                      onDragStart={(event) => {
-                        setDraggedId(p.id);
-                        event.dataTransfer.effectAllowed = "move";
-                        event.dataTransfer.setData("text/plain", p.id);
-                      }}
-                      onDragEnd={() => {
-                        setDraggedId(null);
-                        setDragOverId(null);
-                      }}
                     />
                   </td>
                   <td>
                     <div className="admin-product-name">
-                      <ProductPhoto image={p.images[0]} name={p.name} />
+                      <button
+                        type="button"
+                        className="admin-photo-trigger"
+                        aria-label={"Photos de " + p.name}
+                        title="Ajouter ou modifier les photos"
+                        onClick={() => setPhotoEdit(structuredClone(p))}
+                      >
+                        <ProductPhoto image={p.images[0]} name={p.name} />
+                        <ImagePlus size={13} />
+                      </button>
                       <div>
                         <b>{p.name}</b>
                         {p.visible === false && (
@@ -949,7 +919,7 @@ function ProductManager() {
               className="icon-btn"
               aria-label="Page précédente"
               disabled={page <= 1}
-              onClick={() => setPage(page - 1)}
+              onClick={() => goToPage(page - 1)}
             >
               <ChevronLeft size={18} />
             </button>
@@ -957,7 +927,7 @@ function ProductManager() {
               className="icon-btn"
               aria-label="Page suivante"
               disabled={page >= Math.ceil(products.length / 25)}
-              onClick={() => setPage(page + 1)}
+              onClick={() => goToPage(page + 1)}
             >
               <ChevronRight size={18} />
             </button>
@@ -965,6 +935,13 @@ function ProductManager() {
         </div>
       </div>
       {edit && <ProductEditor product={edit} onClose={() => setEdit(null)} />}
+      {photoEdit && (
+        <ProductEditor
+          product={photoEdit}
+          photosOnly
+          onClose={() => setPhotoEdit(null)}
+        />
+      )}
       {deleteTarget && (
         <Modal
           title="Retirer le produit ?"
@@ -997,9 +974,11 @@ function ProductManager() {
 function ProductEditor({
   product,
   onClose,
+  photosOnly = false,
 }: {
   product: Product;
   onClose: () => void;
+  photosOnly?: boolean;
 }) {
   const { catalog, notify, refresh } = useStore();
   const [p, setP] = useState<Product>(product),
@@ -1044,16 +1023,20 @@ function ProductEditor({
     e.preventDefault();
     setBusy(true);
     try {
-      await api.saveProduct({
-        ...p,
-        name_fr: p.name,
-        barcode: p.barcode?.trim() || null,
-      });
+      if (photosOnly) await api.saveProductImages(p.id, p.images);
+      else
+        await api.saveProduct({
+          ...p,
+          name_fr: p.name,
+          barcode: p.barcode?.trim() || null,
+        });
       await refresh();
       notify(
-        api.previewMode
-          ? "Produit modifié dans l’aperçu de cette session."
-          : "Produit enregistré.",
+        photosOnly
+          ? "Photos enregistrées."
+          : api.previewMode
+            ? "Produit modifié dans l’aperçu de cette session."
+            : "Produit enregistré.",
       );
       onClose();
     } catch (e) {
@@ -1072,200 +1055,219 @@ function ProductEditor({
   };
   return (
     <Modal
-      title={product.code ? "Modifier le produit" : "Nouveau produit"}
+      title={
+        photosOnly
+          ? "Photos du produit"
+          : product.code
+            ? "Modifier le produit"
+            : "Nouveau produit"
+      }
       onClose={onClose}
       wide
+      className={photosOnly ? "product-photos-modal" : ""}
     >
-      <form onSubmit={(e) => void save(e)} className="product-editor">
+      <form
+        onSubmit={(e) => void save(e)}
+        className={
+          "product-editor" + (photosOnly ? " product-photos-only" : "")
+        }
+      >
+        {photosOnly && (
+          <p className="photo-product-identity">
+            <strong>{p.name}</strong> · {p.code}
+          </p>
+        )}
         <div className="editor-grid">
-          <div>
-            <h3>Les informations essentielles</h3>
-            <div
-              className={"new-product-option " + (p.is_new ? "selected" : "")}
-            >
+          {!photosOnly && (
+            <div>
+              <h3>Les informations essentielles</h3>
+              <div
+                className={"new-product-option " + (p.is_new ? "selected" : "")}
+              >
+                <label className="checkbox">
+                  <input
+                    type="checkbox"
+                    checked={p.is_new}
+                    onChange={(e) => set("is_new", e.target.checked)}
+                  />
+                  <span>
+                    <b>Nouveau produit</b>
+                    <small>
+                      Affiche la pastille NOUVEAU et ajoute ce produit à «
+                      Nouveaux produits », en conservant sa famille principale.
+                    </small>
+                  </span>
+                  <span className="badge new">NOUVEAU</span>
+                </label>
+                {p.is_new && (
+                  <>
+                    <Field label="Fin de la mise en avant (facultatif)">
+                      <input
+                        type="datetime-local"
+                        value={dateInput(p.new_until || null, zone)}
+                        onChange={(e) => {
+                          try {
+                            set("new_until", dateISO(e.target.value, zone));
+                          } catch (error) {
+                            notify((error as Error).message, true);
+                          }
+                        }}
+                      />
+                    </Field>
+                    <small>
+                      Heure : {zone}. Laissez vide pour garder la nouveauté
+                      jusqu’à votre prochaine modification.
+                    </small>
+                  </>
+                )}
+              </div>
+              <Field label="Nom du produit *">
+                <input
+                  required
+                  maxLength={150}
+                  value={p.name}
+                  onChange={(e) => set("name", e.target.value)}
+                />
+              </Field>
+              <div className="form-grid">
+                <Field label="Référence produit *">
+                  <input
+                    required
+                    maxLength={80}
+                    value={p.code}
+                    onChange={(e) => set("code", e.target.value)}
+                    className="mono"
+                  />
+                </Field>
+                <Field label="Code-barres (champ distinct)">
+                  <input
+                    maxLength={80}
+                    value={p.barcode || ""}
+                    onChange={(e) => set("barcode", e.target.value || null)}
+                    className="mono"
+                  />
+                </Field>
+              </div>
+              <Field label="Collection *">
+                <select
+                  required
+                  value={p.family_id}
+                  onChange={(e) => set("family_id", e.target.value)}
+                >
+                  <option value="">Choisir une collection</option>
+                  {catalog.families
+                    .filter((f) => f.kind !== "new")
+                    .map((f) => (
+                      <option value={f.id} key={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
+                </select>
+              </Field>
+              <div className="form-grid">
+                <Field label="Colisage : unités par colis *">
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    max={10000}
+                    step={1}
+                    value={p.pack_size}
+                    onChange={(e) => set("pack_size", Number(e.target.value))}
+                  />
+                </Field>
+                <Field label="Nom du colis">
+                  <input
+                    required
+                    value={p.pack_label}
+                    maxLength={30}
+                    onChange={(e) => set("pack_label", e.target.value)}
+                    placeholder="carton, paquet…"
+                  />
+                </Field>
+                <Field label="Prix unitaire">
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    max={1000000}
+                    value={p.unit_price_cents / 100}
+                    onChange={(e) =>
+                      set(
+                        "unit_price_cents",
+                        Math.round(Number(e.target.value) * 100),
+                      )
+                    }
+                  />
+                </Field>
+                <Field label="Prix du carton (calculé)">
+                  <output className="calculated-price">
+                    {p.price_on_request
+                      ? "Sur demande"
+                      : money(
+                          p.unit_price_cents * p.pack_size,
+                          catalog.settings.currency,
+                        )}
+                  </output>
+                </Field>
+              </div>
               <label className="checkbox">
                 <input
                   type="checkbox"
-                  checked={p.is_new}
-                  onChange={(e) => set("is_new", e.target.checked)}
+                  checked={p.price_on_request}
+                  onChange={(e) => set("price_on_request", e.target.checked)}
                 />
-                <span>
-                  <b>Nouveau produit</b>
-                  <small>
-                    Affiche la pastille NOUVEAU et ajoute ce produit à «
-                    Nouveaux produits », en conservant sa famille principale.
-                  </small>
-                </span>
-                <span className="badge new">NOUVEAU</span>
+                Prix sur demande (achat bloqué)
               </label>
-              {p.is_new && (
-                <>
-                  <Field label="Fin de la mise en avant (facultatif)">
-                    <input
-                      type="datetime-local"
-                      value={dateInput(p.new_until || null, zone)}
-                      onChange={(e) => {
-                        try {
-                          set("new_until", dateISO(e.target.value, zone));
-                        } catch (error) {
-                          notify((error as Error).message, true);
-                        }
-                      }}
-                    />
-                  </Field>
-                  <small>
-                    Heure : {zone}. Laissez vide pour garder la nouveauté
-                    jusqu’à votre prochaine modification.
-                  </small>
-                </>
-              )}
-            </div>
-            <Field label="Nom du produit *">
-              <input
-                required
-                maxLength={150}
-                value={p.name}
-                onChange={(e) => set("name", e.target.value)}
-              />
-            </Field>
-            <div className="form-grid">
-              <Field label="Référence produit *">
-                <input
-                  required
-                  maxLength={80}
-                  value={p.code}
-                  onChange={(e) => set("code", e.target.value)}
-                  className="mono"
-                />
-              </Field>
-              <Field label="Code-barres (champ distinct)">
-                <input
-                  maxLength={80}
-                  value={p.barcode || ""}
-                  onChange={(e) => set("barcode", e.target.value || null)}
-                  className="mono"
-                />
-              </Field>
-            </div>
-            <Field label="Collection *">
-              <select
-                required
-                value={p.family_id}
-                onChange={(e) => set("family_id", e.target.value)}
-              >
-                <option value="">Choisir une collection</option>
-                {catalog.families
-                  .filter((f) => f.kind !== "new")
-                  .map((f) => (
-                    <option value={f.id} key={f.id}>
-                      {f.name}
-                    </option>
-                  ))}
-              </select>
-            </Field>
-            <div className="form-grid">
-              <Field label="Colisage : unités par colis *">
+              <div className="form-grid">
+                <Field label="Dimensions + unité">
+                  <input
+                    maxLength={200}
+                    value={p.dimensions}
+                    onChange={(e) => set("dimensions", e.target.value)}
+                  />
+                </Field>
+                <Field label="Capacité">
+                  <input
+                    maxLength={100}
+                    value={p.capacity}
+                    onChange={(e) => set("capacity", e.target.value)}
+                  />
+                </Field>
+              </div>
+              <Field label="Poids unitaire (g)">
                 <input
                   type="number"
-                  required
-                  min={1}
-                  max={10000}
-                  step={1}
-                  value={p.pack_size}
-                  onChange={(e) => set("pack_size", Number(e.target.value))}
-                />
-              </Field>
-              <Field label="Nom du colis">
-                <input
-                  required
-                  value={p.pack_label}
-                  maxLength={30}
-                  onChange={(e) => set("pack_label", e.target.value)}
-                  placeholder="carton, paquet…"
-                />
-              </Field>
-              <Field label="Prix unitaire">
-                <input
-                  type="number"
-                  min={0}
+                  min="0.01"
+                  max="10000000"
                   step="0.01"
-                  max={1000000}
-                  value={p.unit_price_cents / 100}
+                  placeholder="À renseigner"
+                  value={p.weight_grams ?? ""}
                   onChange={(e) =>
                     set(
-                      "unit_price_cents",
-                      Math.round(Number(e.target.value) * 100),
+                      "weight_grams",
+                      e.target.value === "" ? null : Number(e.target.value),
                     )
                   }
                 />
               </Field>
-              <Field label="Prix du carton (calculé)">
-                <output className="calculated-price">
-                  {p.price_on_request
-                    ? "Sur demande"
-                    : money(
-                        p.unit_price_cents * p.pack_size,
-                        catalog.settings.currency,
-                      )}
-                </output>
-              </Field>
-            </div>
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                checked={p.price_on_request}
-                onChange={(e) => set("price_on_request", e.target.checked)}
-              />
-              Prix sur demande (achat bloqué)
-            </label>
-            <div className="form-grid">
-              <Field label="Dimensions + unité">
-                <input
-                  maxLength={200}
-                  value={p.dimensions}
-                  onChange={(e) => set("dimensions", e.target.value)}
-                />
-              </Field>
-              <Field label="Capacité">
+              <Field label="Matière">
                 <input
                   maxLength={100}
-                  value={p.capacity}
-                  onChange={(e) => set("capacity", e.target.value)}
+                  value={p.material}
+                  onChange={(e) => set("material", e.target.value)}
+                />
+              </Field>
+              <Field label="Description">
+                <textarea
+                  rows={3}
+                  maxLength={5000}
+                  value={p.description}
+                  onChange={(e) => set("description", e.target.value)}
                 />
               </Field>
             </div>
-            <Field label="Poids unitaire (g)">
-              <input
-                type="number"
-                min="0.01"
-                max="10000000"
-                step="0.01"
-                placeholder="À renseigner"
-                value={p.weight_grams ?? ""}
-                onChange={(e) =>
-                  set(
-                    "weight_grams",
-                    e.target.value === "" ? null : Number(e.target.value),
-                  )
-                }
-              />
-            </Field>
-            <Field label="Matière">
-              <input
-                maxLength={100}
-                value={p.material}
-                onChange={(e) => set("material", e.target.value)}
-              />
-            </Field>
-            <Field label="Description">
-              <textarea
-                rows={3}
-                maxLength={5000}
-                value={p.description}
-                onChange={(e) => set("description", e.target.value)}
-              />
-            </Field>
-          </div>
+          )}
           <div>
             <h3>Photos du produit</h3>
             <p className="muted-copy image-framing-help">
@@ -1445,7 +1447,7 @@ function ProductEditor({
                 )}
               </>
             )}
-            {p.source_metadata && (
+            {!photosOnly && p.source_metadata && (
               <div className="source-info">
                 <h4>Informations d’import</h4>
                 <p>
@@ -1465,197 +1467,206 @@ function ProductEditor({
             )}
           </div>
         </div>
-        <div className="form-divider" />
-        <h3>Disponibilité et mise en avant</h3>
-        <div className="editor-checks">
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={p.availability_confirmed}
-              onChange={(e) => set("availability_confirmed", e.target.checked)}
-            />
-            Disponibilité vérifiée
-          </label>
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={p.available}
-              onChange={(e) => {
-                set("available", e.target.checked);
-                set("availability_confirmed", true);
-              }}
-            />
-            Disponible à la vente
-          </label>
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={p.visible !== false}
-              onChange={(event) => set("visible", event.target.checked)}
-            />
-            Afficher dans le catalogue
-          </label>
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={p.upcoming}
-              onChange={(e) => set("upcoming", e.target.checked)}
-            />
-            Bientôt disponible
-          </label>
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={p.preorder_enabled}
-              onChange={(e) => set("preorder_enabled", e.target.checked)}
-            />
-            Autoriser la réservation
-          </label>
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={p.pinned}
-              onChange={(e) => set("pinned", e.target.checked)}
-            />
-            Épingler dans la sélection
-          </label>
-        </div>
-        <p className="muted-copy">
-          Décochez « Afficher dans le catalogue » pour masquer ce produit aux
-          visiteurs et aux clients, sans le supprimer ni modifier son stock.
-        </p>
-        <div className="form-grid">
-          <Field label="Stock en cartons (vide = non géré)">
-            <input
-              type="number"
-              min={0}
-              step={1}
-              value={p.stock_cartons ?? ""}
-              onChange={(e) =>
-                set(
-                  "stock_cartons",
-                  e.target.value === "" ? null : Number(e.target.value),
-                )
-              }
-            />
-          </Field>
-          <Field label="Priorité pour le tri « Pertinence »">
-            <input
-              type="number"
-              step={1}
-              value={p.sort_order}
-              onChange={(e) => set("sort_order", Number(e.target.value))}
-            />
-          </Field>
-        </div>
-        <div className="form-divider" />
-        <div className="panel-heading">
-          <h3>Promotion programmée</h3>
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={p.discount_price_cents !== null}
-              onChange={(e) =>
-                set(
-                  "discount_price_cents",
-                  e.target.checked
-                    ? Math.round(p.unit_price_cents * 0.9)
-                    : null,
-                )
-              }
-            />
-            Activer un réglage de remise
-          </label>
-        </div>
-        {p.discount_price_cents !== null && (
+        {!photosOnly && (
           <>
-            <div className="form-grid">
-              <Field
-                label={`Prix unitaire remisé (${catalog.settings.currency})`}
-              >
+            <div className="form-divider" />
+            <h3>Disponibilité et mise en avant</h3>
+            <div className="editor-checks">
+              <label className="checkbox">
                 <input
-                  required
+                  type="checkbox"
+                  checked={p.availability_confirmed}
+                  onChange={(e) =>
+                    set("availability_confirmed", e.target.checked)
+                  }
+                />
+                Disponibilité vérifiée
+              </label>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={p.available}
+                  onChange={(e) => {
+                    set("available", e.target.checked);
+                    set("availability_confirmed", true);
+                  }}
+                />
+                Disponible à la vente
+              </label>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={p.visible !== false}
+                  onChange={(event) => set("visible", event.target.checked)}
+                />
+                Afficher dans le catalogue
+              </label>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={p.upcoming}
+                  onChange={(e) => set("upcoming", e.target.checked)}
+                />
+                Bientôt disponible
+              </label>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={p.preorder_enabled}
+                  onChange={(e) => set("preorder_enabled", e.target.checked)}
+                />
+                Autoriser la réservation
+              </label>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={p.pinned}
+                  onChange={(e) => set("pinned", e.target.checked)}
+                />
+                Épingler dans la sélection
+              </label>
+            </div>
+            <p className="muted-copy">
+              Décochez « Afficher dans le catalogue » pour masquer ce produit
+              aux visiteurs et aux clients, sans le supprimer ni modifier son
+              stock.
+            </p>
+            <div className="form-grid">
+              <Field label="Stock en cartons (vide = non géré)">
+                <input
                   type="number"
                   min={0}
-                  max={p.unit_price_cents / 100}
-                  step="0.01"
-                  value={p.discount_price_cents / 100}
+                  step={1}
+                  value={p.stock_cartons ?? ""}
                   onChange={(e) =>
                     set(
-                      "discount_price_cents",
-                      Math.round(Number(e.target.value) * 100),
+                      "stock_cartons",
+                      e.target.value === "" ? null : Number(e.target.value),
                     )
                   }
                 />
               </Field>
-              <Field label="Ou remise en pourcentage">
+              <Field label="Priorité pour le tri « Pertinence »">
                 <input
                   type="number"
-                  min={1}
-                  max={100}
-                  step="0.1"
-                  value={
-                    p.unit_price_cents
-                      ? Math.round(
-                          (1 - p.discount_price_cents / p.unit_price_cents) *
-                            1000,
-                        ) / 10
-                      : 0
-                  }
-                  onChange={(e) =>
-                    set(
-                      "discount_price_cents",
-                      Math.round(
-                        p.unit_price_cents * (1 - Number(e.target.value) / 100),
-                      ),
-                    )
-                  }
-                />
-              </Field>
-              <Field label={`Début · ${zone}`}>
-                <input
-                  required
-                  type="datetime-local"
-                  value={dateInput(p.discount_start, zone)}
-                  onChange={(e) => {
-                    try {
-                      set("discount_start", dateISO(e.target.value, zone));
-                    } catch (e) {
-                      notify((e as Error).message, true);
-                    }
-                  }}
-                />
-              </Field>
-              <Field label={`Fin · ${zone}`}>
-                <input
-                  required
-                  type="datetime-local"
-                  value={dateInput(p.discount_end, zone)}
-                  onChange={(e) => {
-                    try {
-                      set("discount_end", dateISO(e.target.value, zone));
-                    } catch (e) {
-                      notify((e as Error).message, true);
-                    }
-                  }}
+                  step={1}
+                  value={p.sort_order}
+                  onChange={(e) => set("sort_order", Number(e.target.value))}
                 />
               </Field>
             </div>
-            <Field label="Titre de l’offre">
-              <input
-                value={p.offer_title}
-                maxLength={150}
-                onChange={(e) => set("offer_title", e.target.value)}
-              />
-            </Field>
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                checked={p.show_offer}
-                onChange={(e) => set("show_offer", e.target.checked)}
-              />
-              Afficher l’offre sur l’accueil pendant sa période de validité
-            </label>
+            <div className="form-divider" />
+            <div className="panel-heading">
+              <h3>Promotion programmée</h3>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={p.discount_price_cents !== null}
+                  onChange={(e) =>
+                    set(
+                      "discount_price_cents",
+                      e.target.checked
+                        ? Math.round(p.unit_price_cents * 0.9)
+                        : null,
+                    )
+                  }
+                />
+                Activer un réglage de remise
+              </label>
+            </div>
+            {p.discount_price_cents !== null && (
+              <>
+                <div className="form-grid">
+                  <Field
+                    label={`Prix unitaire remisé (${catalog.settings.currency})`}
+                  >
+                    <input
+                      required
+                      type="number"
+                      min={0}
+                      max={p.unit_price_cents / 100}
+                      step="0.01"
+                      value={p.discount_price_cents / 100}
+                      onChange={(e) =>
+                        set(
+                          "discount_price_cents",
+                          Math.round(Number(e.target.value) * 100),
+                        )
+                      }
+                    />
+                  </Field>
+                  <Field label="Ou remise en pourcentage">
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      step="0.1"
+                      value={
+                        p.unit_price_cents
+                          ? Math.round(
+                              (1 -
+                                p.discount_price_cents / p.unit_price_cents) *
+                                1000,
+                            ) / 10
+                          : 0
+                      }
+                      onChange={(e) =>
+                        set(
+                          "discount_price_cents",
+                          Math.round(
+                            p.unit_price_cents *
+                              (1 - Number(e.target.value) / 100),
+                          ),
+                        )
+                      }
+                    />
+                  </Field>
+                  <Field label={`Début · ${zone}`}>
+                    <input
+                      required
+                      type="datetime-local"
+                      value={dateInput(p.discount_start, zone)}
+                      onChange={(e) => {
+                        try {
+                          set("discount_start", dateISO(e.target.value, zone));
+                        } catch (e) {
+                          notify((e as Error).message, true);
+                        }
+                      }}
+                    />
+                  </Field>
+                  <Field label={`Fin · ${zone}`}>
+                    <input
+                      required
+                      type="datetime-local"
+                      value={dateInput(p.discount_end, zone)}
+                      onChange={(e) => {
+                        try {
+                          set("discount_end", dateISO(e.target.value, zone));
+                        } catch (e) {
+                          notify((e as Error).message, true);
+                        }
+                      }}
+                    />
+                  </Field>
+                </div>
+                <Field label="Titre de l’offre">
+                  <input
+                    value={p.offer_title}
+                    maxLength={150}
+                    onChange={(e) => set("offer_title", e.target.value)}
+                  />
+                </Field>
+                <label className="checkbox">
+                  <input
+                    type="checkbox"
+                    checked={p.show_offer}
+                    onChange={(e) => set("show_offer", e.target.checked)}
+                  />
+                  Afficher l’offre sur l’accueil pendant sa période de validité
+                </label>
+              </>
+            )}
           </>
         )}
         <div className="editor-submit">
@@ -1663,7 +1674,8 @@ function ProductEditor({
             Annuler
           </button>
           <button className="btn btn-primary" disabled={busy || uploading}>
-            {busy ? <Spinner /> : <Save size={16} />}Enregistrer le produit
+            {busy ? <Spinner /> : <Save size={16} />}
+            {photosOnly ? "Enregistrer les photos" : "Enregistrer le produit"}
           </button>
         </div>
       </form>
@@ -2379,231 +2391,6 @@ function RequestManager({
           </p>
         </Modal>
       )}
-    </>
-  );
-}
-function SettingsManager() {
-  const { catalog, notify, refresh } = useStore();
-  const [s, setS] = useState<Settings>(structuredClone(catalog!.settings)),
-    [busy, setBusy] = useState(false);
-  const set = <K extends keyof Settings>(key: K, value: Settings[K]) =>
-    setS((prev) => ({ ...prev, [key]: value }));
-  const save = async (e: FormEvent) => {
-    e.preventDefault();
-    setBusy(true);
-    try {
-      await api.saveSettings(s);
-      await refresh();
-      notify(
-        api.previewMode
-          ? "Réglages mis à jour dans l’aperçu."
-          : "Réglages enregistrés.",
-      );
-    } catch (e) {
-      notify((e as Error).message, true);
-    } finally {
-      setBusy(false);
-    }
-  };
-  const heroChange = (
-    index: number,
-    key: keyof Hero,
-    value: string | boolean,
-  ) =>
-    set(
-      "heroes",
-      s.heroes.map((h, i) => (i === index ? { ...h, [key]: value } : h)),
-    );
-  const move = (i: number, delta: number) => {
-    const a = [...s.heroes],
-      j = i + delta;
-    if (j < 0 || j >= a.length) return;
-    [a[i], a[j]] = [a[j], a[i]];
-    set("heroes", a);
-  };
-  const uploadSettingImage = async (file: File, index?: number) => {
-    setBusy(true);
-    try {
-      const im = await api.uploadProductImage(file);
-      if (index === undefined) set("logo_url", im.url);
-      else heroChange(index, "image", im.url);
-    } catch (e) {
-      notify((e as Error).message, true);
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <>
-      <form
-        onSubmit={(e) => void save(e)}
-        className="settings-form"
-        autoComplete="off"
-      >
-        <ThemeSettings settings={s} onChange={setS} />
-        <AdvancedSettings s={s} onChange={setS} />
-        <FeatureSettings s={s} onChange={setS} />
-        <section className="panel">
-          <h2>Les informations de l’entreprise</h2>
-          <div className="form-grid">
-            <Field label="Nom de l’entreprise *">
-              <input
-                required
-                value={s.company_name}
-                maxLength={150}
-                onChange={(e) => set("company_name", e.target.value)}
-              />
-            </Field>
-            <Field label="Nom français / signature">
-              <input
-                value={s.company_name_fr}
-                maxLength={150}
-                onChange={(e) => set("company_name_fr", e.target.value)}
-              />
-            </Field>
-            <Field label="Téléphone">
-              <input
-                type="tel"
-                maxLength={40}
-                value={s.phone}
-                onChange={(e) => set("phone", e.target.value)}
-              />
-            </Field>
-            <Field label="E-mail">
-              <input
-                type="email"
-                maxLength={254}
-                value={s.email}
-                onChange={(e) => set("email", e.target.value)}
-              />
-            </Field>
-          </div>
-          <Field label="Adresse de l’entreprise">
-            <textarea
-              rows={2}
-              value={s.address}
-              maxLength={500}
-              onChange={(e) => set("address", e.target.value)}
-            />
-          </Field>
-          <Field label="Logo officiel">
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) void uploadSettingImage(f);
-              }}
-            />
-          </Field>
-          <img
-            className="settings-logo-preview"
-            src={s.logo_url}
-            alt="Logo configuré"
-          />
-          <div className="form-grid">
-            <Field label="Couleur principale">
-              <input
-                type="color"
-                value={s.primary_color}
-                onChange={(e) => set("primary_color", e.target.value)}
-              />
-            </Field>
-            <Field label="Couleur d’accent">
-              <input
-                type="color"
-                value={s.accent_color}
-                onChange={(e) => set("accent_color", e.target.value)}
-              />
-            </Field>
-          </div>
-        </section>
-        <section className="panel">
-          <h2>Commandes, devise et fuseau horaire</h2>
-          <div className="form-grid">
-            <Field label="Devise (code ISO)">
-              <input
-                required
-                pattern="[A-Z]{3}"
-                maxLength={3}
-                value={s.currency}
-                onChange={(e) => set("currency", e.target.value.toUpperCase())}
-              />
-            </Field>
-            <Field label="Nom du colis par défaut">
-              <input
-                required
-                maxLength={30}
-                value={s.pack_label}
-                onChange={(e) => set("pack_label", e.target.value)}
-              />
-            </Field>
-            <Field label="Supplément de livraison">
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                max={1000000}
-                value={s.shipping_cents / 100}
-                onChange={(e) =>
-                  set(
-                    "shipping_cents",
-                    Math.round(Number(e.target.value) * 100),
-                  )
-                }
-              />
-            </Field>
-            <Field label="Fuseau IANA (promotions et dates)">
-              <input
-                required
-                value={s.timezone}
-                onChange={(e) => set("timezone", e.target.value)}
-                placeholder="Africa/Algiers"
-              />
-            </Field>
-          </div>
-          <Field label="Mention fiscale / affichage des prix">
-            <textarea
-              required
-              maxLength={2000}
-              rows={3}
-              value={s.tax_note}
-              onChange={(e) => set("tax_note", e.target.value)}
-            />
-          </Field>
-          <p className="muted-copy">
-            Les anciens bons conservent leur devise, frais et informations
-            d’entreprise. Aucun paiement électronique n’est activé.
-          </p>
-        </section>
-        <VisualSettings s={s} onChange={setS} />
-        <section className="panel">
-          <h2>Informations et politiques</h2>
-          <Field label="Politique de confidentialité">
-            <textarea
-              rows={5}
-              maxLength={10000}
-              value={s.privacy}
-              onChange={(e) => set("privacy", e.target.value)}
-            />
-          </Field>
-          <Field label="Conditions de commande">
-            <textarea
-              rows={5}
-              maxLength={10000}
-              value={s.terms}
-              onChange={(e) => set("terms", e.target.value)}
-            />
-          </Field>
-        </section>
-        <div className="settings-save">
-          <button className="btn btn-primary" disabled={busy}>
-            {busy ? <Spinner /> : <Save size={17} />}Enregistrer les réglages
-          </button>
-        </div>
-      </form>
-      <CatalogTransfer />
-      <AdminPasswordSettings />
     </>
   );
 }

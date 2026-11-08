@@ -533,6 +533,58 @@ export async function setProductPosition(
     "Le placement manuel n’est pas disponible sur cette version.",
   );
 }
+export async function saveProductImages(
+  id: string,
+  images: ProductImage[],
+): Promise<void> {
+  if (localMode) return localCall<void>("product-images", { id, images });
+  if (previewMode) {
+    await previewReady;
+    if (!previewAdmin) throw new Error("Accès non autorisé.");
+  }
+  const imageUrlAllowed = (value: unknown) =>
+    typeof value === "string" &&
+    value.length <= 2000 &&
+    ((value.startsWith("/assets/") && !value.includes("..")) ||
+      !!safeWebUrl(value) ||
+      (previewMode && value.startsWith("blob:")));
+  if (
+    !Array.isArray(images) ||
+    images.length > 10 ||
+    images.some(
+      (image) =>
+        !image ||
+        !imageUrlAllowed(image.url) ||
+        (image.original_url !== undefined &&
+          !imageUrlAllowed(image.original_url)) ||
+        !Number.isFinite(image.scale) ||
+        image.scale < 0.5 ||
+        image.scale > 3 ||
+        !Number.isFinite(image.x) ||
+        Math.abs(image.x) > 50 ||
+        !Number.isFinite(image.y) ||
+        Math.abs(image.y) > 50,
+    )
+  )
+    throw new Error("Vérifiez les images et leur cadrage (10 images maximum).");
+  if (previewMode) {
+    const index = memory.products.findIndex((product) => product.id === id);
+    if (index < 0) throw new Error("Ce produit n’existe plus.");
+    const current = memory.products[index];
+    const error = validateProduct({ ...current, images });
+    if (error) throw new Error(error);
+    memory.products[index] = {
+      ...current,
+      images: structuredClone(images),
+    };
+    return;
+  }
+  const { error } = await supabase!
+    .from("products")
+    .update({ images })
+    .eq("id", id);
+  if (error) fail(error);
+}
 export async function removeProduct(id: string) {
   if (localMode) return localCall("product-delete", { id });
   if (previewMode) {

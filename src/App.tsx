@@ -54,13 +54,14 @@ class ErrorBoundary extends Component<
 }
 function Router() {
   const route = useRoute(),
-    { catalog, loading, error, refresh, toast } = useStore();
+    { catalog, loading, error, refresh, toast, admin } = useStore();
   const [login, setLogin] = useState(false),
     [clientLogin, setClientLogin] = useState(false),
     [scanner, setScanner] = useState(false),
     [policy, setPolicy] = useState<"privacy" | "terms" | null>(null);
   const [path, query = ""] = route.split("?"),
     params = new URLSearchParams(query);
+  const adminWorkspace = path === "/admin" && admin;
   if (loading)
     return (
       <div className="initial-loading">
@@ -158,11 +159,13 @@ function Router() {
       >
         Aller au contenu
       </a>
-      <Header
-        openLogin={() => setLogin(true)}
-        openScanner={() => setScanner(true)}
-        openClientLogin={() => setClientLogin(true)}
-      />
+      {!adminWorkspace && (
+        <Header
+          openLogin={() => setLogin(true)}
+          openScanner={() => setScanner(true)}
+          openClientLogin={() => setClientLogin(true)}
+        />
+      )}
       <SeasonalDecor active={!path.startsWith("/admin")} />
       {error && (
         <div className="catalog-update-error">
@@ -170,11 +173,15 @@ function Router() {
           changé. <button onClick={() => void refresh()}>Réessayer</button>
         </div>
       )}
-      <div id="main-content" tabIndex={-1}>
+      <div
+        id="main-content"
+        className={adminWorkspace ? "admin-workspace" : undefined}
+        tabIndex={-1}
+      >
         {content}
       </div>
-      <Footer openPolicy={setPolicy} />
-      <ProductQuickView />
+      {!adminWorkspace && <Footer openPolicy={setPolicy} />}
+      {!adminWorkspace && <ProductQuickView />}
       {login && <LoginDialog onClose={() => setLogin(false)} />}
       {clientLogin && (
         <CustomerLoginDialog onClose={() => setClientLogin(false)} />
@@ -192,7 +199,7 @@ function Router() {
           <p className="policy-copy">{catalog.settings[policy]}</p>
         </Modal>
       )}
-      <CartDialogs />
+      {!adminWorkspace && <CartDialogs />}
       {toast && (
         <div
           className={`toast ${toast.error ? "toast-error" : ""}`}

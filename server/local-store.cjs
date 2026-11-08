@@ -383,7 +383,8 @@ function createLocalStore({
           .filter(
             (p) =>
               isAdmin ||
-              (p.visible !== false && families.some((f) => f.id === p.family_id)),
+              (p.visible !== false &&
+                families.some((f) => f.id === p.family_id)),
           )
           .map((p) => {
             if (!isAdmin) delete p.source_metadata;
@@ -697,9 +698,105 @@ function createLocalStore({
           result = { id };
           break;
         }
+        case "product-images": {
+          admin(s);
+          assert(
+            typeof p.id === "string" && p.id.length > 0,
+            "Produit invalide.",
+          );
+          result = transaction(() => {
+            const current = get("product", p.id);
+            assert(current, "Produit introuvable.", 404);
+            assert(
+              Array.isArray(p.images) && p.images.length <= 10,
+              "Choisissez au maximum 10 photos pour ce produit.",
+            );
+            const photoUrl = (value) => {
+              assert(
+                typeof value === "string" &&
+                  value.length > 0 &&
+                  value.length <= 2000,
+                "Lien de photo invalide.",
+              );
+              let reference = value;
+              if (!value.startsWith("/")) {
+                let url;
+                try {
+                  url = new URL(value);
+                } catch {
+                  assert(false, "Lien de photo invalide.");
+                }
+                assert(
+                  url.protocol === "https:" && !url.username && !url.password,
+                  "Utilisez un lien de photo HTTPS valide.",
+                );
+                const ownOrigin = hosting
+                  ? hosting.origins.includes(url.origin)
+                  : url.host === req.headers.host;
+                if (!ownOrigin || url.pathname !== "/api/local/file")
+                  return value;
+                reference = url.pathname + url.search;
+              }
+              if (
+                /^\/assets\/[a-zA-Z0-9_./-]+$/.test(reference) &&
+                !reference.includes("..")
+              )
+                return value;
+              const file =
+                /^\/api\/local\/file\?id=([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/.exec(
+                  reference,
+                );
+              assert(file, "Lien de photo du magasin invalide.");
+              const uploaded = db
+                .prepare("SELECT mime,public,owner FROM uploads WHERE id=?")
+                .get(file[1]);
+              assert(
+                uploaded?.public &&
+                  uploaded.owner === s.owner &&
+                  ["image/png", "image/jpeg", "image/webp"].includes(
+                    uploaded.mime,
+                  ),
+                "Choisissez une photo publique du magasin ajoutée par le gestionnaire.",
+              );
+              return value;
+            };
+            const images = p.images.map((image) => {
+              assert(
+                image &&
+                  typeof image === "object" &&
+                  !Array.isArray(image) &&
+                  Number.isFinite(image.scale) &&
+                  image.scale >= 0.5 &&
+                  image.scale <= 3 &&
+                  Number.isFinite(image.x) &&
+                  image.x >= -50 &&
+                  image.x <= 50 &&
+                  Number.isFinite(image.y) &&
+                  image.y >= -50 &&
+                  image.y <= 50,
+                "Réglage de photo invalide : zoom de 50 à 300 % et position de -50 à 50.",
+              );
+              return {
+                url: photoUrl(image.url),
+                ...(image.original_url === undefined
+                  ? {}
+                  : { original_url: photoUrl(image.original_url) }),
+                scale: image.scale,
+                x: image.x,
+                y: image.y,
+              };
+            });
+            put("product", { ...current, images });
+            return { id: current.id, images };
+          });
+          break;
+        }
         case "product-position": {
           admin(s);
-          assert(typeof p.id === "string" && p.id.length > 0, "Produit invalide.");
+          assert(
+            typeof p.id === "string" && p.id.length > 0,
+            "Produit invalide.",
+          );
           assert(
             p.position === null ||
               (Number.isSafeInteger(p.position) &&
@@ -748,7 +845,8 @@ function createLocalStore({
           // Content forms may contain an older explicit anchor. Ordering changes
           // for existing products go through the dedicated positioning endpoint.
           if (previous) {
-            if (previous.manual_position === undefined) delete p.manual_position;
+            if (previous.manual_position === undefined)
+              delete p.manual_position;
             else p.manual_position = previous.manual_position;
           }
           assert(

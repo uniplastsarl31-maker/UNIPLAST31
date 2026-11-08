@@ -583,9 +583,11 @@ export function SlideEditor({
 export function VisualSettings({
   s,
   onChange,
+  section,
 }: {
   s: Settings;
   onChange: (s: Settings) => void;
+  section?: "home" | "families" | "about";
 }) {
   const { catalog, notify, refresh } = useStore(),
     [familyId, setFamilyId] = useState(""),
@@ -610,120 +612,126 @@ export function VisualSettings({
   }
   return (
     <>
-      <section className="panel">
-        <span className="eyebrow">L’ACCUEIL QUI VOUS RESSEMBLE</span>
-        <h2>Diaporama de la page d’accueil</h2>
-        <Field
-          label={
-            "Changement automatique : toutes les " +
-            s.slider_interval +
-            " secondes"
-          }
-        >
-          <input
-            type="range"
-            min={3}
-            max={20}
-            step={1}
-            value={s.slider_interval}
-            onChange={(e) =>
-              onChange({ ...s, slider_interval: Number(e.target.value) })
+      {(!section || section === "home") && (
+        <section className="panel">
+          <span className="eyebrow">L’ACCUEIL QUI VOUS RESSEMBLE</span>
+          <h2>Diaporama de la page d’accueil</h2>
+          <Field
+            label={
+              "Changement automatique : toutes les " +
+              s.slider_interval +
+              " secondes"
             }
-          />
-        </Field>
-        <SlideEditor
-          slides={s.heroes}
-          onChange={(heroes) => onChange({ ...s, heroes })}
-          height={s.home_slider_height}
-          onHeight={(home_slider_height) =>
-            onChange({ ...s, home_slider_height })
-          }
-        />
-      </section>
-      <section className="panel">
-        <h2>Un diaporama pour chaque collection</h2>
-        <Field label="Choisir la collection à personnaliser">
-          <select
-            value={familyId}
-            onChange={(e) => setFamilyId(e.target.value)}
           >
-            <option value="">Choisir une collection</option>
-            {catalog?.families.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </select>
-        </Field>
-        {family && (
-          <>
-            <SlideEditor
-              slides={familySlides(family)}
-              onChange={(slides) => setFamily({ ...family, slides })}
-              familyId={family.id}
-              height={family.slider_height || 380}
-              onHeight={(slider_height) =>
-                setFamily({ ...family, slider_height })
+            <input
+              type="range"
+              min={3}
+              max={20}
+              step={1}
+              value={s.slider_interval}
+              onChange={(e) =>
+                onChange({ ...s, slider_interval: Number(e.target.value) })
               }
             />
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={busy}
-              onClick={() => void saveFamily()}
+          </Field>
+          <SlideEditor
+            slides={s.heroes}
+            onChange={(heroes) => onChange({ ...s, heroes })}
+            height={s.home_slider_height}
+            onHeight={(home_slider_height) =>
+              onChange({ ...s, home_slider_height })
+            }
+          />
+        </section>
+      )}
+      {(!section || section === "families") && (
+        <section className="panel">
+          <h2>Un diaporama pour chaque collection</h2>
+          <Field label="Choisir la collection à personnaliser">
+            <select
+              value={familyId}
+              onChange={(e) => setFamilyId(e.target.value)}
             >
-              {busy ? <Spinner /> : null}Enregistrer le diaporama de cette
-              collection
-            </button>
-          </>
-        )}
-      </section>
-      <section className="panel">
-        <h2>Qui sommes-nous ?</h2>
-        <Field label="Titre de présentation de l’entreprise">
-          <input
-            required
-            maxLength={200}
-            value={s.about_title}
-            onChange={(e) => onChange({ ...s, about_title: e.target.value })}
-          />
-        </Field>
-        <Field label="Présentation de l’entreprise">
-          <textarea
-            required
-            rows={8}
-            maxLength={10000}
-            value={s.about_body}
-            onChange={(e) => onChange({ ...s, about_body: e.target.value })}
-          />
-        </Field>
-        <Field label="Photo de la section Qui sommes-nous">
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            disabled={busy}
-            onChange={async (e) => {
-              if (!e.target.files?.[0]) return;
-              setBusy(true);
-              try {
-                const image = await api.uploadProductImage(e.target.files[0]);
-                onChange({ ...s, about_image: image.url });
-              } catch (e) {
-                notify((e as Error).message, true);
-              } finally {
-                setBusy(false);
-              }
-            }}
-          />
-        </Field>
-        {s.about_image && (
-          <img
-            className="hero-edit-preview"
-            src={s.about_image}
-            alt="Présentation UNIPLAST"
-          />
-        )}
-      </section>
+              <option value="">Choisir une collection</option>
+              {catalog?.families.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {family && (
+            <>
+              <SlideEditor
+                slides={familySlides(family)}
+                onChange={(slides) => setFamily({ ...family, slides })}
+                familyId={family.id}
+                height={family.slider_height || 380}
+                onHeight={(slider_height) =>
+                  setFamily({ ...family, slider_height })
+                }
+              />
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={busy}
+                onClick={() => void saveFamily()}
+              >
+                {busy ? <Spinner /> : null}Enregistrer le diaporama de cette
+                collection
+              </button>
+            </>
+          )}
+        </section>
+      )}
+      {(!section || section === "about") && (
+        <section className="panel">
+          <h2>Qui sommes-nous ?</h2>
+          <Field label="Titre de présentation de l’entreprise">
+            <input
+              required
+              maxLength={200}
+              value={s.about_title}
+              onChange={(e) => onChange({ ...s, about_title: e.target.value })}
+            />
+          </Field>
+          <Field label="Présentation de l’entreprise">
+            <textarea
+              required
+              rows={8}
+              maxLength={10000}
+              value={s.about_body}
+              onChange={(e) => onChange({ ...s, about_body: e.target.value })}
+            />
+          </Field>
+          <Field label="Photo de la section Qui sommes-nous">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              disabled={busy}
+              onChange={async (e) => {
+                if (!e.target.files?.[0]) return;
+                setBusy(true);
+                try {
+                  const image = await api.uploadProductImage(e.target.files[0]);
+                  onChange({ ...s, about_image: image.url });
+                } catch (e) {
+                  notify((e as Error).message, true);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            />
+          </Field>
+          {s.about_image && (
+            <img
+              className="hero-edit-preview"
+              src={s.about_image}
+              alt="Présentation UNIPLAST"
+            />
+          )}
+        </section>
+      )}
     </>
   );
 }
