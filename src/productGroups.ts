@@ -1,4 +1,4 @@
-import type { Product } from "./types.ts";
+import type { Family, Product } from "./types.ts";
 import { compareProductNames } from "./domain.ts";
 
 export interface ProductGroup {
@@ -141,7 +141,7 @@ function cataloguePosition(product: Product): [number, number] {
   return [set, number == null ? Infinity : Number(number.replace(",", "."))];
 }
 
-/** Default catalogue order: alphabetical types, then ascending model/reference. */
+/** Ordering within one saved family: types, then ascending model/reference. */
 export function compareCatalogueProducts(a: Product, b: Product): number {
   const groupOrder = productGroup(a).key.localeCompare(
     productGroup(b).key,
@@ -155,4 +155,28 @@ export function compareCatalogueProducts(a: Product, b: Product): number {
   const left = cataloguePosition(a),
     right = cataloguePosition(b);
   return left[0] - right[0] || left[1] - right[1] || compareProductNames(a, b);
+}
+
+/** Preserve saved family order before comparing references within each family. */
+export function catalogueFamilyOrder(families: readonly Family[]) {
+  const positions = new Map(
+    families
+      .filter((family) => family.kind !== "new")
+      .map((family, index) => ({ family, index }))
+      .sort(
+        (a, b) =>
+          a.family.sort_order - b.family.sort_order || a.index - b.index,
+      )
+      .map(({ family }, index) => [family.id, index]),
+  );
+  return (a: Product, b: Product): number => {
+    if (a.family_id !== b.family_id) {
+      return (
+        (positions.get(a.family_id) ?? families.length) -
+          (positions.get(b.family_id) ?? families.length) ||
+        a.family_id.localeCompare(b.family_id, "fr")
+      );
+    }
+    return compareCatalogueProducts(a, b);
+  };
 }

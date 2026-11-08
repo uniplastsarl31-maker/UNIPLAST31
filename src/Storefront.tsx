@@ -47,7 +47,7 @@ import { previewMode } from "./api";
 import { FamilyLanding } from "./FeatureControls";
 import { VideoSection } from "./VideoFeatures";
 import { SeasonalNavigation } from "./SeasonalNavigation";
-import { compareCatalogueProducts, productGroup } from "./productGroups";
+import { catalogueFamilyOrder, productGroup } from "./productGroups";
 import { DEFAULT_TAGLINE, youtubeChannelUrl } from "./media";
 import "./favorites-ui.css";
 import {
@@ -1098,7 +1098,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     products = products.filter((p) =>
       belowPrice(p, Math.round(Number(maximum) * 100), clientApproved, now),
     );
-  if (sort === "nom") products.sort(compareCatalogueProducts);
+  if (sort === "nom") products.sort(catalogueFamilyOrder(catalog.families));
   if (sort === "prix-croissant")
     products.sort(
       (a, b) =>
@@ -1400,6 +1400,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
                     const startsGroup =
                       !favoritesOnly &&
                       (index === 0 ||
+                        visibleProducts[index - 1].family_id !== p.family_id ||
                         productGroup(visibleProducts[index - 1]).key !==
                           group.key);
                     return (

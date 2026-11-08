@@ -2,11 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import seed from "../src/data/catalog.json" with { type: "json" };
 import {
+  catalogueFamilyOrder,
   compareCatalogueProducts,
   productGroup,
 } from "../src/productGroups.ts";
 import updates from "../server/catalog-update.json" with { type: "json" };
-import type { Product } from "../src/types.ts";
+import type { Family, Product } from "../src/types.ts";
 
 const group = (name: string, name_fr = "") => productGroup({ name, name_fr });
 
@@ -81,6 +82,136 @@ test("catalogue grouping is total, deterministic and leaves catalogue order and 
 
 const example = (code: string, name: string) =>
   ({ ...seed.products[0], code, name, name_fr: name }) as Product;
+
+test("saved families keep configured order and references sort only inside them", () => {
+  const families = [
+    {
+      ...seed.families[0],
+      id: "children",
+      name: "Enfant",
+      kind: "standard",
+      sort_order: 5,
+    },
+    {
+      ...seed.families[0],
+      id: "boxes",
+      name: "Rangement & Boîtes",
+      kind: "standard",
+      sort_order: 1,
+    },
+    {
+      ...seed.families[0],
+      id: "kitchen",
+      name: "Cuisine",
+      kind: "standard",
+      sort_order: 2,
+    },
+  ] as Family[];
+  const list = [
+    { ...example("BS2", "BOITE SANDWICH 100ML REF 2"), family_id: "children" },
+    { ...example("BE4", "BOITE EMBALLAGE 100ML REF 4"), family_id: "boxes" },
+    { ...example("BC", "BOITE CEREALES 1.2L"), family_id: "kitchen" },
+    { ...example("BS1", "BOITE SANDWICH 900ML REF 1"), family_id: "children" },
+    { ...example("BE1", "BOITE EMBALLAGE 900ML REF 1"), family_id: "boxes" },
+  ];
+  const before = JSON.stringify({ families, list });
+  assert.deepEqual(
+    [...list].sort(catalogueFamilyOrder(families)).map((p) => p.code),
+    ["BE1", "BE4", "BC", "BS1", "BS2"],
+  );
+  assert.equal(JSON.stringify({ families, list }), before);
+  families.find((f) => f.id === "children")!.sort_order = 0;
+  assert.deepEqual(
+    [...list].sort(catalogueFamilyOrder(families)).map((p) => p.code),
+    ["BS1", "BS2", "BE1", "BE4", "BC"],
+  );
+});
+
+test("new-product overlap never overrides the actual saved primary family", () => {
+  const families = [
+    {
+      ...seed.families[0],
+      id: "new",
+      name: "Nouveaux produits",
+      sort_order: 0,
+      kind: "new",
+    },
+    {
+      ...seed.families[0],
+      id: "boxes",
+      name: "Rangement & Boîtes",
+      sort_order: 1,
+      kind: "standard",
+    },
+    {
+      ...seed.families[0],
+      id: "children",
+      name: "Enfant",
+      sort_order: 5,
+      kind: "standard",
+    },
+  ] as Family[];
+  const children = families.find((f) => f.name === "Enfant")!;
+  const boxes = families.find((f) => f.name === "Rangement & Boîtes")!;
+  const sandwich = {
+    ...example("BS", "BOITE SANDWICH REF 1"),
+    family_id: children.id,
+    is_new: true,
+  };
+  const box = {
+    ...example("BE4", "BOITE EMBALLAGE REF 4"),
+    family_id: boxes.id,
+    is_new: false,
+  };
+  assert.deepEqual(
+    [sandwich, box].sort(catalogueFamilyOrder(families)).map((p) => p.code),
+    ["BE4", "BS"],
+  );
+  assert.equal(sandwich.family_id, children.id);
+});
+
+test("real catalogue family blocks stay contiguous without rewriting saved assignments", () => {
+  const products = seed.products as Product[],
+    families = seed.families as Family[];
+  const before = JSON.stringify(products);
+  const order = catalogueFamilyOrder(families);
+  const sorted = [...products].reverse().sort(order);
+  assert.deepEqual(
+    sorted.map((p) => p.code),
+    [...products].sort(order).map((p) => p.code),
+  );
+  const blocks = sorted
+    .filter((p, i) => !i || p.family_id !== sorted[i - 1].family_id)
+    .map((p) => p.family_id);
+  assert.equal(new Set(blocks).size, blocks.length);
+  const configured = [...families]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .filter((f) => products.some((p) => p.family_id === f.id))
+    .map((f) => f.id);
+  assert.deepEqual(
+    blocks.filter((id) => configured.includes(id)),
+    configured,
+  );
+  assert.equal(JSON.stringify(products), before);
+});
+
+test("unknown families stay in deterministic blocks after configured families", () => {
+  const family = {
+    ...seed.families[0],
+    id: "known",
+    kind: "standard",
+  } as Family;
+  const list = [
+    { ...example("Z2", "BOITE REF 2"), family_id: "unknown-z" },
+    { ...example("A1", "BOITE REF 1"), family_id: "unknown-a" },
+    { ...example("K", "BOITE REF 9"), family_id: "known" },
+    { ...example("Z1", "BOITE REF 1"), family_id: "unknown-z" },
+  ];
+  assert.deepEqual(
+    list.sort(catalogueFamilyOrder([family])).map((p) => p.code),
+    ["K", "A1", "Z1", "Z2"],
+  );
+});
 
 test("default catalogue order prioritizes references over capacity and package count", () => {
   const list = [
