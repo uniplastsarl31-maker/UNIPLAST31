@@ -23,6 +23,7 @@ export interface Family {
   visible: boolean;
 }
 export interface Product {
+  visible?: boolean;
   public_discount_percent?: number;
   price_hidden?: boolean;
   id: string;

@@ -376,7 +376,11 @@ function createLocalStore({
             .filter((f) => isAdmin || f.visible)
             .sort((a, b) => a.sort_order - b.sort_order);
         const products = all("product")
-          .filter((p) => isAdmin || families.some((f) => f.id === p.family_id))
+          .filter(
+            (p) =>
+              isAdmin ||
+              (p.visible !== false && families.some((f) => f.id === p.family_id)),
+          )
           .map((p) => {
             if (!isAdmin) delete p.source_metadata;
             delete p.public_discount_percent;
@@ -389,12 +393,14 @@ function createLocalStore({
             }
             return p;
           });
-        const sales = {};
+        const sales = {},
+          catalogProductIds = new Set(products.map((p) => p.id));
         for (const o of all("order").filter((o) =>
           ["confirmed", "preparing", "delivered"].includes(o.status),
         ))
           for (const i of o.items)
-            sales[i.product_id] = (sales[i.product_id] || 0) + i.cartons;
+            if (isAdmin || catalogProductIds.has(i.product_id))
+              sales[i.product_id] = (sales[i.product_id] || 0) + i.cartons;
         const catalog = { products, families, settings: settings(), sales };
         if (address.searchParams.get("sync") === "1") {
           const client_approved = s?.role === "client",
@@ -689,6 +695,15 @@ function createLocalStore({
         }
         case "product-save": {
           admin(s);
+          if (p.visible === undefined) {
+            const previous =
+              typeof p.id === "string" ? get("product", p.id) : null;
+            if (previous?.visible !== undefined) p.visible = previous.visible;
+          }
+          assert(
+            p.visible === undefined || typeof p.visible === "boolean",
+            "Visibilité du produit invalide.",
+          );
           const e = validateProduct(p);
           assert(!e, e);
           assert(
@@ -900,7 +915,10 @@ function createLocalStore({
             const products = p.cart.map((i) => {
               const item = get("product", i.product_id);
               assert(
-                item && canBuy(item) && get("family", item.family_id)?.visible,
+                item &&
+                  item.visible !== false &&
+                  canBuy(item) &&
+                  get("family", item.family_id)?.visible,
                 "Un produit est indisponible.",
               );
               assert(
@@ -1037,7 +1055,8 @@ function createLocalStore({
             delete r.details.terms_accepted;
             const product = get("product", r.product_id);
             assert(
-              product?.upcoming &&
+              product?.visible !== false &&
+                product?.upcoming &&
                 product.preorder_enabled &&
                 get("family", product.family_id)?.visible,
               "Réservation non ouverte.",

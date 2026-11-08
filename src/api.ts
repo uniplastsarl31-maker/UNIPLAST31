@@ -191,6 +191,13 @@ export async function loadCatalog(): Promise<Catalog> {
   if (previewMode) {
     await previewReady;
     const c = structuredClone(memory);
+    if (!previewAdmin) {
+      c.products = c.products.filter((p) => p.visible !== false);
+      const visibleIds = new Set(c.products.map((p) => p.id));
+      c.sales = Object.fromEntries(
+        Object.entries(c.sales).filter(([id]) => visibleIds.has(id)),
+      );
+    }
     if (
       !previewAdmin &&
       !(previewMember && previewMembers.some((m) => m.status === "approved")) &&
@@ -471,6 +478,7 @@ export async function saveProduct(product: Product) {
   const error = validateProduct(product);
   if (error) throw new Error(error);
   if (previewMode) {
+    await previewReady;
     if (!previewAdmin)
       throw new Error("Ouvrez d’abord le tableau de bord en aperçu.");
     if (
@@ -483,8 +491,11 @@ export async function saveProduct(product: Product) {
     )
       throw new Error("Cette référence ou ce code-barres est déjà utilisé.");
     const index = memory.products.findIndex((p) => p.id === product.id);
-    if (index < 0) memory.products.push(structuredClone(product));
-    else memory.products[index] = structuredClone(product);
+    const saved = structuredClone(product);
+    if (saved.visible === undefined && index >= 0)
+      saved.visible = memory.products[index].visible;
+    if (index < 0) memory.products.push(saved);
+    else memory.products[index] = saved;
     return;
   }
   const { demo, price_hidden, ...safe } = product;
@@ -640,8 +651,10 @@ export async function placeOrder(
       shipping: settings.shipping_cents,
     });
   if (!cart.length) throw new Error("Le panier est vide.");
+  if (previewMode) await previewReady;
+  const currentProducts = previewMode ? memory.products : products;
   for (const item of cart) {
-    const p = products.find((p) => p.id === item.product_id);
+    const p = currentProducts.find((p) => p.id === item.product_id);
     if (
       !p ||
       !canBuy(p) ||
@@ -741,8 +754,20 @@ export async function submitRequest(
       key: requestKey,
     });
   if (previewMode) {
+    await previewReady;
     const previous = previewRequestKeys.get(requestKey);
     if (previous) return structuredClone(previous);
+    if (request.kind === "preorder") {
+      const product = memory.products.find((p) => p.id === request.product_id);
+      if (
+        !product ||
+        product.visible === false ||
+        !product.upcoming ||
+        !product.preorder_enabled ||
+        !memory.families.some((f) => f.id === product.family_id && f.visible)
+      )
+        throw new Error("La réservation de ce produit n’est pas ouverte.");
+    }
     if (request.kind === "custom") {
       const options = customOrderOptions(memory.settings),
         problem = validateCustomItems(

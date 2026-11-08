@@ -62,8 +62,16 @@ export function Slider({
   compact?: boolean;
   autoplay?: boolean;
 }) {
-  const { openProduct } = useStore();
-  const visible = slides.filter((h) => h.visible),
+  const { openProduct, catalog } = useStore();
+  const visible = slides.filter(
+      (h) =>
+        h.visible &&
+        (!h.product_id ||
+          catalog?.products.some(
+            (product) =>
+              product.id === h.product_id && product.visible !== false,
+          )),
+    ),
     [index, setIndex] = useState(0),
     [paused, setPaused] = useState(!autoplay),
     [hover, setHover] = useState(false),

@@ -192,9 +192,16 @@ export function normalizeSearch(value: string): string {
     .toLowerCase()
     .trim();
 }
+const naturalProductName = (name: string) =>
+  name
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/(\p{L})\s+(?=\d)/gu, "$1");
 export const compareProductNames = (a: Product, b: Product) =>
-  a.name.localeCompare(b.name, "fr", { sensitivity: "base", numeric: true }) ||
-  a.code.localeCompare(b.code, "fr", { numeric: true });
+  naturalProductName(a.name).localeCompare(naturalProductName(b.name), "fr", {
+    sensitivity: "base",
+    numeric: true,
+  }) || a.code.localeCompare(b.code, "fr", { numeric: true });
 export function belowPrice(
   p: Product,
   maximumCents: number,
@@ -207,7 +214,7 @@ export function belowPrice(
     !p.price_on_request &&
     Number.isSafeInteger(maximumCents) &&
     maximumCents > 0 &&
-    priceOf(p, now) < maximumCents
+    priceOf(p, now) <= maximumCents
   );
 }
 export function normalizeBarcode(value: string): string {
@@ -268,6 +275,7 @@ export const discountPercent = (p: Product, now = Date.now()) =>
         )
       : 0;
 export const canBuy = (p: Product) =>
+  p.visible !== false &&
   !p.price_hidden &&
   p.available &&
   p.availability_confirmed &&
@@ -380,6 +388,8 @@ export function timeRemaining(end: string | null, now = Date.now()): string {
   return days > 0 ? `${days} j ${hours} h` : `${hours} h ${mins} min`;
 }
 export function validateProduct(p: Product): string | null {
+  if (p.visible !== undefined && typeof p.visible !== "boolean")
+    return "Choisissez un état de visibilité valide pour le produit.";
   if (!p.name.trim() || !p.code.trim() || !p.family_id)
     return "Le nom, la référence et la collection sont obligatoires.";
   if (

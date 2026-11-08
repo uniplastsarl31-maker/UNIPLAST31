@@ -53,6 +53,7 @@ import type {
 } from "./types";
 import {
   activeDiscount,
+  compareProductNames,
   money,
   normalizeSearch,
   ORDER_LABELS,
@@ -133,6 +134,7 @@ function newProduct(family: string, packLabel: string): Product {
     unit_price_cents: 0,
     price_on_request: true,
     available: true,
+    visible: true,
     availability_confirmed: true,
     weight_grams: null,
     stock_cartons: null,
@@ -561,9 +563,7 @@ function ProductManager() {
         ? p.discount_price_cents !== null
         : matchesCompletenessFilter(p, filter),
   );
-  products.sort((a, b) =>
-    a.name.localeCompare(b.name, "fr", { sensitivity: "base", numeric: true }),
-  );
+  products.sort(compareProductNames);
   const availability = async (p: Product, checked: boolean) => {
     setBusy(true);
     try {
@@ -580,6 +580,22 @@ function ProductManager() {
       );
     } catch (e) {
       notify((e as Error).message, true);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const visibility = async (product: Product, checked: boolean) => {
+    setBusy(true);
+    try {
+      await api.saveProduct({ ...product, visible: checked });
+      await refresh();
+      notify(
+        checked
+          ? "Produit affiché dans le catalogue."
+          : "Produit masqué pour les visiteurs et les clients.",
+      );
+    } catch (error) {
+      notify((error as Error).message, true);
     } finally {
       setBusy(false);
     }
@@ -701,6 +717,7 @@ function ProductManager() {
                 <th>Unité / carton</th>
                 <th>Colisage</th>
                 <th>Disponible</th>
+                <th>Catalogue</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -712,6 +729,9 @@ function ProductManager() {
                       <ProductPhoto image={p.images[0]} name={p.name} />
                       <div>
                         <b>{p.name}</b>
+                        {p.visible === false && (
+                          <span className="badge">Masqué</span>
+                        )}
                         {!p.availability_confirmed && (
                           <small className="amber-text">
                             Disponibilité non confirmée
@@ -749,6 +769,23 @@ function ProductManager() {
                       checked={p.available && p.availability_confirmed}
                       disabled={busy}
                       onChange={(e) => void availability(p, e.target.checked)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      className="availability-checkbox"
+                      type="checkbox"
+                      aria-label={"Afficher dans le catalogue : " + p.name}
+                      title={
+                        p.visible === false
+                          ? "Afficher ce produit"
+                          : "Masquer ce produit"
+                      }
+                      checked={p.visible !== false}
+                      disabled={busy}
+                      onChange={(event) =>
+                        void visibility(p, event.target.checked)
+                      }
                     />
                   </td>
                   <td>
@@ -1331,6 +1368,14 @@ function ProductEditor({
           <label className="checkbox">
             <input
               type="checkbox"
+              checked={p.visible !== false}
+              onChange={(event) => set("visible", event.target.checked)}
+            />
+            Afficher dans le catalogue
+          </label>
+          <label className="checkbox">
+            <input
+              type="checkbox"
               checked={p.upcoming}
               onChange={(e) => set("upcoming", e.target.checked)}
             />
@@ -1353,6 +1398,10 @@ function ProductEditor({
             Épingler dans la sélection
           </label>
         </div>
+        <p className="muted-copy">
+          Décochez « Afficher dans le catalogue » pour masquer ce produit aux
+          visiteurs et aux clients, sans le supprimer ni modifier son stock.
+        </p>
         <div className="form-grid">
           <Field label="Stock en cartons (vide = non géré)">
             <input

@@ -317,9 +317,19 @@ export function FamilyLanding({ family: f }: { family: Family }) {
   const { catalog, now, openProduct } = useStore();
   if (!catalog) return null;
   const options = familyOptions(catalog.settings),
-    ads = (f.promotions || []).filter((h) => h.visible);
-  const available = catalog.products.filter((p) =>
-    catalog.families.some((c) => c.id === p.family_id && c.visible),
+    ads = (f.promotions || []).filter(
+      (h) =>
+        h.visible &&
+        (!h.product_id ||
+          catalog.products.some(
+            (product) =>
+              product.id === h.product_id && product.visible !== false,
+          )),
+    );
+  const available = catalog.products.filter(
+    (p) =>
+      p.visible !== false &&
+      catalog.families.some((c) => c.id === p.family_id && c.visible),
   );
   const count = available.filter((p) => matchesFamily(p, f, now)).length;
   return (

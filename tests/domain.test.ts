@@ -135,6 +135,33 @@ test("unknown availability, out-of-stock, upcoming and absent price each prevent
   assert.throws(() => orderLine(fixture, 0));
   assert.throws(() => orderLine(fixture, 1.5));
 });
+test("withdrawing a product prevents purchase while legacy and explicit visible products remain buyable", () => {
+  const legacy = { ...fixture };
+  delete legacy.visible;
+  assert.equal(canBuy(legacy), true);
+  assert.equal(canBuy({ ...legacy, visible: true }), true);
+  assert.equal(canBuy({ ...legacy, visible: false }), false);
+});
+test("visibility accepts legacy omission or booleans without rewriting stored photos, prices or state", () => {
+  const legacy = { ...fixture };
+  delete legacy.visible;
+  const before = structuredClone(legacy);
+  assert.equal(validateProduct(legacy), null);
+  assert.deepEqual(legacy, before);
+  assert.equal(Object.hasOwn(legacy, "visible"), false);
+  for (const visible of [true, false]) {
+    const saved = JSON.parse(JSON.stringify({ ...legacy, visible })) as Product;
+    assert.equal(validateProduct(saved), null);
+    assert.equal(saved.visible, visible);
+    assert.deepEqual(saved.images, legacy.images);
+    assert.equal(saved.unit_price_cents, legacy.unit_price_cents);
+  }
+  for (const visible of [null, "false", "true", 0, 1, {}])
+    assert.match(
+      validateProduct({ ...legacy, visible } as unknown as Product)!,
+      /visibilité/,
+    );
+});
 test("French accents and Arabic spelling/diacritics normalize without changing identifiers", () => {
   assert.equal(normalizeSearch("ÉGOUTTOIR"), "egouttoir");
   assert.equal(normalizeSearch("أُونِيبْلَاسْت"), "اونيبلاست");

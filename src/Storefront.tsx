@@ -59,6 +59,10 @@ import {
   customOrderOptions,
 } from "./domain";
 
+function storefrontProducts(catalog: { products: Product[] }) {
+  return catalog.products.filter((product) => product.visible !== false);
+}
+
 export function Header({
   openLogin,
   openScanner,
@@ -68,7 +72,7 @@ export function Header({
   openScanner: () => void;
   openClientLogin: () => void;
 }) {
-  const { catalog, cart, clientApproved } = useStore();
+  const { catalog, cart, clientApproved, isFavorite } = useStore();
   const [search, setSearch] = useState(""),
     [menu, setMenu] = useState(false),
     [families, setFamilies] = useState(false);
@@ -118,6 +122,13 @@ export function Header({
     } else selectSection("/");
   };
   if (!catalog) return null;
+  const favoriteCount = storefrontProducts(catalog).filter(
+    (product) =>
+      isFavorite(product.id) &&
+      catalog.families.some(
+        (family) => family.visible && family.id === product.family_id,
+      ),
+  ).length;
   const submit = (e: FormEvent) => {
     e.preventDefault();
     selectSection("/catalogue?q=" + encodeURIComponent(search));
@@ -208,6 +219,16 @@ export function Header({
           )}
           <button
             type="button"
+            className="header-home-button"
+            aria-label="Retour à l’accueil"
+            title="Accueil"
+            onClick={() => selectSection("/")}
+          >
+            <House size={18} aria-hidden="true" />
+            <span aria-hidden="true">Accueil</span>
+          </button>
+          <button
+            type="button"
             className={
               "header-client-button " + (clientApproved ? "is-connected" : "")
             }
@@ -238,6 +259,20 @@ export function Header({
               <b>{cart.length}</b>
             </span>
             <span>Mon panier</span>
+          </button>
+          <button
+            type="button"
+            className="header-favorites-button"
+            aria-label={`Mes favoris (${favoriteCount})`}
+            title="Mes favoris"
+            onClick={() => {
+              selectSection("/catalogue?favoris=1");
+              window.dispatchEvent(new Event("uniplast:open-favorites"));
+            }}
+          >
+            <Star size={20} aria-hidden="true" />
+            <span aria-hidden="true">Favoris</span>
+            {favoriteCount > 0 && <b aria-hidden="true">{favoriteCount}</b>}
           </button>
         </div>
         <div
@@ -295,7 +330,7 @@ export function Header({
                           {f.name}
                           <span>
                             {
-                              catalog.products.filter((p) =>
+                              storefrontProducts(catalog).filter((p) =>
                                 matchesFamily(p, f),
                               ).length
                             }
@@ -693,7 +728,8 @@ export function Home() {
   const { catalog, now } = useStore(),
     [showAll, setShowAll] = useState(false);
   if (!catalog) return null;
-  const { settings: s, products, families, sales } = catalog;
+  const { settings: s, families, sales } = catalog;
+  const products = storefrontProducts(catalog);
   const visibleFamilies = families
       .filter((f) => f.visible)
       .sort((a, b) => a.sort_order - b.sort_order),
@@ -932,7 +968,11 @@ export function Collections() {
               <div>
                 <h2>{f.name}</h2>
                 <span>
-                  {catalog.products.filter((p) => matchesFamily(p, f)).length}{" "}
+                  {
+                    storefrontProducts(catalog).filter((p) =>
+                      matchesFamily(p, f),
+                    ).length
+                  }{" "}
                   références
                 </span>
               </div>
@@ -951,7 +991,8 @@ function customerCatalogueFilter(value: string | null) {
 }
 export function Catalogue({ params }: { params: URLSearchParams }) {
   const { catalog, now, clientApproved, isFavorite } = useStore();
-  const [maximum, setMaximum] = useState("");
+  const [maximum, setMaximum] = useState(""),
+    [maximumDraft, setMaximumDraft] = useState("");
   const [q, setQ] = useState(params.get("q") || ""),
     [family, setFamily] = useState(params.get("famille") || ""),
     [filter, setFilter] = useState(
@@ -962,6 +1003,28 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     [page, setPage] = useState(1),
     [mobileFilters, setMobileFilters] = useState(false);
   const queryString = params.toString();
+  useEffect(() => {
+    const openFavorites = () => {
+      setQ("");
+      setFamily("");
+      setFilter("");
+      setSort("nom");
+      setMaximum("");
+      setMaximumDraft("");
+      setFavoritesOnly(true);
+      setPage(1);
+      setMobileFilters(false);
+    };
+    window.addEventListener("uniplast:open-favorites", openFavorites);
+    return () =>
+      window.removeEventListener("uniplast:open-favorites", openFavorites);
+  }, []);
+  useEffect(() => {
+    if (!clientApproved) {
+      setMaximum("");
+      setMaximumDraft("");
+    }
+  }, [clientApproved]);
   useEffect(() => {
     setQ(params.get("q") || "");
     setFamily(params.get("famille") || "");
@@ -976,10 +1039,14 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
       (f) => f.id === family || f.aliases?.includes(family),
     ),
     familyName = selectedFamily?.name,
-    favoriteCount = catalog.products.filter(
+    favoriteCount = storefrontProducts(catalog).filter(
       (p) => isFavorite(p.id) && families.some((f) => f.id === p.family_id),
     ).length;
-  let products = rankProducts(catalog.products, catalog.sales, now).filter(
+  let products = rankProducts(
+    storefrontProducts(catalog),
+    catalog.sales,
+    now,
+  ).filter(
     (p) =>
       families.some((f) => f.id === p.family_id) &&
       (!family || (!!selectedFamily && matchesFamily(p, selectedFamily, now))),
@@ -1078,6 +1145,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     setFilter("");
     setSort("nom");
     setMaximum("");
+    setMaximumDraft("");
     setFavoritesOnly(false);
     setPage(1);
     navigate("/catalogue");
@@ -1087,7 +1155,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
       <div className="breadcrumb">
         <a href="#/">Accueil</a>
         <ChevronRight size={12} />
-        <span>Catalogue</span>
+        <span>{favoritesOnly ? "Mes favoris" : "Catalogue"}</span>
         {familyName && (
           <>
             <ChevronRight size={12} />
@@ -1099,19 +1167,20 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
       <div className="catalog-heading" id="collection-products">
         <div>
           <span className="eyebrow">L’UNIVERS UNIPLAST</span>
-          <h1>{season?.title || familyName || "Le catalogue"}</h1>
+          <h1>
+            {favoritesOnly
+              ? "Mes favoris"
+              : season?.title || familyName || "Le catalogue"}
+          </h1>
           {seasonId && (
             <a className="text-link" href="#/catalogue">
               Voir tout le catalogue →
             </a>
           )}
           <p>
-            {selectedFamily
-              ? catalog.products.filter((p) =>
-                  matchesFamily(p, selectedFamily, now),
-                ).length
-              : catalog.products.length}{" "}
-            références pour trouver votre solution.
+            {favoritesOnly
+              ? "Vos produits enregistrés, réunis au même endroit."
+              : `${selectedFamily ? storefrontProducts(catalog).filter((p) => matchesFamily(p, selectedFamily, now)).length : storefrontProducts(catalog).length} références pour trouver votre solution.`}
           </p>
         </div>
         <div className="catalog-count">
@@ -1146,7 +1215,7 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             }}
           >
             <span>Toutes les collections</span>
-            <b>{catalog.products.length}</b>
+            <b>{storefrontProducts(catalog).length}</b>
           </button>
           {families.map((f) => (
             <button
@@ -1159,7 +1228,10 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
             >
               <span>{f.name}</span>
               <b>
-                {catalog.products.filter((p) => matchesFamily(p, f)).length}
+                {
+                  storefrontProducts(catalog).filter((p) => matchesFamily(p, f))
+                    .length
+                }
               </b>
             </button>
           ))}
@@ -1185,39 +1257,72 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
               {label}
             </label>
           ))}
-          {clientApproved && (
-            <div className="price-filter">
-              <h4>Budget par unité</h4>
-              <label>
-                Prix inférieur à (DA)
-                <input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  placeholder="Ex. 100"
-                  value={maximum}
-                  onChange={(e) => {
-                    setMaximum(e.target.value);
-                    setPage(1);
-                  }}
-                />
-              </label>
-              <button
-                className={maximum === "100" ? "selected" : ""}
-                onClick={() => {
-                  setMaximum(maximum === "100" ? "" : "100");
-                  setPage(1);
-                }}
-              >
-                Moins de 100 DA
-              </button>
-            </div>
-          )}
           <button className="reset-filters" onClick={reset}>
             Réinitialiser les filtres
           </button>
         </aside>
         <section className="catalog-results">
+          {clientApproved && (
+            <form
+              className="budget-search"
+              aria-label="Rechercher par prix maximum"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setMaximum(maximumDraft.trim());
+                setPage(1);
+                setMobileFilters(false);
+              }}
+            >
+              <div className="budget-search-copy">
+                <strong>Un prix maximum ?</strong>
+                <p>Les produits à ce prix ou moins.</p>
+              </div>
+              <div className="budget-search-controls">
+                <label>
+                  Prix maximum par unité (
+                  {catalog.settings.currency === "DZD"
+                    ? "DA"
+                    : catalog.settings.currency}
+                  )
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min="0.01"
+                    max="1000000000"
+                    step="0.01"
+                    placeholder="Ex. 50 ou 100"
+                    value={maximumDraft}
+                    onChange={(event) => setMaximumDraft(event.target.value)}
+                  />
+                </label>
+                <button type="submit" className="btn btn-primary">
+                  Rechercher
+                </button>
+              </div>
+              {maximum && (
+                <div className="budget-search-active" aria-live="polite">
+                  <span>
+                    Jusqu’à{" "}
+                    {money(
+                      Math.round(Number(maximum) * 100),
+                      catalog.settings.currency,
+                    )}{" "}
+                    par unité
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMaximum("");
+                      setMaximumDraft("");
+                      setPage(1);
+                    }}
+                  >
+                    Effacer
+                  </button>
+                </div>
+              )}
+            </form>
+          )}
           <div className="catalog-toolbar">
             <div className="catalog-search">
               <Search size={18} />
@@ -1294,9 +1399,10 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
                   .map((p, index, visibleProducts) => {
                     const group = productGroup(p);
                     const startsGroup =
-                      index === 0 ||
-                      productGroup(visibleProducts[index - 1]).key !==
-                        group.key;
+                      !favoritesOnly &&
+                      (index === 0 ||
+                        productGroup(visibleProducts[index - 1]).key !==
+                          group.key);
                     return (
                       <Fragment key={p.id}>
                         {startsGroup && (
@@ -1380,7 +1486,9 @@ export function ProductQuickView() {
     return () => window.removeEventListener("hashchange", close);
   }, [closeProduct]);
   if (!quickProductId || !catalog) return null;
-  const product = catalog.products.find((p) => p.id === quickProductId);
+  const product = storefrontProducts(catalog).find(
+    (p) => p.id === quickProductId,
+  );
   return (
     <Modal
       title={product?.name || "Détails du produit"}
@@ -1410,7 +1518,7 @@ export function ProductDetails({
     setN(1);
   }, [id]);
   if (!catalog) return null;
-  const p = catalog.products.find(
+  const p = storefrontProducts(catalog).find(
     (p) =>
       p.id === id &&
       catalog.families.some((f) => f.id === p.family_id && f.visible),
@@ -1615,7 +1723,7 @@ export function ProductDetails({
       {!onClose && productDisplay(catalog.settings).related_products && (
         <ProductRail
           title="Dans la même collection"
-          products={catalog.products
+          products={storefrontProducts(catalog)
             .filter(
               (item) => item.family_id === p.family_id && item.id !== p.id,
             )

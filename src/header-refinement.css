@@ -4,11 +4,11 @@ html[data-storefront-theme] .main-header .header-inner .brand.brand-compact {
   position: relative;
   display: flex;
   align-items: center;
-  flex: 0 0 256px;
+  flex: 0 0 300px;
   min-width: 0;
   min-height: 50px;
   margin: 0;
-  padding: 0 0 0 58px;
+  padding: 0 0 0 96px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -21,8 +21,8 @@ html[data-storefront-theme] .main-header .header-inner .brand.brand-compact {
   top: 4px;
   left: 0;
   display: block;
-  width: 48px;
-  height: 28px;
+  width: 84px;
+  height: 42px;
   max-width: none;
   padding: 0;
   margin: 0;
@@ -65,8 +65,14 @@ html[data-storefront-theme] .main-header .header-inner .brand.brand-compact {
   min-width: 0;
 }
 @media (min-width: 761px) and (max-width: 1100px) {
-  .main-header .header-inner .brand.brand-compact {
-    flex-basis: 220px;
+  .main-header .header-inner .brand.brand-compact,
+  html[data-storefront-theme] .main-header .header-inner .brand.brand-compact {
+    flex-basis: 252px;
+    padding-left: 76px;
+  }
+  .main-header .brand.brand-compact > .brand-corner-logo {
+    width: 64px;
+    height: 34px;
   }
   .brand.brand-compact .brand-wordmark strong {
     font-size: 23px;
@@ -88,12 +94,12 @@ html[data-storefront-theme] .main-header .header-inner .brand.brand-compact {
     flex: initial;
     width: 100%;
     min-height: 40px;
-    padding-left: 44px;
+    padding-left: 56px;
   }
   .main-header .brand.brand-compact > .brand-corner-logo {
     top: 3px;
-    width: 36px;
-    height: 22px;
+    width: 48px;
+    height: 28px;
   }
   .brand.brand-compact .brand-wordmark {
     gap: 4px;

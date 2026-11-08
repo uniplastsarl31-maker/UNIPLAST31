@@ -1,0 +1,126 @@
+.budget-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px 24px;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 0 20px;
+  padding: 18px;
+  border: 1.5px solid #4776bc;
+  border-radius: 16px;
+  background: linear-gradient(115deg, #edf4ff, #f9fbff);
+  box-shadow: 0 4px 14px #24487909;
+}
+.budget-search-copy {
+  min-width: 0;
+}
+.budget-search-copy > strong {
+  display: block;
+  color: #193f78;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.budget-search-copy > p {
+  margin: 4px 0 0;
+  color: #506581;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.budget-search-controls {
+  display: grid;
+  grid-template-columns: minmax(140px, 210px) auto;
+  align-items: end;
+  gap: 10px;
+  min-width: 0;
+}
+.budget-search-controls > label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  color: #2d486e;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.budget-search-controls input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 42px;
+  padding: 9px 11px;
+  border: 1px solid #a5bbdc;
+  border-radius: 9px;
+  background: #fff;
+  color: #1d385c;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.budget-search-controls input:focus-visible {
+  border-color: #254496;
+  outline: 3px solid #25449625;
+  outline-offset: 1px;
+}
+.budget-search-controls > .btn {
+  min-height: 42px;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.budget-search-active {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid #c9d8ed;
+  color: #214a85;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.budget-search-active > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.budget-search-active > button {
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid #a7bddd;
+  border-radius: 7px;
+  background: #fff;
+  color: #254496;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .budget-search {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 13px;
+    border-radius: 13px;
+  }
+  .budget-search-controls {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    width: 100%;
+  }
+  .budget-search-controls input {
+    font-size: 16px;
+  }
+  .budget-search-controls > .btn {
+    padding-inline: 12px;
+  }
+}
