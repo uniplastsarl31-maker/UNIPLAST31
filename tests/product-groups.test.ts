@@ -213,7 +213,7 @@ test("unknown families stay in deterministic blocks after configured families", 
   );
 });
 
-test("default catalogue order prioritizes references over capacity and package count", () => {
+test("individual references precede sets, which have their own ascending reference order", () => {
   const list = [
     example("R4", "BOITE EMBALLAGE CARRE MINI 1000ML REF 04"),
     example("R2", "BOITE EMBALLAGE CARRE MINI 450ML REF 02"),
@@ -224,7 +224,7 @@ test("default catalogue order prioritizes references over capacity and package c
   const before = JSON.stringify(list);
   assert.deepEqual(
     [...list].sort(compareCatalogueProducts).map((p) => p.code),
-    ["R1", "R2", "R3", "R4", "R10"],
+    ["R2", "R4", "R1", "R3", "R10"],
   );
   assert.equal(JSON.stringify(list), before);
 });
@@ -239,15 +239,56 @@ test("all actual packaging shapes default to reference 1 before 2, 3 and 4", () 
       p.name.startsWith("BOITE EMBALLAGE " + shape),
     );
     assert.ok(products.length > 4);
-    const refs = products
-      .sort(compareCatalogueProducts)
-      .map((p) => Number(p.name.match(/\bREF\s*(\d+)/)?.[1]));
-    assert.equal(refs[0], 1);
-    assert.ok(
-      refs.every((n, i) => Number.isFinite(n) && (!i || n >= refs[i - 1])),
-      shape,
-    );
+    const sorted = products.sort(compareCatalogueProducts);
+    const setStart = sorted.findIndex((p) => p.name.includes(" S/"));
+    assert.ok(setStart > 0);
+    assert.ok(sorted.slice(setStart).every((p) => p.name.includes(" S/")));
+    for (const block of [sorted.slice(0, setStart), sorted.slice(setStart)]) {
+      const refs = block.map((p) => Number(p.name.match(/\bREF\s*(\d+)/)?.[1]));
+      assert.equal(refs[0], 1);
+      assert.ok(
+        refs.every((n, i) => Number.isFinite(n) && (!i || n >= refs[i - 1])),
+        shape,
+      );
+    }
   }
+});
+
+test("S/3 and S/4 variants follow individuals and sort by REF, not piece count", () => {
+  const list = [
+    example("set3ref2", "BOITE EMBALLAGE RONDE S/3 (100ML) REF 2"),
+    example("single4", "BOITE EMBALLAGE RONDE 750ML REF 4"),
+    example("set4ref1", "BOITE EMBALLAGE RONDE S/04 (900ML) REF 1"),
+    example("single1", "BOITE EMBALLAGE RONDE 300ML REF 1"),
+    example("set4ref3", "BOITE EMBALLAGE RONDE S4 (200ML) REF 3"),
+    example("set3ref4", "BOITE EMBALLAGE RONDE S 03 (150ML) REF 4"),
+    example("set2ref10", "BOITE EMBALLAGE RONDE S/2 (50ML) REF 10"),
+  ];
+  assert.deepEqual(
+    list.sort(compareCatalogueProducts).map((p) => p.code),
+    [
+      "single1",
+      "single4",
+      "set4ref1",
+      "set3ref2",
+      "set4ref3",
+      "set3ref4",
+      "set2ref10",
+    ],
+  );
+});
+
+test("similar text and wholesale pack_size do not turn individual products into sets", () => {
+  const list = [
+    example("set1", "BOITE EMBALLAGE RONDE S/3 REF 1"),
+    { ...example("single4", "BOITE EMBALLAGE RONDE S4L REF 4"), pack_size: 48 },
+    example("single3", "BOITE EMBALLAGE RONDE XS4 REF 3"),
+    example("single2", "BOITE EMBALLAGE RONDE S/1 REF 2"),
+  ];
+  assert.deepEqual(
+    list.sort(compareCatalogueProducts).map((p) => p.code),
+    ["single2", "single3", "single4", "set1"],
+  );
 });
 
 test("Crystal model number outranks its secondary REF and series sets follow individual models", () => {

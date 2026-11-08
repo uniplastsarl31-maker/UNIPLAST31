@@ -128,7 +128,10 @@ export function productGroup(
 function cataloguePosition(product: Product): [number, number] {
   const name = normalized(product.name?.trim() || product.name_fr || "");
   // Sets follow individual products; their piece count is not a model number.
-  const set = /\bSERIE\b/.test(name) ? 1 : 0;
+  const set =
+    /\bSERIE\b/.test(name) || Number(name.match(/\bS\s*(\d+)\b/)?.[1]) > 1
+      ? 1
+      : 0;
   // RC10 REF 02 is model 10, not model 2. Otherwise an explicit REF takes
   // precedence over capacity, dimensions and S/4 package quantities.
   const beforeReference = name.split(/\bREF(?:ERENCE)?(?=\b|\d)/)[0];
