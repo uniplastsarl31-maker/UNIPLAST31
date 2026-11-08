@@ -47,7 +47,8 @@ import { previewMode } from "./api";
 import { FamilyLanding } from "./FeatureControls";
 import { VideoSection } from "./VideoFeatures";
 import { SeasonalNavigation } from "./SeasonalNavigation";
-import { catalogueFamilyOrder, productGroup } from "./productGroups";
+import { productGroup } from "./productGroups";
+import { catalogueOrder } from "./productOrdering";
 import { DEFAULT_TAGLINE, youtubeChannelUrl } from "./media";
 import "./favorites-ui.css";
 import {
@@ -1098,7 +1099,8 @@ export function Catalogue({ params }: { params: URLSearchParams }) {
     products = products.filter((p) =>
       belowPrice(p, Math.round(Number(maximum) * 100), clientApproved, now),
     );
-  if (sort === "nom") products.sort(catalogueFamilyOrder(catalog.families));
+  if (sort === "nom")
+    products.sort(catalogueOrder(catalog.products, catalog.families));
   if (sort === "prix-croissant")
     products.sort(
       (a, b) =>

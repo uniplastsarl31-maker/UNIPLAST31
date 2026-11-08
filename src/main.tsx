@@ -14,4 +14,6 @@ import "./image-controls-refinement.css";
 import "./product-groups.css";
 import "./quick-access.css";
 import "./budget-search.css";
+import "./product-ordering.css";
+import "./classic-theme.css";
 createRoot(document.getElementById("root")!).render(<App />);

@@ -9,6 +9,10 @@ const { defaultSettings } = require("./generated/defaults.cjs");
 const { validateSlideComposition } = require("./generated/slider.cjs");
 const { validateMediaSettings } = require("./generated/media.cjs");
 const { validateStorefrontTheme } = require("./generated/seasonalTheme.cjs");
+const {
+  MAX_MANUAL_POSITION,
+  planProductPosition,
+} = require("./generated/productOrdering.cjs");
 const { createLargeUploads } = require("./large-uploads.cjs");
 const { applyWeightFill } = require("./weight-fill.cjs");
 const { createCatalogTransfer } = require("./catalog-transfer.cjs");
@@ -693,12 +697,59 @@ function createLocalStore({
           result = { id };
           break;
         }
+        case "product-position": {
+          admin(s);
+          assert(typeof p.id === "string" && p.id.length > 0, "Produit invalide.");
+          assert(
+            p.position === null ||
+              (Number.isSafeInteger(p.position) &&
+                p.position > 0 &&
+                p.position <= MAX_MANUAL_POSITION),
+            "La position doit être un entier de 1 à un million ou rester automatique.",
+          );
+          result = transaction(() => {
+            assert(get("product", p.id), "Produit introuvable.", 404);
+            const patches = planProductPosition(
+              all("product"),
+              all("family"),
+              p.id,
+              p.position,
+            );
+            for (const patch of patches) {
+              const current = get("product", patch.id);
+              assert(current, "Produit introuvable.", 404);
+              put("product", {
+                ...current,
+                manual_position: patch.manual_position,
+              });
+            }
+            return {
+              id: p.id,
+              position: get("product", p.id).manual_position ?? null,
+              updated: patches.length,
+            };
+          });
+          break;
+        }
         case "product-save": {
           admin(s);
-          if (p.visible === undefined) {
-            const previous =
-              typeof p.id === "string" ? get("product", p.id) : null;
-            if (previous?.visible !== undefined) p.visible = previous.visible;
+          assert(
+            p.manual_position === undefined ||
+              p.manual_position === null ||
+              (Number.isSafeInteger(p.manual_position) &&
+                p.manual_position > 0 &&
+                p.manual_position <= MAX_MANUAL_POSITION),
+            "La position doit être un entier positif ou rester automatique.",
+          );
+          const previous =
+            typeof p.id === "string" ? get("product", p.id) : null;
+          if (p.visible === undefined && previous?.visible !== undefined)
+            p.visible = previous.visible;
+          // Content forms may contain an older explicit anchor. Ordering changes
+          // for existing products go through the dedicated positioning endpoint.
+          if (previous) {
+            if (previous.manual_position === undefined) delete p.manual_position;
+            else p.manual_position = previous.manual_position;
           }
           assert(
             p.visible === undefined || typeof p.visible === "boolean",

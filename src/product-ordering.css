@@ -1,0 +1,92 @@
+.product-order-help {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  margin: 14px 0;
+  border: 1px solid #c7dced;
+  border-radius: 12px;
+  background: #eef7fc;
+  color: #244661;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.product-order-help svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.product-order-help p {
+  margin: 0;
+}
+.product-order-controls {
+  min-width: 150px;
+  display: grid;
+  gap: 7px;
+}
+.product-order-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.product-order-buttons .icon-btn {
+  width: 29px;
+  height: 30px;
+  padding: 3px;
+}
+.product-drag-handle {
+  cursor: grab;
+  touch-action: pan-y;
+}
+.product-drag-handle:active {
+  cursor: grabbing;
+}
+.product-position-button {
+  border: 1px solid #c4d2e1;
+  border-radius: 6px;
+  min-width: 36px;
+  height: 30px;
+  background: #f3f8fd;
+  color: #1d3e64;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.product-position-lock {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #65758a;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.product-position-lock input {
+  width: 14px;
+  height: 14px;
+  accent-color: #156e77;
+}
+.product-position-lock.is-fixed {
+  color: #126b70;
+  font-weight: 700;
+}
+.product-admin-table tr.product-drop-target td {
+  background: #e1f3f2;
+  border-top: 2px solid #18858b;
+}
+.product-position-field {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.product-position-field input {
+  padding: 12px;
+  border: 1px solid #b9cadc;
+  border-radius: 8px;
+  width: 100%;
+  font: inherit;
+}
+.product-order-controls button:focus-visible,
+.product-position-lock input:focus-visible {
+  outline: 3px solid #4695bf;
+  outline-offset: 2px;
+}

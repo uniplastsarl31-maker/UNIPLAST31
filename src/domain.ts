@@ -388,6 +388,13 @@ export function timeRemaining(end: string | null, now = Date.now()): string {
   return days > 0 ? `${days} j ${hours} h` : `${hours} h ${mins} min`;
 }
 export function validateProduct(p: Product): string | null {
+  if (
+    p.manual_position != null &&
+    (!Number.isSafeInteger(p.manual_position) ||
+      p.manual_position < 1 ||
+      p.manual_position > 1000000)
+  )
+    return "La position manuelle doit être un entier entre 1 et 1 000 000.";
   if (p.visible !== undefined && typeof p.visible !== "boolean")
     return "Choisissez un état de visibilité valide pour le produit.";
   if (!p.name.trim() || !p.code.trim() || !p.family_id)

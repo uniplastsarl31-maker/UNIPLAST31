@@ -93,6 +93,19 @@
   --theme-preview-accent: #e4be70;
   background: radial-gradient(circle at 15% 10%, #4e4d75, #171f3c 75%);
 }
+.theme-option-preview[data-theme="classic"] {
+  --theme-preview-accent: #0d6e73;
+  background: linear-gradient(120deg, #eaf3fb, #edf8f3);
+  box-shadow: inset 0 0 0 1px #bdd2e2;
+}
+.theme-option-preview[data-theme="classic"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 31px;
+  border-bottom: 4px solid #0d6e73;
+  background: #164b81;
+}
 .theme-option-preview[data-theme="ramadan-ivory"] {
   --theme-preview-accent: #b78a3c;
   background: linear-gradient(135deg, #fffdf5, #eee1c8);

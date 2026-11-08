@@ -10,6 +10,8 @@ for (const [src, name] of [
   ["slider", "slider"],
   ["media", "media"],
   ["seasonalTheme", "seasonalTheme"],
+  ["productGroups", "productGroups"],
+  ["productOrdering", "productOrdering"],
 ]) {
   const source = fs.readFileSync(path.join(root, "src", src + ".ts"), "utf8");
   const result = ts.transpileModule(source, {
@@ -20,7 +22,10 @@ for (const [src, name] of [
   });
   fs.writeFileSync(
     path.join(target, name + ".cjs"),
-    result.outputText.replace('require("./domain")', 'require("./domain.cjs")'),
+    result.outputText.replace(
+      /require\("\.\/(domain|productGroups|productOrdering)(?:\.ts)?"\)/g,
+      'require("./$1.cjs")',
+    ),
   );
 }
 fs.copyFileSync(

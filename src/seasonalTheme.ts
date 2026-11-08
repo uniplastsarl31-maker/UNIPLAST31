@@ -12,7 +12,8 @@ export const storefrontThemes = [
   {
     id: "classic",
     label: "Classique",
-    description: "Votre présentation habituelle, sans décor saisonnier.",
+    description:
+      "Bleu profond, touches de vert d’eau et fond clair, sans décor saisonnier.",
   },
   {
     id: "ramadan-night",
@@ -50,7 +51,7 @@ export function validateStorefrontTheme(value: unknown): string | null {
     : "Choisissez un thème proposé dans les paramètres.";
 }
 
-/** Missing or unrecognised saved themes keep the original storefront. */
+/** Missing or unrecognised saved themes use the classic storefront. */
 export function storefrontTheme(
   settings: Pick<Settings, "storefront_theme">,
 ): StorefrontTheme {

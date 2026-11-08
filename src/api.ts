@@ -17,6 +17,7 @@ import { defaultSettings } from "./catalog";
 import { watchCatalogActivity } from "./catalogSync";
 import { validateSlideComposition } from "./slider";
 import { validateStorefrontTheme } from "./seasonalTheme";
+import { planProductPosition } from "./productOrdering";
 import {
   localMode,
   localCall,
@@ -494,6 +495,9 @@ export async function saveProduct(product: Product) {
     const saved = structuredClone(product);
     if (saved.visible === undefined && index >= 0)
       saved.visible = memory.products[index].visible;
+    // Ordering has its own endpoint; stale edit forms must not undo newer moves.
+    if (index >= 0)
+      saved.manual_position = memory.products[index].manual_position;
     if (index < 0) memory.products.push(saved);
     else memory.products[index] = saved;
     return;
@@ -501,6 +505,33 @@ export async function saveProduct(product: Product) {
   const { demo, price_hidden, ...safe } = product;
   const { error: e } = await supabase!.from("products").upsert(safe);
   if (e) fail(e);
+}
+export async function setProductPosition(
+  id: string,
+  position: number | null,
+): Promise<void> {
+  if (localMode) return localCall<void>("product-position", { id, position });
+  if (previewMode) {
+    await previewReady;
+    if (!previewAdmin) throw new Error("Accès non autorisé.");
+    const patches = planProductPosition(
+      memory.products,
+      memory.families,
+      id,
+      position,
+    );
+    const byId = new Map(patches.map((patch) => [patch.id, patch]));
+    memory.products = memory.products.map((product) => {
+      const patch = byId.get(product.id);
+      return patch
+        ? { ...product, manual_position: patch.manual_position }
+        : product;
+    });
+    return;
+  }
+  throw new Error(
+    "Le placement manuel n’est pas disponible sur cette version.",
+  );
 }
 export async function removeProduct(id: string) {
   if (localMode) return localCall("product-delete", { id });

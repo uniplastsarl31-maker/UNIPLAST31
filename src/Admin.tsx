@@ -26,6 +26,7 @@ import {
   Factory,
   FileText,
   Grid2X2,
+  GripVertical,
   ImagePlus,
   Info,
   LayoutDashboard,
@@ -66,7 +67,11 @@ import { InvoiceActions, InvoicePaper } from "./Commerce";
 import { AdvancedSettings, CustomerAccessManager } from "./CustomerFeatures";
 import { FeatureSettings, FamilyExtrasEditor } from "./FeatureControls";
 import { matchesFamily } from "./domain";
-import { catalogueFamilyOrder } from "./productGroups";
+import {
+  orderedCatalogueProducts,
+  planProductPosition,
+} from "./productOrdering";
+import { ProductOrderControls } from "./ProductOrderControls";
 import { CatalogTransfer } from "./CatalogTransfer";
 import { ThemeSettings } from "./ThemeSettings";
 import {
@@ -545,6 +550,8 @@ function ProductManager() {
     [page, setPage] = useState(1),
     [edit, setEdit] = useState<Product | null>(null),
     [deleteTarget, setDeleteTarget] = useState<Product | null>(null),
+    [draggedId, setDraggedId] = useState<string | null>(null),
+    [dragOverId, setDragOverId] = useState<string | null>(null),
     [busy, setBusy] = useState(false);
   if (!catalog) return null;
   const scopedProducts = catalog.products.filter(
@@ -563,7 +570,59 @@ function ProductManager() {
         ? p.discount_price_cents !== null
         : matchesCompletenessFilter(p, filter),
   );
-  products.sort(catalogueFamilyOrder(catalog.families));
+  const fullOrder = orderedCatalogueProducts(
+    catalog.products,
+    catalog.families,
+  );
+  const ranks = new Map(fullOrder.map((p, index) => [p.id, index]));
+  const familyCounts = new Map<string, number>();
+  const familyPositions = new Map<string, number>();
+  for (const p of fullOrder) {
+    const position = (familyCounts.get(p.family_id) || 0) + 1;
+    familyCounts.set(p.family_id, position);
+    familyPositions.set(p.id, position);
+  }
+  products.sort((a, b) => ranks.get(a.id)! - ranks.get(b.id)!);
+  const setPosition = async (product: Product, position: number | null) => {
+    setBusy(true);
+    try {
+      const patches = planProductPosition(
+        catalog.products,
+        catalog.families,
+        product.id,
+        position,
+      );
+      await api.setProductPosition(product.id, position);
+      const predicted = catalog.products.map((p) => {
+        const patch = patches.find((change) => change.id === p.id);
+        return patch ? { ...p, manual_position: patch.manual_position } : p;
+      });
+      const visibleIds = new Set(products.map((p) => p.id));
+      const next = orderedCatalogueProducts(predicted, catalog.families).filter(
+        (p) => visibleIds.has(p.id),
+      );
+      setPage(
+        Math.max(
+          1,
+          Math.floor(next.findIndex((p) => p.id === product.id) / 25) + 1,
+        ),
+      );
+      await refresh();
+      notify(
+        position === null
+          ? "Produit remis dans le tri automatique."
+          : "Position enregistrée et fixée dans sa collection.",
+      );
+      return true;
+    } catch (error) {
+      notify((error as Error).message, true);
+      return false;
+    } finally {
+      setBusy(false);
+      setDraggedId(null);
+      setDragOverId(null);
+    }
+  };
   const availability = async (p: Product, checked: boolean) => {
     setBusy(true);
     try {
@@ -707,10 +766,22 @@ function ProductManager() {
           Les nombres suivent votre recherche et votre collection. Un produit
           peut avoir plusieurs informations à compléter.
         </p>
+        <div className="product-order-help">
+          <GripVertical size={21} />
+          <p>
+            Glissez un produit vers un autre de la même collection, utilisez les
+            flèches ou cliquez sur son numéro pour choisir sa position. Le
+            déplacement coche « Position fixée » : les règles REF et S/3–S/4 ne
+            le replacent plus. Décochez cette case pour retrouver le tri
+            automatique. Le numéro reste celui de la collection entière, même
+            pendant une recherche.
+          </p>
+        </div>
         <div className="table-scroll">
           <table className="data-table product-admin-table">
             <thead>
               <tr>
+                <th>Ordre</th>
                 <th>Produit</th>
                 <th>Référence</th>
                 <th>Collection</th>
@@ -723,7 +794,58 @@ function ProductManager() {
             </thead>
             <tbody>
               {products.slice((page - 1) * 25, page * 25).map((p) => (
-                <tr key={p.id}>
+                <tr
+                  key={p.id}
+                  className={dragOverId === p.id ? "product-drop-target" : ""}
+                  onDragOver={(event) => {
+                    const dragged = catalog.products.find(
+                      (item) => item.id === draggedId,
+                    );
+                    if (
+                      !busy &&
+                      dragged &&
+                      dragged.id !== p.id &&
+                      dragged.family_id === p.family_id
+                    ) {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                      setDragOverId(p.id);
+                    }
+                  }}
+                  onDragLeave={() => {
+                    if (dragOverId === p.id) setDragOverId(null);
+                  }}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    const dragged = catalog.products.find(
+                      (item) => item.id === draggedId,
+                    );
+                    if (!busy && dragged && dragged.family_id === p.family_id)
+                      void setPosition(dragged, familyPositions.get(p.id)!);
+                    else {
+                      setDraggedId(null);
+                      setDragOverId(null);
+                    }
+                  }}
+                >
+                  <td>
+                    <ProductOrderControls
+                      product={p}
+                      position={familyPositions.get(p.id)!}
+                      total={familyCounts.get(p.family_id)!}
+                      disabled={busy}
+                      onChange={(position) => setPosition(p, position)}
+                      onDragStart={(event) => {
+                        setDraggedId(p.id);
+                        event.dataTransfer.effectAllowed = "move";
+                        event.dataTransfer.setData("text/plain", p.id);
+                      }}
+                      onDragEnd={() => {
+                        setDraggedId(null);
+                        setDragOverId(null);
+                      }}
+                    />
+                  </td>
                   <td>
                     <div className="admin-product-name">
                       <ProductPhoto image={p.images[0]} name={p.name} />
@@ -1417,7 +1539,7 @@ function ProductEditor({
               }
             />
           </Field>
-          <Field label="Ordre manuel (plus petit = avant)">
+          <Field label="Priorité pour le tri « Pertinence »">
             <input
               type="number"
               step={1}

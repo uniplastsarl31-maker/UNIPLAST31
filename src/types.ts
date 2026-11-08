@@ -23,6 +23,7 @@ export interface Family {
   visible: boolean;
 }
 export interface Product {
+  manual_position?: number | null;
   visible?: boolean;
   public_discount_percent?: number;
   price_hidden?: boolean;
