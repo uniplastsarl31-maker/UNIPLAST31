@@ -58,8 +58,9 @@ export function ThemeSettings({
         ))}
       </fieldset>
       <p className="theme-settings-help">
-        Le choix reste actif jusqu’à votre prochaine modification. Les décors
-        restent sur les bords pour laisser les produits et les boutons visibles.
+        Le choix reste actif jusqu’à votre prochaine modification. Le menu,
+        l’en-tête et les décors changent ensemble. Les photos des produits
+        conservent leurs couleurs et tous les boutons restent accessibles.
       </p>
     </section>
   );

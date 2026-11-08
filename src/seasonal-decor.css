@@ -8,6 +8,19 @@ html[data-storefront-theme="ramadan-night"] {
   --seasonal-bar: linear-gradient(100deg, #12213b, #294263, #14243e);
   --seasonal-bar-ink: #fff0cc;
   --seasonal-decoration: #b38b43;
+  --seasonal-header-background:
+    radial-gradient(ellipse at 90% 0%, #304c70, transparent 55%), #14263f;
+  --seasonal-header-ink: #fff0cc;
+  --seasonal-control-ink: #273d58;
+  --seasonal-nav-background: #0c1d32;
+  --seasonal-nav-ink: #fff0cc;
+  --seasonal-button: #efc975;
+  --seasonal-button-ink: #36291a;
+  --seasonal-art-ink: #edc979;
+  --seasonal-banner-background:
+    radial-gradient(ellipse at 96% 15%, #3f4b66, transparent 50%), #203650;
+  --seasonal-banner-ink: #ffefc8;
+  --seasonal-foliage: #b38b43;
 }
 html[data-storefront-theme="ramadan-ivory"] {
   --seasonal-ink: #55432c;
@@ -19,17 +32,44 @@ html[data-storefront-theme="ramadan-ivory"] {
   --seasonal-bar: linear-gradient(100deg, #5c4730, #7b6038, #5c4730);
   --seasonal-bar-ink: #fff6df;
   --seasonal-decoration: #a6813d;
+  --seasonal-header-background:
+    radial-gradient(ellipse at 95% 0%, #e6ce94, transparent 60%), #fff6e4;
+  --seasonal-header-ink: #654920;
+  --seasonal-control-ink: #654920;
+  --seasonal-nav-background: #f0dfb7;
+  --seasonal-nav-ink: #533d20;
+  --seasonal-button: #795822;
+  --seasonal-button-ink: #fff9ec;
+  --seasonal-art-ink: #a47a2c;
+  --seasonal-banner-background:
+    radial-gradient(ellipse at 95% 0%, #f2dfa8, transparent 65%), #fffaf0;
+  --seasonal-banner-ink: #674a20;
+  --seasonal-foliage: #a6813d;
 }
 html[data-storefront-theme="newyear-snow"] {
   --seasonal-ink: #23445c;
   --seasonal-accent: #2f6686;
   --seasonal-line: #bdd8e7;
   --seasonal-page: #f3f9fc;
-  --seasonal-panel: #e7f3fa;
-  --seasonal-panel-ink: #23445c;
+  --seasonal-panel: #e5f3ec;
+  --seasonal-panel-ink: #194e41;
   --seasonal-bar: linear-gradient(100deg, #23496a, #346a8b, #23496a);
   --seasonal-bar-ink: #f4fbff;
-  --seasonal-decoration: #86b6d1;
+  --seasonal-decoration: #669a92;
+  --seasonal-header-background:
+    radial-gradient(ellipse at 90% 0%, #c4e8df, transparent 55%),
+    linear-gradient(110deg, #f8fcff, #e5f3f0);
+  --seasonal-header-ink: #1a5549;
+  --seasonal-control-ink: #215a4e;
+  --seasonal-nav-background: #174f44;
+  --seasonal-nav-ink: #f4fffc;
+  --seasonal-button: #246453;
+  --seasonal-button-ink: #fff;
+  --seasonal-art-ink: #367a68;
+  --seasonal-banner-background:
+    radial-gradient(ellipse at 90% 0%, #cde7dc, transparent 65%), #f5fffb;
+  --seasonal-banner-ink: #1b594a;
+  --seasonal-foliage: #356e55;
 }
 html[data-storefront-theme="newyear-midnight"] {
   --seasonal-ink: #263f62;
@@ -41,6 +81,231 @@ html[data-storefront-theme="newyear-midnight"] {
   --seasonal-bar: linear-gradient(100deg, #10223e, #263c60, #10223e);
   --seasonal-bar-ink: #edf4ff;
   --seasonal-decoration: #91a8cb;
+  --seasonal-header-background:
+    radial-gradient(ellipse at 94% 0%, #3a5d83, transparent 60%), #10233d;
+  --seasonal-header-ink: #edf5ff;
+  --seasonal-control-ink: #294967;
+  --seasonal-nav-background: #081a30;
+  --seasonal-nav-ink: #e5f0ff;
+  --seasonal-button: #dce9f8;
+  --seasonal-button-ink: #15334f;
+  --seasonal-art-ink: #d4e7ff;
+  --seasonal-banner-background:
+    radial-gradient(ellipse at 95% 0%, #426486, transparent 60%), #203a59;
+  --seasonal-banner-ink: #f2f7ff;
+  --seasonal-foliage: #93c4c3;
+}
+
+/* The complete header and opened menu carry the seasonal identity. */
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header {
+  isolation: isolate;
+  background: var(--seasonal-header-background);
+  color: var(--seasonal-header-ink);
+  box-shadow: 0 8px 24px #13243e18;
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .header-inner {
+  position: relative;
+  z-index: 1;
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .brand {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 0 5px #fff;
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .search-box {
+  color: var(--seasonal-control-ink);
+  background: #ffffff;
+  border-color: color-mix(in srgb, var(--seasonal-art-ink) 65%, #fff);
+  box-shadow: 0 3px 12px #07132414;
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .search-box
+  input {
+  color: #263749;
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .search-box
+  input::placeholder {
+  color: #607080;
+  opacity: 1;
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .scan-btn {
+  color: var(--seasonal-control-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .search-submit {
+  background: var(--seasonal-button);
+  color: var(--seasonal-button-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .header-contact,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .header-contact
+  b,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .cart-button,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .cart-icon,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .mobile-menu {
+  color: var(--seasonal-header-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .header-client-button:not(.is-connected) {
+  background: #fff;
+  color: var(--seasonal-control-ink);
+  border-color: var(--seasonal-line);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  .cart-icon
+  b {
+  background: var(--seasonal-button);
+  color: var(--seasonal-button-ink);
+  border-color: var(--seasonal-header-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"]) .navigation {
+  position: relative;
+  z-index: 2;
+  color: var(--seasonal-nav-ink);
+  background: var(--seasonal-nav-background);
+  border-color: color-mix(in srgb, var(--seasonal-art-ink) 55%, transparent);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .nav-inner
+  > a {
+  color: var(--seasonal-nav-ink);
+  border-color: color-mix(in srgb, var(--seasonal-nav-ink) 18%, transparent);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .nav-inner
+  > a:hover {
+  color: var(--seasonal-nav-ink);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .navigation
+  .family-nav {
+  background: var(--seasonal-button);
+  color: var(--seasonal-button-ink);
+  border: 1px solid color-mix(in srgb, var(--seasonal-button) 65%, #fff);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .navigation
+  .family-dropdown {
+  background: #fffdf8;
+  color: #34404e;
+  border-color: var(--seasonal-line);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .navigation
+  .family-dropdown
+  button:hover {
+  background: var(--seasonal-page);
+  color: var(--seasonal-control-ink);
+}
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .navigation
+  a:focus-visible,
+html[data-storefront-theme]:not([data-storefront-theme="classic"])
+  .main-header
+  button:focus-visible {
+  outline: 3px solid var(--seasonal-art-ink);
+  outline-offset: 3px;
+}
+.seasonal-header-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--seasonal-art-ink);
+}
+.seasonal-header-art > svg {
+  position: absolute;
+  top: -10px;
+  right: max(12px, calc((100vw - 1400px) / 2));
+  width: 190px;
+  height: 160px;
+  opacity: 0.48;
+  pointer-events: none;
+}
+.seasonal-nav-banner.container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-height: 100px;
+  margin-block: 14px 10px;
+  padding: 10px 28px 10px 18px;
+  border: 1px solid color-mix(in srgb, var(--seasonal-art-ink) 70%, transparent);
+  border-radius: 16px;
+  background: var(--seasonal-banner-background);
+  color: var(--seasonal-banner-ink);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 4px #ffffff07;
+  pointer-events: none;
+}
+.seasonal-nav-banner > svg {
+  flex: 0 0 82px;
+  width: 82px;
+  height: 82px;
+  color: var(--seasonal-art-ink);
+  pointer-events: none;
+}
+.seasonal-nav-banner > div {
+  flex: 1;
+  min-width: 0;
+}
+.seasonal-nav-banner small {
+  display: block;
+  margin-bottom: 4px;
+  color: inherit;
+  opacity: 0.84;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  line-height: 1.5;
+}
+.seasonal-nav-banner strong {
+  display: block;
+  color: inherit;
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+.seasonal-nav-banner p {
+  margin: 7px 0 0;
+  color: inherit;
+  opacity: 0.9;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.seasonal-banner-sparkle {
+  align-self: center;
+  font-size: 42px;
+  margin-left: auto;
+  color: var(--seasonal-art-ink);
+  opacity: 0.7;
 }
 
 /* Theme accents remain separate from the owner's saved brand colours. */
@@ -106,7 +371,7 @@ html[data-storefront-theme]:not([data-storefront-theme="classic"])
 }
 
 .seasonal-decor {
-  --seasonal-edge-width: 40px;
+  --seasonal-edge-width: clamp(18px, calc((100vw - 1400px) / 2), 72px);
   position: fixed;
   inset: 0;
   z-index: 9;
@@ -153,16 +418,16 @@ html[data-storefront-theme]:not([data-storefront-theme="classic"])
 }
 .seasonal-crescent {
   top: 3%;
-  opacity: 0.34;
+  opacity: 0.72;
 }
 .seasonal-edge--right .seasonal-crescent {
   top: 62%;
   transform: scaleX(-1);
-  opacity: 0.22;
+  opacity: 0.55;
 }
 .seasonal-lantern {
   top: 11%;
-  opacity: 0.42;
+  opacity: 0.74;
 }
 .seasonal-edge--right .seasonal-lantern {
   top: 1%;
@@ -170,7 +435,7 @@ html[data-storefront-theme]:not([data-storefront-theme="classic"])
 .seasonal-edge .seasonal-star {
   width: 36%;
   left: 32%;
-  opacity: 0.3;
+  opacity: 0.55;
 }
 .seasonal-star--0 {
   top: 43%;
@@ -192,7 +457,20 @@ html[data-storefront-theme]:not([data-storefront-theme="classic"])
 .seasonal-edge .seasonal-flake {
   width: 80%;
   left: 10%;
-  opacity: 0.38;
+  opacity: 0.64;
+}
+.seasonal-edge .seasonal-arabesque {
+  top: 43%;
+  opacity: 0.32;
+}
+.seasonal-edge .seasonal-evergreen {
+  top: 42%;
+  color: var(--seasonal-foliage);
+  opacity: 0.64;
+}
+.seasonal-edge--right .seasonal-evergreen {
+  top: 66%;
+  transform: scaleX(-1);
 }
 .seasonal-flake--0 {
   top: 7%;
@@ -228,12 +506,76 @@ html[data-storefront-theme]:not([data-storefront-theme="classic"])
     linear-gradient(#fff, #e2eff8);
 }
 .seasonal-decor--ramadan-ivory .seasonal-lantern {
-  opacity: 0.5;
+  opacity: 0.78;
 }
 .seasonal-decor--newyear-midnight .seasonal-flake {
-  opacity: 0.45;
+  opacity: 0.72;
 }
 @media (max-width: 760px) {
+  html[data-storefront-theme]:not([data-storefront-theme="classic"])
+    .main-header
+    .mobile-menu,
+  html[data-storefront-theme]:not([data-storefront-theme="classic"])
+    .main-header
+    .cart-button {
+    background: #fff;
+    color: var(--seasonal-control-ink);
+    border: 1px solid var(--seasonal-line);
+  }
+  html[data-storefront-theme]:not([data-storefront-theme="classic"])
+    .main-header
+    .cart-icon {
+    color: var(--seasonal-control-ink);
+  }
+  .seasonal-header-art > svg {
+    top: -2px;
+    right: 2px;
+    width: 118px;
+    height: 118px;
+    opacity: 0.48;
+  }
+  .seasonal-nav-banner.container {
+    min-height: 124px;
+    gap: 12px;
+    padding: 12px;
+    margin-block: 12px 8px;
+    border-radius: 12px;
+  }
+  .seasonal-nav-banner > svg {
+    flex-basis: 68px;
+    width: 68px;
+    height: 90px;
+  }
+  .seasonal-nav-banner small {
+    font-size: 8px;
+    letter-spacing: 0.09em;
+    margin-bottom: 5px;
+  }
+  .seasonal-nav-banner strong {
+    font-size: 24px;
+    line-height: 1.12;
+  }
+  .seasonal-nav-banner p {
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+  .seasonal-banner-sparkle {
+    display: none;
+  }
+  html[data-storefront-theme]:not([data-storefront-theme="classic"])
+    .navigation.mobile-open
+    .nav-inner {
+    padding-top: 4px;
+    padding-bottom: 14px;
+  }
+  html[data-storefront-theme]:not([data-storefront-theme="classic"])
+    .navigation.mobile-open
+    .nav-inner
+    > a {
+    padding-block: 14px;
+    font-size: 13px;
+  }
   .seasonal-decor {
     --seasonal-edge-width: 14px;
   }
@@ -241,15 +583,15 @@ html[data-storefront-theme]:not([data-storefront-theme="classic"])
     top: 96px;
   }
   .seasonal-crescent {
-    opacity: 0.4;
+    opacity: 0.68;
   }
   .seasonal-lantern {
-    opacity: 0.55;
+    opacity: 0.75;
   }
   .seasonal-edge .seasonal-flake {
     width: 100%;
     left: 0;
-    opacity: 0.5;
+    opacity: 0.7;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -260,7 +602,9 @@ html[data-storefront-theme]:not([data-storefront-theme="classic"])
   }
 }
 @media print {
-  .seasonal-decor {
+  .seasonal-decor,
+  .seasonal-header-art,
+  .seasonal-nav-banner {
     display: none;
   }
 }

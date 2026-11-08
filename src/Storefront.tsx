@@ -47,6 +47,7 @@ import { previewMode } from "./api";
 import { FamilyLanding } from "./FeatureControls";
 import { VideoSection } from "./VideoFeatures";
 import { NewProductsShowcase } from "./NewProductsShowcase";
+import { SeasonalNavigation } from "./SeasonalNavigation";
 import { DEFAULT_TAGLINE, youtubeChannelUrl } from "./media";
 import "./favorites-ui.css";
 import {
@@ -139,6 +140,7 @@ export function Header({
         </div>
       </div>
       <header className="main-header">
+        <SeasonalNavigation placement="header" />
         <div className="container header-inner">
           <button
             ref={menuToggle}
@@ -251,6 +253,7 @@ export function Header({
             selectSection(link.hash.slice(1));
           }}
         >
+          <SeasonalNavigation placement="menu" />
           <div className="container nav-inner">
             <div className="family-menu-wrap">
               <button

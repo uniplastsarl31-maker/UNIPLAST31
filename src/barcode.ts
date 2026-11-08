@@ -1,5 +1,6 @@
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
+export { cameraConstraints } from "./scannerCamera";
 
 export function barcodeReader() {
   const hints = new Map();
@@ -17,19 +18,6 @@ export function barcodeReader() {
     delayBetweenScanAttempts: 100,
     delayBetweenScanSuccess: 500,
   });
-}
-
-export function cameraConstraints(deviceId?: string): MediaStreamConstraints {
-  return {
-    audio: false,
-    video: {
-      ...(deviceId
-        ? { deviceId: { exact: deviceId } }
-        : { facingMode: { ideal: "environment" } }),
-      width: { ideal: 1920 },
-      height: { ideal: 1080 },
-    },
-  };
 }
 
 export async function barcodeFromPhoto(file: File): Promise<string> {

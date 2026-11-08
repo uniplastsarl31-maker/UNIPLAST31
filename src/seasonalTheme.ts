@@ -17,24 +17,25 @@ export const storefrontThemes = [
   {
     id: "ramadan-night",
     label: "Ramadan · Nuit dorée",
-    description: "Bleu profond, touches dorées et détails lumineux discrets.",
+    description:
+      "En-tête bleu nuit, menu doré, croissant et lanternes de Ramadan.",
   },
   {
     id: "ramadan-ivory",
     label: "Ramadan · Ivoire et or",
-    description: "Une ambiance claire et chaleureuse aux accents dorés.",
+    description: "En-tête ivoire, menu or ancien et grand décor de Ramadan.",
   },
   {
     id: "newyear-snow",
     label: "Nouvel An · Neige",
     description:
-      "Des tons clairs et une neige légère en haut et sur les côtés.",
+      "En-tête givré, menu vert sapin et décor de neige de fin d’année.",
   },
   {
     id: "newyear-midnight",
     label: "Nouvel An · Minuit",
     description:
-      "Une ambiance bleu nuit avec une neige discrète sur les bords.",
+      "En-tête bleu nuit, menu argenté et décor de fête aux flocons lumineux.",
   },
 ] as const satisfies readonly {
   id: StorefrontTheme;

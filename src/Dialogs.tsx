@@ -11,11 +11,15 @@ import {
   ScanLine,
   ShoppingBag,
 } from "lucide-react";
-import type { IScannerControls } from "@zxing/browser";
 import { Modal, Field, ProductPhoto, Quantity, Spinner } from "./ui";
 import { navigate, useStore } from "./store";
 import { money, priceOf, findBarcodeProduct } from "./domain";
 import * as api from "./api";
+import {
+  startScannerCamera,
+  scannerCameraMessage,
+  type ScannerCameraCapture,
+} from "./scannerCamera";
 
 export function LoginDialog({ onClose }: { onClose: () => void }) {
   const { checkAdmin, notify, refresh } = useStore();
@@ -234,30 +238,43 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
   const [torch, setTorch] = useState(false),
     [hasTorch, setHasTorch] = useState(false);
   const video = useRef<HTMLVideoElement>(null),
-    controls = useRef<IScannerControls | null>(null);
+    camera = useRef<ScannerCameraCapture | null>(null),
+    startingRef = useRef(false);
   const disposed = useRef(false),
     found = useRef(false),
     generation = useRef(0);
   const stop = () => {
     generation.current++;
-    controls.current?.stop();
-    controls.current = null;
-    const stream = video.current?.srcObject as MediaStream | null;
-    stream?.getTracks().forEach((t) => t.stop());
-    if (video.current) video.current.srcObject = null;
+    camera.current?.stop();
+    camera.current = null;
+    startingRef.current = false;
+    setStarting(false);
     setScanning(false);
     setTorch(false);
     setHasTorch(false);
   };
   useEffect(() => {
     disposed.current = false;
+    const hide = () => {
+      if (document.visibilityState === "hidden" && camera.current) {
+        stop();
+        setMessage(
+          "Caméra arrêtée en arrière-plan. Réactivez-la pour reprendre la lecture.",
+        );
+      }
+    };
+    const leave = () => {
+      stop();
+    };
+    document.addEventListener("visibilitychange", hide);
+    window.addEventListener("pagehide", leave);
     return () => {
       disposed.current = true;
       generation.current++;
-      controls.current?.stop();
-      (video.current?.srcObject as MediaStream | null)
-        ?.getTracks()
-        .forEach((t) => t.stop());
+      camera.current?.stop();
+      camera.current = null;
+      document.removeEventListener("visibilitychange", hide);
+      window.removeEventListener("pagehide", leave);
     };
   }, []);
   const match = (value: string) => {
@@ -274,80 +291,108 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
       );
   };
   const start = async (deviceId?: string) => {
-    if (starting) return;
+    if (startingRef.current) return;
     stop();
     setMessage("");
     found.current = false;
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
       setMessage(
-        "La caméra nécessite HTTPS et un navigateur compatible. Vous pouvez lire une photo du code ou saisir ses chiffres.",
+        "Ouvrez le site en HTTPS directement dans Chrome ou Safari pour autoriser la caméra. Vous pouvez aussi lire une photo du code ou saisir ses chiffres.",
       );
       return;
     }
     const attempt = generation.current;
+    const target = video.current;
+    if (!target) return;
+    startingRef.current = true;
     setStarting(true);
     try {
-      const { barcodeReader, cameraConstraints } = await import("./barcode");
-      if (disposed.current || attempt !== generation.current) return;
-      const reader = barcodeReader();
-      const c = await reader.decodeFromConstraints(
-        cameraConstraints(deviceId),
-        video.current!,
-        (result, _error, scan) => {
+      // Ask for the camera from the tap, before loading the bundled decoder.
+      const capture = startScannerCamera(target, {
+        deviceId,
+        getUserMedia: (constraints) =>
+          navigator.mediaDevices.getUserMedia(constraints),
+        onPreview: () => {
+          if (!disposed.current && attempt === generation.current)
+            setScanning(true);
+        },
+        decode: async (element, onCode) => {
+          const { barcodeReader } = await import("./barcode");
+          if (disposed.current || attempt !== generation.current)
+            throw new DOMException("Lecture annulée.", "AbortError");
+          return barcodeReader().decodeFromVideoElement(element, (result) => {
+            if (result) onCode(result.getText());
+          });
+        },
+        onCode: (value) => {
           if (
-            result &&
             !found.current &&
             !disposed.current &&
             attempt === generation.current
           ) {
             found.current = true;
-            scan.stop();
-            match(result.getText());
+            match(value);
           }
         },
-      );
-      if (disposed.current || found.current || attempt !== generation.current) {
-        c.stop();
-        return;
-      }
-      controls.current = c;
-      setScanning(true);
-      setHasTorch(!!c.switchTorch);
-      const stream = video.current?.srcObject as MediaStream | null;
-      const track = stream?.getVideoTracks()[0];
+      });
+      camera.current = capture;
+      const ready = await capture.ready;
+      if (!ready || disposed.current || attempt !== generation.current) return;
+      const track = capture.getStream()?.getVideoTracks()[0];
       if (track) {
-        const caps = track.getCapabilities?.() as MediaTrackCapabilities & {
-          focusMode?: string[];
-        };
-        if (caps?.focusMode?.includes("continuous"))
-          void track
-            .applyConstraints({
-              advanced: [
-                { focusMode: "continuous" } as MediaTrackConstraintSet,
-              ],
-            })
-            .catch(() => {});
+        // Optional hardware features must never stop a working camera.
+        try {
+          const caps = track.getCapabilities?.() as MediaTrackCapabilities & {
+            focusMode?: string[];
+            torch?: boolean;
+          };
+          setHasTorch(!!caps?.torch);
+          if (caps?.focusMode?.includes("continuous"))
+            void track
+              .applyConstraints({
+                advanced: [
+                  { focusMode: "continuous" } as MediaTrackConstraintSet,
+                ],
+              })
+              .catch(() => {});
+        } catch {
+          /* Capability inspection is optional on Safari. */
+        }
+        track.addEventListener(
+          "ended",
+          () => {
+            if (!disposed.current && camera.current === capture) {
+              stop();
+              setMessage(
+                "La caméra s’est arrêtée. Réactivez-la pour reprendre la lecture.",
+              );
+            }
+          },
+          { once: true },
+        );
       }
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      if (!disposed.current)
-        setCameras(devices.filter((d) => d.kind === "videoinput"));
+      if (navigator.mediaDevices.enumerateDevices)
+        void navigator.mediaDevices
+          .enumerateDevices()
+          .then((devices) => {
+            if (!disposed.current && camera.current === capture)
+              setCameras(devices.filter((d) => d.kind === "videoinput"));
+          })
+          .catch(() => {});
     } catch (error) {
       if (disposed.current || attempt !== generation.current) return;
       stop();
-      const name = (error as Error).name;
-      setMessage(
-        name === "NotAllowedError"
-          ? "Caméra refusée. Autorisez la caméra dans les réglages du site, ou utilisez une photo du code."
-          : name === "NotReadableError"
-            ? "La caméra est utilisée par une autre application. Fermez-la puis réessayez."
-            : "Impossible de démarrer cette caméra. Essayez une photo du code ou la saisie manuelle.",
-      );
+      setMessage(scannerCameraMessage(error));
     } finally {
-      if (!disposed.current) setStarting(false);
+      if (!disposed.current && attempt === generation.current) {
+        startingRef.current = false;
+        setStarting(false);
+      }
     }
   };
   const photo = async (file: File) => {
     stop();
+    startingRef.current = true;
     setStarting(true);
     setMessage("");
     const attempt = generation.current;
@@ -359,17 +404,32 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
       if (!disposed.current && attempt === generation.current)
         setMessage((e as Error).message);
     } finally {
-      if (!disposed.current) setStarting(false);
+      if (!disposed.current && attempt === generation.current) {
+        startingRef.current = false;
+        setStarting(false);
+      }
     }
   };
   return (
-    <Modal title="Scanner un code-barres" onClose={onClose}>
+    <Modal
+      title="Scanner un code-barres"
+      onClose={() => {
+        stop();
+        onClose();
+      }}
+    >
       <p className="dialog-copy">
         Cadrez le code entier avec la caméra arrière. Gardez une distance de 15
         à 25 cm, puis rapprochez doucement.
       </p>
       <div className={`scanner-window ${scanning ? "scanning" : ""}`}>
-        <video ref={video} muted playsInline autoPlay />
+        <video
+          ref={video}
+          muted
+          playsInline
+          autoPlay
+          aria-label="Aperçu de la caméra du lecteur de code-barres"
+        />
         {!scanning && (
           <div>
             <ScanLine size={45} strokeWidth={1} />
@@ -379,22 +439,30 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
         {scanning && <span className="scanner-target" />}
       </div>
       <button
-        className="btn btn-outline full-width"
-        disabled={starting}
-        onClick={() => (scanning ? stop() : void start())}
+        type="button"
+        className="btn btn-primary full-width"
+        onClick={() => (scanning || starting ? stop() : void start())}
       >
         {starting ? <Spinner /> : <Camera size={18} />}
         {starting
-          ? "Lecture en cours…"
+          ? "Annuler le démarrage"
           : scanning
             ? "Arrêter la caméra"
             : "Activer la caméra arrière"}
       </button>
+      {starting && (
+        <p className="muted-copy" role="status">
+          {scanning
+            ? "Caméra active. Préparation du lecteur…"
+            : "Autorisez la caméra dans la demande de Chrome ou Safari. Vous pouvez annuler à tout moment."}
+        </p>
+      )}
       {scanning && (
         <div className="scanner-tools">
           {cameras.length > 1 && (
             <select
               aria-label="Choisir une caméra"
+              disabled={starting}
               defaultValue=""
               onChange={(e) => {
                 if (e.target.value) void start(e.target.value);
@@ -414,8 +482,12 @@ export function ScannerDialog({ onClose }: { onClose: () => void }) {
             <button
               className="btn btn-outline"
               onClick={() => {
-                void controls.current
-                  ?.switchTorch?.(!torch)
+                const track = camera.current?.getStream()?.getVideoTracks()[0];
+                if (!track) return;
+                void track
+                  .applyConstraints({
+                    advanced: [{ torch: !torch } as MediaTrackConstraintSet],
+                  })
                   .then(() => setTorch(!torch))
                   .catch(() =>
                     setMessage(

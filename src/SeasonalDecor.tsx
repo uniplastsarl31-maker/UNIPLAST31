@@ -17,14 +17,26 @@ function RamadanEdge() {
         />
       </svg>
       <svg className="seasonal-lantern" viewBox="0 0 40 164" focusable="false">
-        <g fill="none" stroke="currentColor" strokeWidth="1.2">
+        <g fill="none" stroke="currentColor" strokeWidth="1.7">
           <path d="M20 0v88m-4 7a4 4 0 1 1 8 0M12 101l8-6 8 6m-17 4h18l4 11-4 32H11l-4-32Zm-4 11h26m-22 26h18m-16-26 2 26m10-26-2 26m-8 12h10m-5 0v7" />
           <path
             d="m20 113 4 12-4 10-4-10Z"
             fill="currentColor"
-            fillOpacity=".22"
+            fillOpacity=".4"
           />
         </g>
+      </svg>
+      <svg
+        className="seasonal-arabesque"
+        viewBox="0 0 40 180"
+        fill="none"
+        focusable="false"
+      >
+        <path
+          d="M20 0 37 25 20 50 3 25Zm0 50 17 25-17 25L3 75Zm0 50 17 25-17 25-17-25Zm0 50 17 25M20 150 3 175M20 9l10 16-10 16L10 25Zm0 50 10 16-10 16-10-16Zm0 50 10 16-10 16-10-16Z"
+          stroke="currentColor"
+          strokeWidth="1.3"
+        />
       </svg>
       {[0, 1, 2].map((star) => (
         <svg
@@ -46,6 +58,21 @@ function RamadanEdge() {
 function WinterEdge() {
   return (
     <>
+      <svg
+        className="seasonal-evergreen"
+        viewBox="0 0 44 160"
+        fill="none"
+        focusable="false"
+      >
+        <path
+          d="M22 156V6M22 25 9 15m13 10 13-10M22 44 5 30m17 14 17-14M22 65 3 49m19 16 19-16M22 88 1 70m21 18 21-18M22 111 1 93m21 18 21-18M22 134 1 116m21 18 21-18M11 36l-6 1m28-1 6 1M7 58l-6 2m36-2 6 2M6 82l-5 2m37-2 5 2M6 106l-5 2m37-2 5 2M6 129l-5 2m37-2 5 2"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+        <circle cx="15" cy="51" r="2" fill="currentColor" />
+        <circle cx="28" cy="97" r="2" fill="currentColor" />
+      </svg>
       {[0, 1, 2, 3].map((flake) => (
         <svg
           className={"seasonal-flake seasonal-flake--" + flake}
